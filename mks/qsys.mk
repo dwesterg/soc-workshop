@@ -21,7 +21,7 @@ qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
-	qsys-script --script=scripts/create_ghrd_qsys.tcl --cmd="set devkitname $1"
+	qsys-script --search-path=$(CURDIR)/ip,$$$$ --script=scripts/create_ghrd_qsys.tcl --cmd="set devkitname $1"
 	$$(stamp_target)
   
 HELP_TARGETS_$1 += qsys_compile-$1
