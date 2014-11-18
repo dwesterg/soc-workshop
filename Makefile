@@ -1,171 +1,193 @@
+################################################
+#
+# Makefile to Manage QuartusII/QSys Design
+#
+# Copyright Altera (c) 2014
+# All Rights Reserved
+#
+################################################
 
 SHELL := /bin/bash
 
-WORK_ROOT = $(CURDIR)/build
-DEST_ROOT = $(CURDIR)/output
+.SUFFIXES: # Delete the default suffixes
 
-################################################################################
-################################################################################
-################################################################################
-# Build variables for BR + Kernel
+include mks/default.mk
 
-ARCH = arm
-LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
-BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
+################################################
+# Configuration
+
+DL := downloads
+
+# Source 
+TCL_SOURCE = $(wildcard scripts/*.tcl)
+QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.sv)
+QUARTUS_MISC_SOURCE = $(wildcard src/*.stp) $(wildcard src/*.sdc)
+PROJECT_ASSIGN_SCRIPTS = $(filter scripts/create_ghrd_quartus_%.tcl,$(TCL_SOURCE))
+
+UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch
+DTS_COMMON = board_info/hps_common_board_info.xml
+DTS_BOARD_INFOS = $(wildcard board_info/board_info_*.xml)
+
+
+# Board revisions
+REVISION_LIST = $(patsubst create_ghrd_quartus_%,%,$(basename $(notdir $(PROJECT_ASSIGN_SCRIPTS))))
+
+QUARTUS_DEFAULT_REVISION_FILE = \
+        $(if \
+        $(filter create_ghrd_quartus_$(PROJECT_NAME).tcl,$(notdir $(PROJECT_ASSIGN_SCRIPTS))), \
+        create_ghrd_quartus_$(PROJECT_NAME).tcl, \
+        $(firstword $(PROJECT_ASSIGN_SCRIPTS)))
+
+QUARTUS_DEFAULT_REVISION = $(patsubst create_ghrd_quartus_%, \
+        %, \
+        $(basename $(notdir $(QUARTUS_DEFAULT_REVISION_FILE))))
+
+SCRIPT_DIR = utils
+
+# Project specific settings
+PROJECT_NAME = soc_workshop_system
+QSYS_BASE_NAME = soc_system
+TOP_LEVEL_ENTITY = ghrd_top
+
+QSYS_HPS_INST_NAME = hps_0
+PRELOADER_DISABLE_WATCHDOG = 1
+PRELOADER_FAT_SUPPORT = 1
+
+#SW Config
+ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
-#LINUX_MAKE_TARGET := vmImage
-LINUX_MAKE_TARGET := zImage
-
-# Timestamp for build version and config files
-KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
-
-# Configuration files buildroot, busybox & linux kernel
-LINUX_DEFCONFIG := $(wildcard linux.defconfig)
-BUILDROOT_DEFCONFIG := $(wildcard buildroot.defconfig)
-BUSYBOX_CONFIG_FILE := $(wildcard $(CURDIR)/buildroot_busybox.config)
-#DEVICETREE_SRC := $(firstword $(wildcard $(CURDIR)/quartus/*.dts))
-DEVICETREE_SRC := $(CURDIR)/quartus/soc_system.dts
-
-ifeq ("$(LINUX_DEFCONFIG)","")
-	ifeq ("$(ARCH)","arm")
-		LINUX_DEFCONFIG_TARGET = socfpga_defconfig
-	else
-		LINUX_DEFCONFIG_TARGET = 3c120_defconfig
-	endif
-endif
-
-TOOLCHAIN_EXTERNAL_PATH := $(WORK_ROOT)/toolchain
-
-# set ARCH, toolchain path, busybox config file, download directory, and overlay directory for BUILDROOT
-BUILDROOT_VARIABLES := ARCH=$(ARCH) 
-BUILDROOT_VARIABLES += BR2_TOOLCHAIN_EXTERNAL_PATH=$(TOOLCHAIN_EXTERNAL_PATH) 
-BUILDROOT_VARIABLES += BR2_DL_DIR=$(CURDIR)/downloads 
-BUILDROOT_VARIABLES += BR2_ROOTFS_OVERLAY=$(WORK_ROOT)/overlay
-ifneq ("$(BUSYBOX_CONFIG_FILE)","")
-	BUILDROOT_VARIABLES += BUSYBOX_CONFIG_FILE=$(BUSYBOX_CONFIG_FILE) 
-endif
-
-# set build version, toolchain, arch and devicetree source for kernel
-LINUX_VARIABLES = ARCH=$(ARCH)
-LINUX_VARIABLES += KBUILD_BUILD_VERSION="$(KBUILD_BUILD_VERSION)" 
-LINUX_VARIABLES += CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE)
-ifneq ("$(DEVICETREE_SRC)","")
-	LINUX_VARIABLES += CONFIG_DTB_SOURCE=$(DEVICETREE_SRC)
-endif
-
-SRC_VARIABLES = ARCH=$(ARCH) CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE)
-
-DL=downloads
-
-# links for BR, Kernel, and toolchain files
-# NB: IF Buildroot is updated, the busybox-menuconfig stuff needs to be changed with an updated path.
-BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz"
-LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
+TOOLCHAIN_DIR := $(CURDIR)/toolchain
 TOOLCHAIN_SOURCE := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
-################################################################################
-################################################################################
-################################################################################
-# Tools
+# Kernel Config
+#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
+LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
+LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
+LINUX_DEFCONFIG := $(wildcard linux.defconfig)
+LINUX_MAKE_TARGET := zImage
+KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
+LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
 
-CAT := cat
-CD := cd
-CHMOD := chmod
-CP := cp -rf
-ECHO := echo
-DATE := date
-HEAD := head
-MKDIR := mkdir -p
-MV := mv
-RM := rm -rf
-SED := sed
-TAR := tar
-TOUCH := touch
-FIND := find
-PATCH := patch
-LN := ln
+# Buildroot Config
+BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
+BUILDROOT_DEFCONFIG := $(wildcard buildroot.defconfig)
+BUSYBOX_CONFIG_FILE := $(wildcard $(CURDIR)/buildroot_busybox.config)
+# NB: IF Buildroot is updated, the busybox-menuconfig stuff needs to be changed with an updated path.
+BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz"
 
-# Helpful Macros
-SPACE := $(empty) $(empty)
+# AR_FILTER_OUT := downloads
 
-################################################################################
+# initial save file list
+AR_REGEX += ip readme.txt mks                                                                      
+AR_REGEX += scripts                                                                        
+AR_REGEX += $(SCRIPT_DIR) 
+AR_REGEX += patches
+AR_REGEX += board_info
+AR_REGEX += hdl_src
+AR_REGEX += sw_src
+AR_REGEX += utils
+AR_REGEX += overlay_template
+AR_REGEX += downloads
+AR_REGEX += *.defconfig
+AR_REGEX += *.config
 
-################################################################################
-# Target Stamping
-
-define get_stamp_dir
-stamp
-endef
-
-define get_stamp_target
-$(get_stamp_dir)$(if $1,/$1.stamp,$(error ERROR: Arg 1 missing to $0 function))
-endef
-
-define stamp_target
-@$(MKDIR) $(@D)
-@$(TOUCH) $@
-endef
-
-################################################################################
-
-AR_REGEX += \
-	Readme.txt \
-	utils \
-	Makefile \
-	build.sh \
-	env.sh \
-	overlay_template \
-	src \
-	downloads \
-	output \
-	quartus \
-	*.defconfig \
-	*.config
-
-AR_FILTER_OUT = 
-AR_FILES = $(filter-out $(AR_FILTER_OUT),$(wildcard $(AR_REGEX)))	
-CLEAN_FILES += $(filter-out $(AR_FILES),$(wildcard *))	
-
-################################################################################
-
+################################################
 .PHONY: default
 default: help
+################################################
 
-HELP_TARGETS += all
-all.HELP := Build everything
+################################################
 .PHONY: all
-all: output
+all: sd-fat
 
-HELP_TARGETS += clean
-clean.HELP := Clean build output and extra files
+################################################
+# DEPS
+                                                                          
+define create_deps
+CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target,create_project_$1)
 
-.PHONY: clean
-clean:
-	$(RM) output/*
-	$(MAKE) -C quartus clean
-	$(if $(strip $(CLEAN_FILES)),$(RM) $(CLEAN_FILES), \
-		@$(ECHO) "You're already as clean as it gets!") 
+QUARTUS_STAMP_$1 := $(call get_stamp_target,quartus_$1)
 
-HELP_TARGETS += super_clean
-super_clean.HELP := Clean everything + delete downloads
+PRELOADER_GEN_STAMP_$1 := $(call get_stamp_target,preloader_gen-$1)
+PRELOADER_FIXUP_STAMP_$1 := $(call get_stamp_target,preloader_fixup-$1)
+PRELOADER_STAMP_$1 := $(call get_stamp_target,preloader-$1)
 
-.PHONY: super_clean
-super_clean: clean
-	$(RM) $(DL)/*
-	$(MAKE) -C quartus super_clean
+UBOOT_STAMP_$1 := $(call get_stamp_target,uboot-$1)
 
-################################################################################
-# Download everything
+DTS_STAMP_$1 := $(call get_stamp_target,dts-$1)
+DTB_STAMP_$1 := $(call get_stamp_target,dtb-$1)
 
-HELP_TARGETS += downloads
-downloads.HELP := Download toolchain, kernel, and buildroot + required buildroot packages
+QSYS_STAMP_$1 := $(call get_stamp_target,qsys_compile-$1)
+QSYS_GEN_STAMP_$1 := $(call get_stamp_target,qsys_gen-$1)
 
-.PHONY: downloads
-downloads: toolchain.get buildroot.get linux.get br_downloads
+QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,quartus_pin_assignments-$1)
 
-################################################################################
-# download and install toolchain
+QUARTUS_DEPS_$1 := $$(QUARTUS_PROJECT_STAMP_$1) $(QUARTUS_HDL_SOURCE) $(QUARTUS_MISC_SOURCE)
+QUARTUS_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
+QUARTUS_DEPS_$1 += $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1) $$(QSYS_STAMP_$1)
+
+PRELOADER_GEN_DEPS_$1 += $$(QUARTUS_STAMP_$1)
+PRELOADER_FIXUP_DEPS_$1 += $$(PRELOADER_GEN_STAMP_$1)
+PRELOADER_DEPS_$1 += $$(PRELOADER_FIXUP_STAMP_$1)
+
+# QSYS_DEPS_$1 := $$(QSYS_GEN_STAMP_$1)
+QSYS_DEPS_$1 := $1/$(QSYS_BASE_NAME).qsys
+QSYS_GEN_DEPS_$1 := scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
+
+#only support one custom board xml
+DTS_BOARDINFO_$1 := $(firstword $(filter-out $1, $(DTS_BOARD_INFOS)))
+
+DTS_DEPS_$1 := $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
+DTB_DEPS_$1 := $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
+
+QUARTUS_QPF_$1 := $1/$1.qpf
+QUARTUS_QSF_$1 := $1/$1.qsf
+QUARTUS_SOF_$1 := $1/output_files/$1.sof
+QUARTUS_RBF_$1 := $1/output_files/$1.rbf
+
+QSYS_FILE_$1 := $1/$(QSYS_BASE_NAME).qsys
+QSYS_SOPCINFO_$1 := $1/$(QSYS_BASE_NAME).sopcinfo
+
+DEVICE_TREE_SOURCE_$1 := $1/$(QSYS_BASE_NAME).dts
+DEVICE_TREE_BLOB_$1 := $1/$(QSYS_BASE_NAME).dtb
+
+#QSYS_SOPCINFO_$1 := $(patsubst $1/%.qsys,$1/%.sopcinfo,$$(QSYS_FILE_$1))
+#DEVICE_TREE_SOURCE_$1 := $(patsubst $1/%.sopcinfo,$1/%.dts,$$(QSYS_SOPCINFO_$1))
+#DEVICE_TREE_BLOB_$1 := $(patsubst $1/%.sopcinfo,$1/%.dtb,$$(QSYS_SOPCINFO_$1))
+
+AR_FILES += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)	
+AR_FILES += $$(QSYS_SOPCINFO_$1) $$(QSYS_FILE_$1)
+
+AR_REGEX += $1/$(QSYS_BASE_NAME)/*.svd
+
+AR_FILES += $$(DEVICE_TREE_SOURCE_$1)
+AR_FILES += $$(DEVICE_TREE_BLOB_$1)
+
+AR_FILES += $1/preloader/uboot-socfpga/u-boot.img
+AR_FILES += $1/preloader/preloader-mkpimage.bin
+
+SD_FAT_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
+SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
+SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
+SD_FAT_$1 += $1/boot.script $1/u=boot.scr
+
+.PHONY:$1.all
+$1.all: $$(SD_FAT_$1)
+HELP_TARGETS += $1.all
+$1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for $1 board
+
+endef
+$(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
+
+
+include mks/qsys.mk mks/quartus.mk mks/preloader_uboot.mk mks/devicetree.mk 
+include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
+
+################################################
+
+################################################
+# Toolchain
 
 .PHONY: toolchain.get
 toolchain.get: $(DL)/$(TOOLCHAIN_SOURCE)
@@ -176,242 +198,176 @@ $(DL)/$(TOOLCHAIN_SOURCE):
 .PHONY: toolchain.extract
 toolchain.extract: $(call get_stamp_target,toolchain.extract)
 $(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE)
-	$(RM) $(TOOLCHAIN_EXTERNAL_PATH)
-	$(MKDIR) $(TOOLCHAIN_EXTERNAL_PATH)
-	$(TAR) -xvf $(DL)/$(TOOLCHAIN_SOURCE) --strip-components 1 -C $(TOOLCHAIN_EXTERNAL_PATH)
+	$(RM) $(TOOLCHAIN_DIR)
+	$(MKDIR) $(TOOLCHAIN_DIR)
+	$(TAR) -xvf $(DL)/$(TOOLCHAIN_SOURCE) --strip-components 1 -C $(TOOLCHAIN_DIR)
 	$(stamp_target)
+
+################################################
+
+################################################
+# All projects stuff
+define create_project
+
+.PHONY: create_project-$1
+create_project-$1: $$(QSYS_GEN_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
+
+HELP_TARGETS_$1 += create_project-$1
+create_project-$1.HELP := Create all files for $1 project
+
+endef
+$(foreach r,$(REVISION_LIST),$(eval $(call create_project,$r)))
+
+.PHONY: create_all_projects
+create_all_projects: $(foreach r,$(REVISION_LIST),create_project-$r)
+HELP_TARGETS += create_all_projects
+create_all_projects.HELP := Create all projects and qsys files
+
+#.PHONY: compile_all_projects
+#compile_all_projects: $(foreach r,$(REVISION_LIST),quartus_compile-$r)  
+#HELP_TARGETS += compile_all_projects
+#compile_all_projects.HELP := Compile all quartus projects
+
+################################################
+
+################################################
+
+SD_FAT_TGZ := sd_fat.tar.gz
+
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/output_files/$r.sof)  #sof
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/output_files/$r.rbf)  #rbf
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/boot.script)  #boot script source
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/u-boot.scr)  #boot script
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/preloader-mkpimage.bin) # preloader
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/u-boot.img) # uboot
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/$(QSYS_BASE_NAME).dts) #dts
+# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/$(QSYS_BASE_NAME).dtb) #dtb
+SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(SD_FAT_$r))
+SD_FAT_TGZ_DEPS += zImage
+
+$(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
+	@$(RM) $@
+	@$(MKDIR) $(@D)
+	$(TAR) -czf $@ $^
+
+QUARTUS_OUT_TGZ := quartus_out.tar.gz 
+QUARTUS_OUT_TGZ_DEPS += $(ALL_QUARTUS_RBF) $(ALL_QUARTUS_SOF)
+
+$(QUARTUS_OUT_TGZ): $(QUARTUS_OUT_TGZ_DEPS)
+	@$(RM) $@
+	@$(MKDIR) $(@D)
+	$(TAR) -czf $@ $^	
 	
-################################################################################
-# Patches
-# doesnt do anything
-#
-.PHONY: buildroot.patches
-buildroot.patches: $(call get_stamp_target,buildroot.patches)
-$(call get_stamp_target,buildroot.patches): $(call get_stamp_target,buildroot.extract) $(EBII_BUILDROOT_PATCHES)
-#	ifneq ("$EBII_BUILDROOT_PATCHES","")
-#		$(PATCH) -d buildroot -p1 < $(EBII_BUILDROOT_PATCHES)
-#	endif
-	$(stamp_target)
-
-.PHONY: linux.patches
-linux.patches: $(call get_stamp_target,linux.patches)
-$(call get_stamp_target,linux.patches): $(call get_stamp_target,linux.extract) $(EBII_LINUX_PATCHES)
-#	ifneq ("$EBII_LINUX_PATCHES","")
-#		$(PATCH) -d linux-socfpga -p1 < $(EBII_LINUX_PATCHES)
-#	endif
-	$(stamp_target)
-
-################################################################################
-# overlay
-# build overlay directory with custom applications and configuration files
-
-# copy template to build directory	
-.PHONY: overlay.extract
-overlay.extract: $(call get_stamp_target,overlay.extract)
-$(call get_stamp_target,overlay.extract):
-	$(RM) $(WORK_ROOT)/overlay
-	$(MKDIR) -p $(WORK_ROOT)
-	$(CP) -a overlay_template $(WORK_ROOT)/overlay
-	$(stamp_target)
-
-HELP_TARGETS += overlay.make_all
-overlay.make_all.HELP := Install custom apps to overlay directory
-.PHONY: overlay.make_all
-overlay.make_all: overlay.extract toolchain.extract
-	$(MAKE) -C src CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE) WORK_ROOT=$(WORK_ROOT) INSTALL_DIR=$(WORK_ROOT)/overlay all
-
-HELP_TARGETS += overlay.make_install
-overlay.make_install.HELP := Install custom apps to overlay directory
-.PHONY: overlay.make_install 
-overlay.make_install: overlay.make_all linux.modules_install
-	$(MAKE) -C src CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE) WORK_ROOT=$(WORK_ROOT) INSTALL_DIR=$(WORK_ROOT)/overlay install
-
-################################################################################
-# buildroot
-BR_DEPS = buildroot.dodefconfig overlay.make_install toolchain.extract
-
-#Download buildroot source
-.PHONY:	buildroot.get
-buildroot.get: $(DL)/buildroot.tgz
-$(DL)/buildroot.tgz: 
-	$(MKDIR) -p $(DL)
-	wget -O $(DL)/buildroot.tgz $(BR_SOURCE_PACKAGE)
-	$(stamp_target)
-
-#extract buildroot source
-.PHONY: buildroot.extract
-buildroot.extract: $(call get_stamp_target,buildroot.extract)
-$(call get_stamp_target,buildroot.extract): $(DL)/buildroot.tgz $(EBII_BUILDROOT_PATCHES)
-	$(RM) $(WORK_ROOT)/buildroot
-	$(MKDIR) $(WORK_ROOT)/buildroot
-	$(TAR) -xvzf $(DL)/buildroot.tgz --strip-components 1 -C $(WORK_ROOT)/buildroot
-	$(stamp_target)
-
-# apply ebii custom buildroot configuration
-.PHONY: buildroot.dodefconfig
-buildroot.dodefconfig: $(WORK_ROOT)/buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET)
-$(WORK_ROOT)/buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET): buildroot.extract $(BUILDROOT_DEFCONFIG)
-	$(CP) $(BUILDROOT_DEFCONFIG) $(WORK_ROOT)/buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET)
-
-# build buildroot
-HELP_TARGETS += buildroot.build
-buildroot.build.HELP := Build buildroot
-.PHONY: buildroot.build
-buildroot.build: $(call get_stamp_target,buildroot.build)
-$(call get_stamp_target,buildroot.build): $(BR_DEPS)
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) all
-	$(stamp_target)
-
-# dowload all buildroot sources required for the build
-HELP_TARGETS += br_downloads
-br_downloads.HELP := Download buildroot sources required for build
-.PHONY: br_downloads
-br_downloads: buildroot.dodefconfig
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) source
-
-#channge buildroot config and update stored config file
-HELP_TARGETS += buildroot.menuconfig
-buildroot.menuconfig.HELP := Menuconfig for buildroot.  Also saves output to SRC directory
-.PHONY: buildroot.menuconfig
-buildroot.menuconfig: buildroot.dodefconfig
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) menuconfig
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) savedefconfig
-	$(CP) $(BUILDROOT_DEFCONFIG) $(BUILDROOT_DEFCONFIG).$(KBUILD_BUILD_VERSION).old
-	$(CP) $(WORK_ROOT)/buildroot/defconfig $(BUILDROOT_DEFCONFIG)
-
-# change busybox config and save it.  Note the busybox path with change when
-# buidroot is updated
-HELP_TARGETS += busybox.menuconfig
-busybox.menuconfig.HELP := Menuconfig for busybox.  Also saves output to SRC directory
-busybox.menuconfig: buildroot.dodefconfig
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/buildroot $(BUILDROOT_VARIABLES) busybox-menuconfig
-	$(CP) $(BUSYBOX_CONFIG_FILE) $(BUSYBOX_CONFIG_FILE).$(KBUILD_BUILD_VERSION).old
-	$(CP) $(WORK_ROOT)/buildroot/output/build/busybox-1.22.1/.config $(BUSYBOX_CONFIG_FILE)
+HELP_TARGETS += sd-fat
+sd-fat.HELP := Generate tar file with contents for sdcard fat partition	
 	
+.PHONY: sd-fat
+sd-fat: $(SD_FAT_TGZ)
 
-################################################################################
-# linux
-LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build $(DEVICETREE_SRC)
+AR_FILES += $(wildcard $(SD_FAT_TGZ))
 
-# download linux source from rocketboards
-.PHONY:	linux.get
-linux.get: $(DL)/linux-socfpga.tgz
-$(DL)/linux-socfpga.tgz: 
-	$(MKDIR) -p $(DL)
-	wget -O $(DL)/linux-socfpga.tgz $(LNX_SOURCE_PACKAGE)
-	$(stamp_target)
-
-# extract linux source
-.PHONY: linux.extract
-linux.extract: $(call get_stamp_target,linux.extract)
-$(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATCHES)
-	$(RM) $(WORK_ROOT)/linux-socfpga
-	$(MKDIR) $(WORK_ROOT)/linux-socfpga
-	$(TAR) -xvzf $(DL)/linux-socfpga.tgz --strip-components 1 -C $(WORK_ROOT)/linux-socfpga
-	$(stamp_target)
-
-# apply ebii defconfig
-.PHONY: linux.dodefconfig
-linux.dodefconfig: $(WORK_ROOT)/linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
-$(WORK_ROOT)/linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract $(LINUX_DEFCONFIG)
-ifneq ("$(LINUX_DEFCONFIG)","")
-	$(CP) $(LINUX_DEFCONFIG) $(WORK_ROOT)/linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
-endif
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
-
-HELP_TARGETS += linux.modules
-linux.modules.HELP := Build linux kernel modules
-linux.modules: linux.patches linux.dodefconfig toolchain.extract
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(WORK_ROOT)/overlay modules
-
-
-HELP_TARGETS += linux.modules_install
-linux.modules_install.HELP := Build linux kernel modules
-linux.modules_install: linux.modules
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(WORK_ROOT)/overlay modules_install
-
-# build
-HELP_TARGETS += linux.build
-linux.build.HELP := Build linux kernel
-.PHONY: linux.build
-linux.build: $(call get_stamp_target,linux.build) 
-$(call get_stamp_target,linux.build): $(LNX_DEPS)
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET)
-	$(stamp_target)
-
-# update linux configuration and same defconfig
-HELP_TARGETS += linux.menuconfig
-linux.menuconfig.HELP := Menuconfig for linux.  Also saves output to SRC directory
-linux.menuconfig: $(WORK_ROOT)/linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) menuconfig
-	$(MAKE) -C $(WORK_ROOT)/linux-socfpga $(LINUX_VARIABLES) savedefconfig
-	$(CP) $(LINUX_DEFCONFIG) $(LINUX_DEFCONFIG).$(KBUILD_BUILD_VERSION).old
-	$(CP)  $(WORK_ROOT)/linux-socfpga/defconfig $(LINUX_DEFCONFIG)
-	
-
-################################################################################
-# force rebuild
-
-HELP_TARGETS += update_rootfs
-update_rootfs.HELP := Force rebuild of linux, jtag, cgi, buildroot
-.PHONY: update_rootfs
-update_rootfs:
-	$(RM) $(call get_stamp_target,buildroot.build)
-	$(RM) $(call get_stamp_target,linux.build)
-	$(MAKE) linux.build
-
-
-################################################################################
-# Generate output files
-
-# vmlinux -> elf of kernel + rootfs just used for debug download
-$(WORK_ROOT)/linux-socfpga/vmlinux: $(call get_stamp_target,linux.build)
-	$(stamp_target)
-
-# vmlinux.img -> uboot image of kernel + rootfs
-$(WORK_ROOT)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,linux.build)
-	$(stamp_target)
-
-# copy vmlinux.img -> uboot image of kernel + rootfs
-$(DEST_ROOT)/$(LINUX_MAKE_TARGET): $(WORK_ROOT)/linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET)
-	$(MKDIR) -p $(DEST_ROOT)
-	$(CP) $< $@
-	
-# copy vmlinux -> elf of kernel + rootfs just used for debug download
-$(DEST_ROOT)/vmlinux: $(WORK_ROOT)/linux-socfpga/vmlinux
-	$(MKDIR) -p $(DEST_ROOT)
-	$(CP) $< $@
-
-# target for all output files	
-HELP_TARGETS += output
-output.HELP := Make output files
-.PHONY: output
-output: $(DEST_ROOT)/vmlinux $(DEST_ROOT)/$(LINUX_MAKE_TARGET)
-
-################################################
-################################################
-# Quartus Project, keep it simple and build everything
-
-$(DEVICETREE_SRC):
-	$(MAKE) -C quartus all
-
-################################################
-################################################
+SCRUB_CLEAN_FILES += $(SD_FAT_TGZ)
 
 ################################################
 
-HELP_TARGETS += help
-help.HELP := Displays this info (i.e. the available targets)
+
+################################################
+# Clean-up and Archive
+
+AR_TIMESTAMP := $(if $(SOCEDS_VERSION),$(subst .,_,$(SOCEDS_VERSION))_)$(subst $(SPACE),,$(shell $(DATE) +%m%d%Y_%k%M%S))
+
+AR_DIR := tgz
+AR_FILE := $(AR_DIR)/soc_workshop_$(AR_TIMESTAMP).tar.gz
+
+AR_FILES += $(filter-out $(AR_FILTER_OUT),$(wildcard $(AR_REGEX)))
+
+CLEAN_FILES += $(filter-out $(AR_DIR) $(AR_FILES),$(wildcard *))
+
+HELP_TARGETS += tgz
+tgz.HELP := Create a tarball with the barebones source files that comprise this design
+
+.PHONY: tarball tgz
+tarball tgz: $(AR_FILE)
+
+$(AR_FILE):
+	@$(MKDIR) $(@D)
+	@$(if $(wildcard $(@D)/*.tar.gz),$(MKDIR) $(@D)/.archive;$(MV) $(@D)/*.tar.gz $(@D)/.archive)
+	@$(ECHO) "Generating $@..."
+	@$(TAR) -czf $@ $(wildcard $(AR_FILES))
+
+SCRUB_CLEAN_FILES += $(CLEAN_FILES)
+
+HELP_TARGETS += scrub_clean
+scrub_clean.HELP := Restore design to its barebones state
+
+.PHONY: scrub scrub_clean
+scrub scrub_clean:
+	$(if $(strip $(wildcard $(SCRUB_CLEAN_FILES))),$(RM) $(wildcard $(SCRUB_CLEAN_FILES)),@$(ECHO) "You're already as clean as it gets!")
+
+.PHONY: tgz_scrub_clean
+tgz_scrub_clean:
+	$(FIND) $(SOFTWARE_DIR) \( -name '*.o' -o -name '.depend*' -o -name '*.d' -o -name '*.dep' \) -delete || true
+	$(MAKE) tgz AR_FILE=$(AR_FILE)
+	$(MAKE) -s scrub_clean
+	$(TAR) -xzf $(AR_FILE)
+
+################################################
+
+
+################################################
+# Download everything
+
+HELP_TARGETS += downloads
+downloads.HELP := Download toolchain, kernel, and buildroot + required buildroot packages
+
+.PHONY: downloads
+downloads: toolchain.get buildroot.get linux.get buildroot.downloads
+
+HELP_TARGETS += downloads_clean	
+downloads_clean.HELP := Clean downloads directory
+
+.PHONY: downloads_clean
+downloads_clean: 
+	$(RM) $(DL)/*
+
+################################################
+
+
+################################################
+# Help system
 
 .PHONY: help
 help: help-init help-targets help-fini
 
+.PHONY: help-revisions
+help-revisions: help-revisions-init help-revisions-list help-revisions-fini help-revision-target
+
+.PHONY: help-revs
+help-revs: help-revisions-init help-revisions-list help-revisions-fini help-revision-target-short
+
+
 HELP_TARGETS_X := $(patsubst %,help-%,$(sort $(HELP_TARGETS)))
+
+HELP_TARGET_REVISION_X := $(foreach r,$(REVISION_LIST),$(patsubst %,help_rev-%,$(sort $(HELP_TARGETS_$r))))
+
+HELP_TARGET_REVISION_SHORT_X := $(sort $(patsubst %-$(firstword $(REVISION_LIST)),help_rev-%-REVISIONNAME,$(filter-out $(firstword $(REVISION_LIST)),$(HELP_TARGETS_$(firstword $(REVISION_LIST))))))
+
+$(foreach h,$(filter-out $(firstword $(REVISION_LIST)),$(HELP_TARGETS_$(firstword $(REVISION_LIST)))),$(eval $(patsubst %-$(firstword $(REVISION_LIST)),%-REVISIONNAME,$h).HELP := $(subst $(firstword $(REVISION_LIST)),REVISIONNAME,$($h.HELP)))) 
+
+HELP_REVISION_LIST := $(patsubst %,rev_list-%,$(sort $(REVISION_LIST)))
+
+#cheat, put help at the end
+HELP_TARGETS_X += help-help-revisions
+help-revisions.HELP := Displays Revision specific Target Help
+
+HELP_TARGETS_X += help-help-revs
+help-revs.HELP := Displays Short Revision specific Target Help
+
+
+HELP_TARGETS_X += help-help
+help.HELP := Displays this info (i.e. the available targets)
+
+
 .PHONY: $(HELP_TARGETS_X)
 help-targets: $(HELP_TARGETS_X)
 $(HELP_TARGETS_X): help-%:
@@ -431,7 +387,39 @@ help-init:
 	@$(ECHO) "*****************************************"
 	@$(ECHO) ""
 
+.PHONY: help-revisions-init
+help-revisions-init:
+	@$(ECHO) ""
+	@$(ECHO) "*****************************************"
+	@$(ECHO) "*                                       *"
+	@$(ECHO) "* Revision specific Targets             *"
+	@$(ECHO) "*    target-REVISIONNAME                *"
+	@$(ECHO) "*                                       *"
+	@$(ECHO) "*    Available Revisions:               *"
+	
+
+.PHONY: $(HELP_REVISION_LIST)
+help-revisions-list: $(HELP_REVISION_LIST)
+$(HELP_REVISION_LIST): rev_list-%: 
+	@$(ECHO) "*    -> $*"
+
+.PHONY: help-revisions-fini
+help-revisions-fini:
+	@$(ECHO) "*                                       *"
+	@$(ECHO) "*****************************************"
+	@$(ECHO) ""
+
+.PHONY: $(HELP_TARGET_REVISION_X)
+.PHONY: $(HELP_TARGET_REVISION_SHORT_X)
+help-revision-target: $(HELP_TARGET_REVISION_X)
+help-revision-target-short: $(HELP_TARGET_REVISION_SHORT_X)
+$(HELP_TARGET_REVISION_X) $(HELP_TARGET_REVISION_SHORT_X): help_rev-%:
+	@$(ECHO) "*********************"
+	@$(ECHO) "* Target: $*"
+	@$(ECHO) "*   $($*.HELP)"
+	
 .PHONY: help-fini
 help-fini:
 	@$(ECHO) "*********************"
 
+################################################
