@@ -170,7 +170,7 @@ AR_FILES += $1/preloader/preloader-mkpimage.bin
 SD_FAT_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
 SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
 SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
-SD_FAT_$1 += $1/boot.script $1/u=boot.scr
+SD_FAT_$1 += $1/boot.script $1/u-boot.scr
 
 .PHONY:$1.all
 $1.all: $$(SD_FAT_$1)

@@ -34,7 +34,7 @@ qsys_compile-$1: $$(QSYS_STAMP_$1)
 $$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1)
 
 $$(QSYS_STAMP_$1): $$(QSYS_FILE_$1)
-	$(SET_QSYS_GENERATE_ENV) qsys-generate $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
+	$(SET_QSYS_GENERATE_ENV) qsys-generate --search-path=$(CURDIR)/ip,$$$$ $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
 	$$(stamp_target)
 
 HELP_TARGETS_$1 += qsys_edit-$1
