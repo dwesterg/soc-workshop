@@ -25,13 +25,14 @@ define create_quartus_targets
 
 $$(QUARTUS_QPF_$1): $$(CREATE_PROJECT_STAMP_$1)
 
-$$(CREATE_PROJECT_STAMP_$1): scripts/create_ghrd_quartus_$1.tcl
+$$(CREATE_PROJECT_STAMP_$1): $$(CREATE_PROJECT_DEPS_$1) 
 	@$(RM) $1
 	@$(MKDIR) $1
 	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_project.tcl $1 -d $1 -c $1
 	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_revision.tcl $1/$1.qpf -new $1
 	quartus_sh --no_banner -t $$(SCRIPT_DIR)/project_run_script.tcl $1/$1.qpf -c $1 -script $(CURDIR)/$$< 
 	$(call set_default_project_settings,$1)
+	$(MAKE) $1/addon_components.ipx
 	$$(stamp_target)
 
 $1/addon_components.ipx:
