@@ -126,14 +126,16 @@ QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,quartus_pin_assignment
 QUARTUS_DEPS_$1 := $$(QUARTUS_PROJECT_STAMP_$1) $(QUARTUS_HDL_SOURCE) $(QUARTUS_MISC_SOURCE)
 QUARTUS_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
 QUARTUS_DEPS_$1 += $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1) $$(QSYS_STAMP_$1)
+QUARTUS_DEPS_$1 += $1/addon_components.ipx
 
 PRELOADER_GEN_DEPS_$1 += $$(QUARTUS_STAMP_$1)
 PRELOADER_FIXUP_DEPS_$1 += $$(PRELOADER_GEN_STAMP_$1)
 PRELOADER_DEPS_$1 += $$(PRELOADER_FIXUP_STAMP_$1)
 
 # QSYS_DEPS_$1 := $$(QSYS_GEN_STAMP_$1)
-QSYS_DEPS_$1 := $1/$(QSYS_BASE_NAME).qsys
+QSYS_DEPS_$1 := $1/$(QSYS_BASE_NAME).qsys $1/addon_components.ipx
 QSYS_GEN_DEPS_$1 := scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
+QSYS_GEN_DEPS_$1 += $1/addon_components.ipx
 
 #only support one custom board xml
 DTS_BOARDINFO_$1 := $(firstword $(filter-out $1, $(DTS_BOARD_INFOS)))
@@ -192,7 +194,7 @@ include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
 .PHONY: toolchain.get
 toolchain.get: $(DL)/$(TOOLCHAIN_SOURCE)
 $(DL)/$(TOOLCHAIN_SOURCE):
-	$(MKDIR) -p $(DL)
+	$(MKDIR) $(DL)
 	wget -O $(DL)/$(TOOLCHAIN_SOURCE) $(TOOLCHAIN_SOURCE_PACKAGE)
 
 .PHONY: toolchain.extract

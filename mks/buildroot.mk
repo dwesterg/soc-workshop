@@ -16,7 +16,7 @@ BR_DEPS = buildroot.dodefconfig overlay.make_install toolchain.extract
 .PHONY:	buildroot.get
 buildroot.get: $(DL)/buildroot.tgz
 $(DL)/buildroot.tgz: 
-	$(MKDIR) -p $(DL)
+	$(MKDIR) $(DL)
 	wget -O $(DL)/buildroot.tgz $(BR_SOURCE_PACKAGE)
 	$(stamp_target)
 

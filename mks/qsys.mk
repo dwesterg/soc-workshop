@@ -21,7 +21,8 @@ qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
-	qsys-script --search-path=$(CURDIR)/ip,$$$$ --script=scripts/create_ghrd_qsys.tcl --cmd="set devkitname $1"
+	$(MKDIR) $1
+	qsys-script --script=scripts/create_ghrd_qsys.tcl --cmd="set devkitname $1"
 	$$(stamp_target)
   
 HELP_TARGETS_$1 += qsys_compile-$1
@@ -34,7 +35,7 @@ qsys_compile-$1: $$(QSYS_STAMP_$1)
 $$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1)
 
 $$(QSYS_STAMP_$1): $$(QSYS_FILE_$1)
-	$(SET_QSYS_GENERATE_ENV) qsys-generate --search-path=$(CURDIR)/ip,$$$$ $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
+	$(SET_QSYS_GENERATE_ENV) qsys-generate  $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
 	$$(stamp_target)
 
 HELP_TARGETS_$1 += qsys_edit-$1
@@ -42,7 +43,7 @@ qsys_edit-$1.HELP := Launch QSys GUI - $1
 
 .PHONY: qsys_edit-$1
 qsys_edit-$1: $$(QSYS_FILE_$1)
-	qsys-edit --search-path=$(CURDIR)/ip,$$$$ $$(QSYS_FILE_$1) &
+	qsys-edit $$(QSYS_FILE_$1) &
 	
 $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QSYS_STAMP_$1)	
 

@@ -16,7 +16,7 @@ endif
 .PHONY:	linux.get
 linux.get: $(DL)/linux-socfpga.tgz
 $(DL)/linux-socfpga.tgz: 
-	$(MKDIR) -p $(DL)
+	$(MKDIR) $(DL)
 	wget -O $(DL)/linux-socfpga.tgz $(LNX_SOURCE_PACKAGE)
 	$(stamp_target)
 
