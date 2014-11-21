@@ -38,7 +38,7 @@ $$(CREATE_PROJECT_STAMP_$1): $$(CREATE_PROJECT_DEPS_$1)
 $1/addon_components.ipx:
 	@$(MKDIR) $1
 	@$(ECHO) "Creating IPX file"
-	@$(ECHO) "<library>" >> $1/addon_components.ipx
+	@$(ECHO) "<library>" > $1/addon_components.ipx
 	@$(ECHO) "   <path path=\"../ip/**/*\" />" >> $1/addon_components.ipx
 	@$(ECHO) "</library>" >> $1/addon_components.ipx
 

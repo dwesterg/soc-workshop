@@ -22,7 +22,7 @@ qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
-	qsys-script --script=scripts/create_ghrd_qsys.tcl --cmd="set devkitname $1"
+	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_add_default_components.tcl $1"
 	$$(stamp_target)
   
 HELP_TARGETS_$1 += qsys_compile-$1

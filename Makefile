@@ -81,6 +81,7 @@ BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.ta
 # initial save file list
 AR_REGEX += ip readme.txt mks                                                                      
 AR_REGEX += scripts                                                                        
+AR_REGEX += scripts                                                                        
 AR_REGEX += $(SCRIPT_DIR) 
 AR_REGEX += patches
 AR_REGEX += board_info
@@ -136,7 +137,9 @@ PRELOADER_DEPS_$1 += $$(PRELOADER_FIXUP_STAMP_$1)
 # QSYS_DEPS_$1 := $$(QSYS_GEN_STAMP_$1)
 QSYS_DEPS_$1 += $1/$(QSYS_BASE_NAME).qsys $1/addon_components.ipx
 QSYS_GEN_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
-QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
+# QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
+QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys_$1.tcl scripts/qsys_add_default_components.tcl
+
 QSYS_GEN_DEPS_$1 += $1/addon_components.ipx
 
 #only support one custom board xml
@@ -170,6 +173,10 @@ AR_FILES += $$(DEVICE_TREE_BLOB_$1)
 
 AR_FILES += $1/preloader/uboot-socfpga/u-boot.img
 AR_FILES += $1/preloader/preloader-mkpimage.bin
+
+AR_FILES += $1/u-boot.img
+AR_FILES += $1/preloader-mkpimage.bin
+AR_FILES += $1/boot.script $1/u-boot.scr
 
 SD_FAT_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
 SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
@@ -238,14 +245,6 @@ create_all_projects.HELP := Create all projects and qsys files
 
 SD_FAT_TGZ := sd_fat.tar.gz
 
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/output_files/$r.sof)  #sof
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/output_files/$r.rbf)  #rbf
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/boot.script)  #boot script source
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/u-boot.scr)  #boot script
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/preloader-mkpimage.bin) # preloader
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/u-boot.img) # uboot
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/$(QSYS_BASE_NAME).dts) #dts
-# SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$r/$(QSYS_BASE_NAME).dtb) #dtb
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(SD_FAT_$r))
 SD_FAT_TGZ_DEPS += zImage
 
