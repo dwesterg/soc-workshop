@@ -1,26 +1,26 @@
 
-add_instance sysid_qsys altera_avalon_sysid_qsys 14.0
+add_instance sysid_qsys altera_avalon_sysid_qsys 
 set_instance_parameter_value sysid_qsys {id} {-1395321854}
 
-add_instance hps_only_master altera_jtag_avalon_master 14.0
+add_instance hps_only_master altera_jtag_avalon_master 
 set_instance_parameter_value hps_only_master {USE_PLI} {0}
 set_instance_parameter_value hps_only_master {PLI_PORT} {50000}
 set_instance_parameter_value hps_only_master {FAST_VER} {0}
 set_instance_parameter_value hps_only_master {FIFO_DEPTHS} {2}
 
-add_instance fpga_only_master altera_jtag_avalon_master 14.0
+add_instance fpga_only_master altera_jtag_avalon_master 
 set_instance_parameter_value fpga_only_master {USE_PLI} {0}
 set_instance_parameter_value fpga_only_master {PLI_PORT} {50000}
 set_instance_parameter_value fpga_only_master {FAST_VER} {0}
 set_instance_parameter_value fpga_only_master {FIFO_DEPTHS} {2}
 
-add_instance f2sdram_only_master altera_jtag_avalon_master 14.0
+add_instance f2sdram_only_master altera_jtag_avalon_master 
 set_instance_parameter_value f2sdram_only_master {USE_PLI} {0}
 set_instance_parameter_value f2sdram_only_master {PLI_PORT} {50000}
 set_instance_parameter_value f2sdram_only_master {FAST_VER} {0}
 set_instance_parameter_value f2sdram_only_master {FIFO_DEPTHS} {2}
 
-add_instance jtag_uart altera_avalon_jtag_uart 14.0
+add_instance jtag_uart altera_avalon_jtag_uart 
 set_instance_parameter_value jtag_uart {allowMultipleConnections} {1}
 set_instance_parameter_value jtag_uart {hubInstanceID} {0}
 set_instance_parameter_value jtag_uart {readBufferDepth} {64}
@@ -33,7 +33,7 @@ set_instance_parameter_value jtag_uart {useRelativePathForSimFile} {0}
 set_instance_parameter_value jtag_uart {writeBufferDepth} {64}
 set_instance_parameter_value jtag_uart {writeIRQThreshold} {8}
 
-add_instance clk_0 clock_source 14.0
+add_instance clk_0 clock_source 
 set_instance_parameter_value clk_0 {clockFrequency} {50000000.0}
 set_instance_parameter_value clk_0 {clockFrequencyKnown} {1}
 set_instance_parameter_value clk_0 {resetSynchronousEdges} {NONE}

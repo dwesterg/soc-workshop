@@ -16,7 +16,7 @@ set_module_property opaque_address_map false
 proc compose { } {
     # Instances and instance parameters
     # (disabled instances are intentionally culled)
-    add_instance clk_0 clock_source 14.0
+    add_instance clk_0 clock_source 
     set_instance_parameter_value clk_0 {clockFrequency} {1.0}
     set_instance_parameter_value clk_0 {clockFrequencyKnown} {0}
     set_instance_parameter_value clk_0 {resetSynchronousEdges} {BOTH}
@@ -31,7 +31,7 @@ proc compose { } {
 
     add_instance two_bit_collector_0 two_bit_collector 1.0
 
-    add_instance entropy_ram_1k altera_avalon_onchip_memory2 14.0
+    add_instance entropy_ram_1k altera_avalon_onchip_memory2 
     set_instance_parameter_value entropy_ram_1k {allowInSystemMemoryContentEditor} {0}
     set_instance_parameter_value entropy_ram_1k {blockType} {AUTO}
     set_instance_parameter_value entropy_ram_1k {dataWidth} {32}
@@ -52,10 +52,10 @@ proc compose { } {
     set_instance_parameter_value entropy_ram_1k {ecc_enabled} {0}
     set_instance_parameter_value entropy_ram_1k {resetrequest_enabled} {1}
 
-    add_instance ring_osc_enable_splitter conduit_splitter 14.0
+    add_instance ring_osc_enable_splitter conduit_splitter 
     set_instance_parameter_value ring_osc_enable_splitter {OUTPUT_NUM} {2}
 
-    add_instance rng_mm_bridge altera_avalon_mm_bridge 14.0
+    add_instance rng_mm_bridge altera_avalon_mm_bridge 
     set_instance_parameter_value rng_mm_bridge {DATA_WIDTH} {32}
     set_instance_parameter_value rng_mm_bridge {SYMBOL_WIDTH} {8}
     set_instance_parameter_value rng_mm_bridge {ADDRESS_WIDTH} {10}
@@ -67,7 +67,7 @@ proc compose { } {
     set_instance_parameter_value rng_mm_bridge {PIPELINE_COMMAND} {0}
     set_instance_parameter_value rng_mm_bridge {PIPELINE_RESPONSE} {0}
 
-    add_instance random_data_fifo altera_avalon_fifo 14.0
+    add_instance random_data_fifo altera_avalon_fifo 
     set_instance_parameter_value random_data_fifo {avalonMMAvalonMMDataWidth} {32}
     set_instance_parameter_value random_data_fifo {avalonMMAvalonSTDataWidth} {32}
     set_instance_parameter_value random_data_fifo {bitsPerSymbol} {1}
