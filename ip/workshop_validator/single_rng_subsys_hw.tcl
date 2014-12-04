@@ -16,7 +16,7 @@ set_module_property opaque_address_map false
 proc compose { } {
     # Instances and instance parameters
     # (disabled instances are intentionally culled)
-    add_instance clk_0 clock_source 
+    add_instance clk_0 clock_source 14.0
     set_instance_parameter_value clk_0 {clockFrequency} {1.0}
     set_instance_parameter_value clk_0 {clockFrequencyKnown} {0}
     set_instance_parameter_value clk_0 {resetSynchronousEdges} {DEASSERT}
@@ -45,7 +45,7 @@ proc compose { } {
 
     add_instance two_bit_collector_2 two_bit_collector 1.0
 
-    add_instance rng_fifo altera_avalon_sc_fifo 
+    add_instance rng_fifo altera_avalon_sc_fifo 14.0
     set_instance_parameter_value rng_fifo {SYMBOLS_PER_BEAT} {1}
     set_instance_parameter_value rng_fifo {BITS_PER_SYMBOL} {1}
     set_instance_parameter_value rng_fifo {FIFO_DEPTH} {8192}
@@ -61,7 +61,7 @@ proc compose { } {
     set_instance_parameter_value rng_fifo {ENABLE_EXPLICIT_MAXCHANNEL} {0}
     set_instance_parameter_value rng_fifo {EXPLICIT_MAXCHANNEL} {0}
 
-    add_instance enable_splitter conduit_splitter 
+    add_instance enable_splitter conduit_splitter 14.0
     set_instance_parameter_value enable_splitter {OUTPUT_NUM} {3}
 
     # connections and connection parameters

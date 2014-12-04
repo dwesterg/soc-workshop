@@ -38,6 +38,8 @@ set_instance_parameter_value clk_0 {clockFrequency} {50000000.0}
 set_instance_parameter_value clk_0 {clockFrequencyKnown} {1}
 set_instance_parameter_value clk_0 {resetSynchronousEdges} {NONE}
 
+add_instance validator_subsys_0 validator_subsys 1.0
+
 # connections and connection parameters
 add_connection hps_0.h2f_lw_axi_master sysid_qsys.control_slave avalon
 set_connection_parameter_value hps_0.h2f_lw_axi_master/sysid_qsys.control_slave arbitrationPriority {1}
@@ -104,18 +106,6 @@ add_connection hps_0.h2f_user1_clock sysid_qsys.clk clock
 
 add_connection hps_0.h2f_reset sysid_qsys.reset reset
 
-# exported interfaces
-add_interface memory conduit end
-set_interface_property memory EXPORT_OF hps_0.memory
-add_interface hps_0_hps_io conduit end
-set_interface_property hps_0_hps_io EXPORT_OF hps_0.hps_io
-add_interface hps_0_h2f_reset reset source
-set_interface_property hps_0_h2f_reset EXPORT_OF clk_0.clk_reset
-add_interface hps_0_h2f_clk clock source
-set_interface_property hps_0_h2f_clk EXPORT_OF clk_0.clk
-
-add_instance validator_subsys_0 validator_subsys 1.0
-
 add_connection hps_0.h2f_user1_clock validator_subsys_0.clk clock
 
 add_connection hps_0.h2f_reset validator_subsys_0.reset reset
@@ -129,6 +119,16 @@ add_connection fpga_only_master.master validator_subsys_0.val_mm_bridge_s0 avalo
 set_connection_parameter_value fpga_only_master.master/validator_subsys_0.val_mm_bridge_s0 arbitrationPriority {1}
 set_connection_parameter_value fpga_only_master.master/validator_subsys_0.val_mm_bridge_s0 baseAddress {0x00040000}
 set_connection_parameter_value fpga_only_master.master/validator_subsys_0.val_mm_bridge_s0 defaultConnection {0}
+
+# exported interfaces
+add_interface memory conduit end
+set_interface_property memory EXPORT_OF hps_0.memory
+add_interface hps_0_hps_io conduit end
+set_interface_property hps_0_hps_io EXPORT_OF hps_0.hps_io
+add_interface hps_0_h2f_reset reset source
+set_interface_property hps_0_h2f_reset EXPORT_OF clk_0.clk_reset
+add_interface hps_0_h2f_clk clock source
+set_interface_property hps_0_h2f_clk EXPORT_OF clk_0.clk
 
 # interconnect requirements
 set_interconnect_requirement {$system} {qsys_mm.clockCrossingAdapter} {HANDSHAKE}
