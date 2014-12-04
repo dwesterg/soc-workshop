@@ -89,7 +89,7 @@ proc compose { } {
     set_instance_parameter_value val_nios2_gen2 {resetSlave} {val_nios2_tc_ram.s1}
     set_instance_parameter_value val_nios2_gen2 {mmu_TLBMissExcSlave} {None}
     set_instance_parameter_value val_nios2_gen2 {exceptionSlave} {val_nios2_tc_ram.s1}
-    set_instance_parameter_value val_nios2_gen2 {breakSlave} {None}
+    set_instance_parameter_value val_nios2_gen2 {breakSlave} {val_nios2_tc_ram.s1}
     set_instance_parameter_value val_nios2_gen2 {setting_interruptControllerType} {Internal}
     set_instance_parameter_value val_nios2_gen2 {setting_branchPredictionType} {Dynamic}
     set_instance_parameter_value val_nios2_gen2 {setting_bhtPtrSz} {8}
