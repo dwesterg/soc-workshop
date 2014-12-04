@@ -89,14 +89,14 @@ proc compose { } {
     set_instance_parameter_value val_nios2_gen2 {resetSlave} {val_nios2_tc_ram.s1}
     set_instance_parameter_value val_nios2_gen2 {mmu_TLBMissExcSlave} {None}
     set_instance_parameter_value val_nios2_gen2 {exceptionSlave} {val_nios2_tc_ram.s1}
-    set_instance_parameter_value val_nios2_gen2 {breakSlave} {None}
+    set_instance_parameter_value val_nios2_gen2 {breakSlave} {val_nios2_tc_ram.s1}
     set_instance_parameter_value val_nios2_gen2 {setting_interruptControllerType} {Internal}
     set_instance_parameter_value val_nios2_gen2 {setting_branchPredictionType} {Dynamic}
     set_instance_parameter_value val_nios2_gen2 {setting_bhtPtrSz} {8}
     set_instance_parameter_value val_nios2_gen2 {cpuArchRev} {1}
-    set_instance_parameter_value val_nios2_gen2 {stratix_dspblock_shift_mul} {0}
-    set_instance_parameter_value val_nios2_gen2 {shifterType} {fast_le_shift}
-    set_instance_parameter_value val_nios2_gen2 {multiplierType} {mul_fast32}
+#    set_instance_parameter_value val_nios2_gen2 {stratix_dspblock_shift_mul} {0}
+#    set_instance_parameter_value val_nios2_gen2 {shifterType} {fast_le_shift}
+#    set_instance_parameter_value val_nios2_gen2 {multiplierType} {mul_fast32}
     set_instance_parameter_value val_nios2_gen2 {dividerType} {srt2}
     set_instance_parameter_value val_nios2_gen2 {mpu_minInstRegionSize} {12}
     set_instance_parameter_value val_nios2_gen2 {mpu_minDataRegionSize} {12}
