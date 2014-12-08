@@ -239,7 +239,12 @@ $(foreach r,$(REVISION_LIST),$(eval $(call create_project,$r)))
 .PHONY: create_all_projects
 create_all_projects: $(foreach r,$(REVISION_LIST),create_project-$r)
 HELP_TARGETS += create_all_projects
-create_all_projects.HELP := Create all projects and qsys files
+create_all_projects.HELP := Create all quartus projects
+
+.PHONY: create_all_qsys
+create_all_qsys: $(foreach r,$(REVISION_LIST),qsys_generate_qsys-$r)
+HELP_TARGETS += create_all_qsys
+create_all_qsys.HELP := Create all qsys files
 
 #.PHONY: compile_all_projects
 #compile_all_projects: $(foreach r,$(REVISION_LIST),quartus_compile-$r)  
@@ -435,4 +440,6 @@ help-fini:
 ################################################
 .PHONY: arc_build
 arc_build:
-	make -j8 http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) all
+	make -j8 http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
+	make -j8 create_all_projects
+	make all
