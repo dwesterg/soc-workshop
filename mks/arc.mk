@@ -47,6 +47,7 @@ ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 .PHONY: arc_build_all
 arc_build_all:
 	$(MAKE)  http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) tar.compile
+	$(MAKE)  http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) coreutils.compile
 	$(MAKE) TAR=$(CURDIR)/tar/src/tar http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
 	$(MAKE) TAR=$(CURDIR)/tar/src/tar $(ARC_BUILD_INTERMEDIATE_TARGETS)
 	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar all
