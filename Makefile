@@ -21,6 +21,8 @@ DL := downloads
 HTTP_PROXY := sj-proxy:8080
 HTTPS_PROXY := sj-proxy:8080
 
+ARC_RESOURCE_REQS := acds/14.1,soceds/14.1
+
 # Source 
 TCL_SOURCE = $(wildcard scripts/*.tcl)
 QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.sv)
@@ -198,6 +200,7 @@ $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
 
 include mks/qsys.mk mks/quartus.mk mks/preloader_uboot.mk mks/devicetree.mk 
 include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
+include mks/arc.mk
 
 ################################################
 
@@ -438,8 +441,3 @@ help-fini:
 	@$(ECHO) "*********************"
 
 ################################################
-.PHONY: arc_build
-arc_build:
-	make -j8 http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
-	make -j8 create_all_projects
-	make all
