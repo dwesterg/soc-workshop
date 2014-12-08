@@ -17,7 +17,7 @@ define arc_build_project
 
 .PHONY: arc_build-$1
 arc_build-$1:
-	arc submit --watch $(ARC_RESOURCE_REQS) -- arc vnc make $1.all
+	arc submit --watch -- arc vnc make $1.all
 
 endef
 

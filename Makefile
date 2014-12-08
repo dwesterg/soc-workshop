@@ -21,8 +21,6 @@ DL := downloads
 HTTP_PROXY := sj-proxy:8080
 HTTPS_PROXY := sj-proxy:8080
 
-ARC_RESOURCE_REQS := acds/14.1,soceds/14.1
-
 # Source 
 TCL_SOURCE = $(wildcard scripts/*.tcl)
 QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.sv)
