@@ -18,6 +18,9 @@ include mks/default.mk
 
 DL := downloads
 
+HTTP_PROXY := sj-proxy:8080
+HTTPS_PROXY := sj-proxy:8080
+
 # Source 
 TCL_SOURCE = $(wildcard scripts/*.tcl)
 QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.sv)
@@ -430,3 +433,6 @@ help-fini:
 	@$(ECHO) "*********************"
 
 ################################################
+.PHONY: arc_build
+arc_build:
+	make -j8 http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) all
