@@ -1,17 +1,16 @@
 
 ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 
+ARC_PARALLEL := $(words $(ARC_BUILD_INTERMEDIATE_TARGETS))
+
 .PHONY: arc_build_all
 arc_build_all:
+	make http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
+	make -j$(ARC_PARALLEL) create_all_projects
 	make arc_build_init
-	make -j8 $(ARC_BUILD_INTERMEDIATE_TARGETS)
+	make -j$(ARC_PARALLEL) $(ARC_BUILD_INTERMEDIATE_TARGETS)
 	make -j8 all
 
-
-.phony: arc_build_init
-arc_build_init:
-	make -j8 http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
-	make -j8 create_all_projects
 	
 define arc_build_project
 
