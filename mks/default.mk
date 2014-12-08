@@ -17,6 +17,7 @@ SED := sed
 TAR := tar
 TOUCH := touch
 WHICH := which
+XZ := xz
 
 # Preloader 
 

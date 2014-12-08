@@ -58,6 +58,7 @@ ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
 TOOLCHAIN_DIR := $(CURDIR)/toolchain
 TOOLCHAIN_SOURCE := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
 # Kernel Config
@@ -204,14 +205,17 @@ include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
 toolchain.get: $(DL)/$(TOOLCHAIN_SOURCE)
 $(DL)/$(TOOLCHAIN_SOURCE):
 	$(MKDIR) $(DL)
-	wget -O $(DL)/$(TOOLCHAIN_SOURCE) $(TOOLCHAIN_SOURCE_PACKAGE)
+	wget -O $@ $(TOOLCHAIN_SOURCE_PACKAGE)
+
+$(DL)/$(TOOLCHAIN_SOURCE_TAR): $(DL)/$(TOOLCHAIN_SOURCE)
+	$(CAT) $< | $(XZ) -d > $@
 
 .PHONY: toolchain.extract
 toolchain.extract: $(call get_stamp_target,toolchain.extract)
-$(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE)
+$(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE_TAR)
 	$(RM) $(TOOLCHAIN_DIR)
 	$(MKDIR) $(TOOLCHAIN_DIR)
-	$(TAR) -xvf $(DL)/$(TOOLCHAIN_SOURCE) --strip-components 1 -C $(TOOLCHAIN_DIR)
+	$(TAR) -xvf $< --strip-components 1 -C $(TOOLCHAIN_DIR)
 	$(stamp_target)
 
 ################################################
