@@ -3,7 +3,7 @@ ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),$r.all)
 
 .PHONY: arc_build_all
 arc_build_all:
-	make arc_init_build
+	make arc_build_init
 	make -j8 $(ARC_BUILD_INTERMEDIATE_TARGETS)
 	make -j8 all
 
