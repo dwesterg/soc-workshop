@@ -1,5 +1,5 @@
 
-ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),$r.all)
+ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 
 .PHONY: arc_build_all
 arc_build_all:
