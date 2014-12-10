@@ -82,4 +82,10 @@ $(call get_stamp_target,buildroot.patches): $(call get_stamp_target,buildroot.ex
 #	endif
 	$(stamp_target)
 
+
+buildroot/output/images/rootfs.cpio.uboot: $(call get_stamp_target,buildroot.build)
+rootfs.img: buildroot/output/images/rootfs.cpio.uboot
+	$(CP) $< $@
+
+
 ################################################################################

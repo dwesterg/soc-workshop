@@ -65,13 +65,14 @@ TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
 # Kernel Config
-#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
-LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
+LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
+#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
 LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
 LINUX_DEFCONFIG := $(wildcard linux.defconfig)
 LINUX_MAKE_TARGET := zImage
 KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
-LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
+#LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
+LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract 
 
 # Buildroot Config
 BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
@@ -188,9 +189,14 @@ SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
 SD_FAT_$1 += $1/boot.script $1/u-boot.scr
 
 .PHONY:$1.all
-$1.all: $$(SD_FAT_$1)
+$1.all: $$(SD_FAT_$1) sd_fat_$1.tar.gz
 HELP_TARGETS += $1.all
 $1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for $1 board
+
+#tar file target per project just 4 kicks.
+sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage
+	$(RM) $@
+	$(TAR) -czf $$@ $$^
 
 endef
 $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
@@ -260,6 +266,7 @@ SD_FAT_TGZ := sd_fat.tar.gz
 
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(SD_FAT_$r))
 SD_FAT_TGZ_DEPS += zImage
+SD_FAT_TGZ_DEPS += rootfs.img
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
