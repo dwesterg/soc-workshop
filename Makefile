@@ -18,6 +18,9 @@ include mks/default.mk
 
 DL := downloads
 
+HTTP_PROXY := sj-proxy:8080
+HTTPS_PROXY := sj-proxy:8080
+
 # Source 
 TCL_SOURCE = $(wildcard scripts/*.tcl)
 QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.sv)
@@ -58,16 +61,18 @@ ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
 TOOLCHAIN_DIR := $(CURDIR)/toolchain
 TOOLCHAIN_SOURCE := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
 # Kernel Config
-#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
-LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
+LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
+#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
 LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
 LINUX_DEFCONFIG := $(wildcard linux.defconfig)
 LINUX_MAKE_TARGET := zImage
 KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
-LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
+#LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
+LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract 
 
 # Buildroot Config
 BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
@@ -184,9 +189,14 @@ SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
 SD_FAT_$1 += $1/boot.script $1/u-boot.scr
 
 .PHONY:$1.all
-$1.all: $$(SD_FAT_$1)
+$1.all: $$(SD_FAT_$1) sd_fat_$1.tar.gz
 HELP_TARGETS += $1.all
 $1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for $1 board
+
+#tar file target per project just 4 kicks.
+sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage
+	$(RM) $@
+	$(TAR) -czf $$@ $$^
 
 endef
 $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
@@ -194,6 +204,7 @@ $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
 
 include mks/qsys.mk mks/quartus.mk mks/preloader_uboot.mk mks/devicetree.mk 
 include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
+include mks/arc.mk
 
 ################################################
 
@@ -204,14 +215,17 @@ include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
 toolchain.get: $(DL)/$(TOOLCHAIN_SOURCE)
 $(DL)/$(TOOLCHAIN_SOURCE):
 	$(MKDIR) $(DL)
-	wget -O $(DL)/$(TOOLCHAIN_SOURCE) $(TOOLCHAIN_SOURCE_PACKAGE)
+	wget -O $@ $(TOOLCHAIN_SOURCE_PACKAGE)
+
+$(DL)/$(TOOLCHAIN_SOURCE_TAR): $(DL)/$(TOOLCHAIN_SOURCE)
+	$(CAT) $< | $(XZ) -d > $@
 
 .PHONY: toolchain.extract
 toolchain.extract: $(call get_stamp_target,toolchain.extract)
-$(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE)
+$(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE_TAR)
 	$(RM) $(TOOLCHAIN_DIR)
 	$(MKDIR) $(TOOLCHAIN_DIR)
-	$(TAR) -xvf $(DL)/$(TOOLCHAIN_SOURCE) --strip-components 1 -C $(TOOLCHAIN_DIR)
+	$(TAR) -xvf $< --strip-components 1 -C $(TOOLCHAIN_DIR)
 	$(stamp_target)
 
 ################################################
@@ -232,7 +246,12 @@ $(foreach r,$(REVISION_LIST),$(eval $(call create_project,$r)))
 .PHONY: create_all_projects
 create_all_projects: $(foreach r,$(REVISION_LIST),create_project-$r)
 HELP_TARGETS += create_all_projects
-create_all_projects.HELP := Create all projects and qsys files
+create_all_projects.HELP := Create all quartus projects
+
+.PHONY: create_all_qsys
+create_all_qsys: $(foreach r,$(REVISION_LIST),qsys_generate_qsys-$r)
+HELP_TARGETS += create_all_qsys
+create_all_qsys.HELP := Create all qsys files
 
 #.PHONY: compile_all_projects
 #compile_all_projects: $(foreach r,$(REVISION_LIST),quartus_compile-$r)  
@@ -247,6 +266,7 @@ SD_FAT_TGZ := sd_fat.tar.gz
 
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(SD_FAT_$r))
 SD_FAT_TGZ_DEPS += zImage
+SD_FAT_TGZ_DEPS += rootfs.img
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@

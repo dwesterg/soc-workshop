@@ -13,7 +13,7 @@
  	CONFIG_KSZ9021_DATA_SKEW_ENV "=" \
  		__stringify(CONFIG_KSZ9021_DATA_SKEW_VAL) "\0" \
 -	"scriptfile=u-boot.scr\0" \
-+	"scriptfile=${soc_workshop_revision}/u-boot.scr\0" \
++	"scriptfile="  __stringify(CONFIG_SOC_WORKSHOP_REVISION) "/u-boot.scr\0" \
  	"callscript=if fatload mmc 0:1 $fpgadata $scriptfile;" \
  			"then source $fpgadata; " \
  		"else " \
