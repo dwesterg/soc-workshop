@@ -148,7 +148,8 @@ QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys_$1.tcl scripts/qsys_add_default_com
 QSYS_GEN_DEPS_$1 += $1/addon_components.ipx
 
 #only support one custom board xml
-DTS_BOARDINFO_$1 := $(firstword $(filter-out $1, $(DTS_BOARD_INFOS)))
+DTS_BOARDINFO_$1 := $(firstword $(filter $1, $(DTS_BOARD_INFOS)))
+#DTS_BOARDINFO_$1 := board_info/board_info_$1.xml 
 
 DTS_DEPS_$1 += $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
 DTB_DEPS_$1 += $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
