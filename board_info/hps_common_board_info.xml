@@ -22,9 +22,7 @@ these aliases allows seamless support of multiple emacs
 	<val type="number">1</val>
 </DTAppend>
 
-<!-- wd_timers don't show up until 14.1 
 <DTAppend name="status" type="string" parentlabel="hps_0_wd_timer1" val="disabled" />
--->
 
 <DTAppend name="pmu0" type="node" parentlabel="sopc0" newlabel="pmu"/>
 <DTAppend name="#address-cells" type="number" parentlabel="pmu" val="1"/>
