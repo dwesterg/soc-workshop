@@ -12,7 +12,7 @@ boot_script_image-$1.HELP := Make boot script image for $1
 .PHONY: boot_script_image-$1
 boot_script_image-$1: $1/u-boot.scr
 
-$1/boot.script $1/u-boot.scr: Makefile $$(PRELOADER_STAMP_$1)
+$1/boot.script : Makefile $$(PRELOADER_STAMP_$1)
 	@$(MKDIR) $1
 	@$(RM) $$@
 	@$(ECHO) "Generating $$@"
@@ -26,6 +26,8 @@ $1/boot.script $1/u-boot.scr: Makefile $$(PRELOADER_STAMP_$1)
 	@$(ECHO) "setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=\$$$${mmcroot} rw rootwait; bootz \$$$${loadaddr} \$$$${fpgadata} \$$$${fdtaddr}';" >>$$@
 	@$(ECHO) "run mmcload;" >>$$@
 	@$(ECHO) "run mmcboot;" >>$$@
+
+$1/u-boot.scr: $1/boot.script
 	$$(UBOOT_MKIMAGE_$1) -A arm -O linux -T script -C none -a 0 -e 0 -n "bootscript" -d $1/boot.script $1/u-boot.scr
 
 
