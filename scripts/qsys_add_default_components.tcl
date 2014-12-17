@@ -40,6 +40,9 @@ set_instance_parameter_value clk_0 {resetSynchronousEdges} {NONE}
 
 add_instance validator_subsys_0 validator_subsys 1.0
 
+add_instance sld_hub_controller_system_0 altera_sld_hub_controller_system
+set_instance_parameter_value sld_hub_controller_system_0 {ENABLE_JTAG_IO_SELECTION} {0}
+
 # connections and connection parameters
 add_connection hps_0.h2f_lw_axi_master sysid_qsys.control_slave avalon
 set_connection_parameter_value hps_0.h2f_lw_axi_master/sysid_qsys.control_slave arbitrationPriority {1}
@@ -73,6 +76,16 @@ add_connection f2sdram_only_master.master hps_0.f2h_sdram0_data avalon
 set_connection_parameter_value f2sdram_only_master.master/hps_0.f2h_sdram0_data arbitrationPriority {1}
 set_connection_parameter_value f2sdram_only_master.master/hps_0.f2h_sdram0_data baseAddress {0x0000}
 set_connection_parameter_value f2sdram_only_master.master/hps_0.f2h_sdram0_data defaultConnection {0}
+
+add_connection hps_0.h2f_lw_axi_master sld_hub_controller_system_0.s0 avalon
+set_connection_parameter_value hps_0.h2f_lw_axi_master/sld_hub_controller_system_0.s0 arbitrationPriority {1}
+set_connection_parameter_value hps_0.h2f_lw_axi_master/sld_hub_controller_system_0.s0 baseAddress {0x00030000}
+set_connection_parameter_value hps_0.h2f_lw_axi_master/sld_hub_controller_system_0.s0 defaultConnection {0}
+
+add_connection fpga_only_master.master sld_hub_controller_system_0.s0 avalon
+set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system_0.s0 arbitrationPriority {1}
+set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system_0.s0 baseAddress {0x00030000}
+set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system_0.s0 defaultConnection {0}
 
 add_connection hps_0.h2f_user1_clock clk_0.clk_in clock
 
@@ -109,6 +122,10 @@ add_connection hps_0.h2f_reset sysid_qsys.reset reset
 add_connection hps_0.h2f_user1_clock validator_subsys_0.clk clock
 
 add_connection hps_0.h2f_reset validator_subsys_0.reset reset
+
+add_connection hps_0.h2f_user1_clock sld_hub_controller_system_0.clk clock
+
+add_connection hps_0.h2f_reset sld_hub_controller_system_0.reset reset
 
 add_connection hps_0.h2f_lw_axi_master validator_subsys_0.val_mm_bridge_s0 avalon
 set_connection_parameter_value hps_0.h2f_lw_axi_master/validator_subsys_0.val_mm_bridge_s0 arbitrationPriority {1}

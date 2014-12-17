@@ -79,7 +79,8 @@ BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
 BUILDROOT_DEFCONFIG := $(wildcard buildroot.defconfig)
 BUSYBOX_CONFIG_FILE := $(wildcard $(CURDIR)/buildroot_busybox.config)
 # NB: IF Buildroot is updated, the busybox-menuconfig stuff needs to be changed with an updated path.
-BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz"
+#BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz"
+BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.11.tar.gz"
 
 # AR_FILTER_OUT := downloads
 
