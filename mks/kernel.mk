@@ -29,11 +29,21 @@ $(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATC
 	$(TAR) -xvzf $(DL)/linux-socfpga.tgz --strip-components 1 -C linux-socfpga
 	$(stamp_target)
 
+LINUX_PATCHES = $(sort $(wildcard patches/linux*.patch))
+.PHONY: linux.patch
+linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p))
+define do_patch_lnx
+$(call get_stamp_target,$1): $(call get_stamp_target,linux.extract)
+	patch -d linux-socfpga -p1 < $1
+	$$(stamp_target)
+endef
+$(foreach p,$(LINUX_PATCHES),$(eval $(call do_patch_lnx,$p)))
+
 # apply defconfig
 .PHONY: linux.dodefconfig
 linux.dodefconfig: linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
 
-linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract $(LINUX_DEFCONFIG)
+linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract linux.patch $(LINUX_DEFCONFIG)
 ifneq ("$(LINUX_DEFCONFIG)","")
 	$(CP) $(LINUX_DEFCONFIG) linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
 endif
@@ -48,7 +58,7 @@ linux.modules: linux.patches linux.dodefconfig toolchain.extract
 HELP_TARGETS += linux.modules_install
 linux.modules_install.HELP := Build linux kernel modules
 linux.modules_install: linux.modules
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=overlay modules_install
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(CURDIR)/overlay modules_install
 
 # build                                   
 linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,linux.build)

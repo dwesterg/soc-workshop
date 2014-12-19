@@ -13,13 +13,13 @@ $(call get_stamp_target,overlay.extract):
 HELP_TARGETS += overlay.make_all
 overlay.make_all.HELP := Install custom apps to overlay directory
 .PHONY: overlay.make_all
-overlay.make_all: overlay.extract toolchain.extract
-	$(MAKE) -C sw_src CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE)  INSTALL_DIR=overlay all
+overlay.make_all: overlay.extract toolchain.extract linux.patch
+	$(MAKE) -C sw_src PATH=$(TOOLCHAIN_DIR)/bin:$(PATH) CROSS_COMPILE=$(CROSS_COMPILE)  INSTALL_DIR=$(CURDIR)/overlay all
 
 HELP_TARGETS += overlay.make_install
 overlay.make_install.HELP := Install custom apps to overlay directory
 .PHONY: overlay.make_install 
 overlay.make_install: overlay.make_all linux.modules_install
-	$(MAKE) -C sw_src CROSS_COMPILE=$(TOOLCHAIN_EXTERNAL_PATH)/bin/$(CROSS_COMPILE) INSTALL_DIR=overlay install
+	$(MAKE) -C sw_src PATH=$(TOOLCHAIN_DIR)/bin:$(PATH) CROSS_COMPILE=$(CROSS_COMPILE) INSTALL_DIR=$(CURDIR)/overlay install
 
 ################################################################################

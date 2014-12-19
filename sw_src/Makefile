@@ -35,8 +35,13 @@ SPACE := $(empty) $(empty)
 ################################################################################
 
 .PHONY: all
-all: 
+all: mmlink
 
 .PHONY: install
-install: all
+install: mmlink
+	$(MKDIR) $(INSTALL_DIR)/usr/bin
+	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 
+.PHONY: mmlink
+mmlink: 
+	make -C mmlink KERNEL_SRC_DIR=../../linux-socfpga CROSS_COMPILE=$(CROSS_COMPILE)	
