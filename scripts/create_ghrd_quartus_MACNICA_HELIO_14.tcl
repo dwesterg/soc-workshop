@@ -133,3 +133,6 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to hps_sdio_D3
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to hps_uart0_RX
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to hps_uart0_TX
 
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE ../hdl_src/validator.stp
+set_global_assignment -name SIGNALTAP_FILE ../hdl_src/validator.stp
