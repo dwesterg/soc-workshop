@@ -1,4 +1,4 @@
-package require -exact qsys 14.0
+package require qsys 
 
 # module properties
 set_module_property NAME validator_subsys
@@ -22,14 +22,14 @@ set_module_assignment embeddedsw.dts.compatible "demo,validator-1.0"
 proc compose { } {
     # Instances and instance parameters
     # (disabled instances are intentionally culled)
-    add_instance val_clk clock_source 14.0
+    add_instance val_clk clock_source 
     set_instance_parameter_value val_clk {clockFrequency} {1.0}
     set_instance_parameter_value val_clk {clockFrequencyKnown} {0}
     set_instance_parameter_value val_clk {resetSynchronousEdges} {BOTH}
 
     add_instance val_rng_subsys rng_top_subsys 1.0
 
-    add_instance val_rng_pio altera_avalon_pio 14.0
+    add_instance val_rng_pio altera_avalon_pio 
     set_instance_parameter_value val_rng_pio {bitClearingEdgeCapReg} {0}
     set_instance_parameter_value val_rng_pio {bitModifyingOutReg} {1}
     set_instance_parameter_value val_rng_pio {captureEdge} {0}
@@ -44,7 +44,7 @@ proc compose { } {
 
     add_instance val_conduit_blender conduit_blender 1.0
 
-    add_instance val_nios2_gen2 altera_nios2_gen2 14.0
+    add_instance val_nios2_gen2 altera_nios2_gen2 
     set_instance_parameter_value val_nios2_gen2 {setting_showUnpublishedSettings} {0}
     set_instance_parameter_value val_nios2_gen2 {setting_showInternalSettings} {0}
     set_instance_parameter_value val_nios2_gen2 {setting_preciseIllegalMemAccessException} {0}
@@ -144,7 +144,7 @@ proc compose { } {
     set_instance_parameter_value val_nios2_gen2 {debug_traceType} {none}
     set_instance_parameter_value val_nios2_gen2 {debug_traceStorage} {onchip_trace}
 
-    add_instance val_nios2_tc_ram altera_avalon_onchip_memory2 14.0
+    add_instance val_nios2_tc_ram altera_avalon_onchip_memory2 
     set_instance_parameter_value val_nios2_tc_ram {allowInSystemMemoryContentEditor} {0}
     set_instance_parameter_value val_nios2_tc_ram {blockType} {AUTO}
     set_instance_parameter_value val_nios2_tc_ram {dataWidth} {32}
@@ -165,7 +165,7 @@ proc compose { } {
     set_instance_parameter_value val_nios2_tc_ram {ecc_enabled} {0}
     set_instance_parameter_value val_nios2_tc_ram {resetrequest_enabled} {1}
 
-    add_instance val_handshake_ram_1k altera_avalon_onchip_memory2 14.0
+    add_instance val_handshake_ram_1k altera_avalon_onchip_memory2 
     set_instance_parameter_value val_handshake_ram_1k {allowInSystemMemoryContentEditor} {0}
     set_instance_parameter_value val_handshake_ram_1k {blockType} {AUTO}
     set_instance_parameter_value val_handshake_ram_1k {dataWidth} {32}
@@ -186,15 +186,15 @@ proc compose { } {
     set_instance_parameter_value val_handshake_ram_1k {ecc_enabled} {0}
     set_instance_parameter_value val_handshake_ram_1k {resetrequest_enabled} {1}
 
-    add_instance val_des_hash_rom altera_connection_identification_rom_wrapper 14.0
+    add_instance val_des_hash_rom altera_connection_identification_rom_wrapper 
     set_instance_parameter_value val_des_hash_rom {LATENCY} {2}
 
-    add_instance val_altchip_id altchip_id 14.0
+    add_instance val_altchip_id altchip_id 
     set_instance_parameter_value val_altchip_id {ID_VALUE} {18446744073709551615}
 
     add_instance val_chip_id_read_mm chip_id_read_mm 1.0
 
-    add_instance val_mm_bridge altera_avalon_mm_bridge 14.0
+    add_instance val_mm_bridge altera_avalon_mm_bridge 
     set_instance_parameter_value val_mm_bridge {DATA_WIDTH} {32}
     set_instance_parameter_value val_mm_bridge {SYMBOL_WIDTH} {8}
     set_instance_parameter_value val_mm_bridge {ADDRESS_WIDTH} {10}

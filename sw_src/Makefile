@@ -41,7 +41,9 @@ all: mmlink
 install: mmlink
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
+	$(CP) msgdma_user_space/fpga_fft $(INSTALL_DIR)/examples
 
 .PHONY: mmlink
 mmlink: 
 	make -C mmlink KERNEL_SRC_DIR=../../linux-socfpga CROSS_COMPILE=$(CROSS_COMPILE)	
+	make -C msgdma_user_space CROSS_COMPILE=$(CROSS_COMPILE)	
