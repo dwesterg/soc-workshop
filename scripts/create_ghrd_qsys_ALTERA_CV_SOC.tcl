@@ -1,4 +1,4 @@
-package require -exact qsys 14.0
+package require -exact qsys 14.1
 
 proc build_qsys {default_script {devkitname} {qsys_name "soc_system" }} {
 	

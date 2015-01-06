@@ -27,6 +27,8 @@ QUARTUS_HDL_SOURCE = $(wildcard src/*.v) $(wildcard src/*.vhd) $(wildcard src/*.
 QUARTUS_MISC_SOURCE = $(wildcard src/*.stp) $(wildcard src/*.sdc)
 PROJECT_ASSIGN_SCRIPTS = $(filter scripts/create_ghrd_quartus_%.tcl,$(TCL_SOURCE))
 
+QSYS_ADD_COMP_TCLS := $(sort $(wildcard scripts/qsys_add_*.tcl))
+
 UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch
 DTS_COMMON = board_info/hps_common_board_info.xml
 DTS_BOARD_INFOS = $(wildcard board_info/board_info_*.xml)
@@ -129,6 +131,8 @@ DTB_STAMP_$1 := $(call get_stamp_target,dtb-$1)
 
 QSYS_STAMP_$1 := $(call get_stamp_target,qsys_compile-$1)
 QSYS_GEN_STAMP_$1 := $(call get_stamp_target,qsys_gen-$1)
+QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,qsys_add_comp-$1)
+QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1-$t))
 
 QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,quartus_pin_assignments-$1)
 
@@ -144,8 +148,8 @@ PRELOADER_DEPS_$1 += $$(PRELOADER_FIXUP_STAMP_$1)
 QSYS_DEPS_$1 += $1/$(QSYS_BASE_NAME).qsys $1/addon_components.ipx
 QSYS_GEN_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
 # QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
-QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys_$1.tcl scripts/qsys_add_default_components.tcl
-
+QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys_$1.tcl scripts/qsys_default_components.tcl
+QSYS_GEN_DEPS_$1 += $(QSYS_ADD_COMP_TCLS)
 QSYS_GEN_DEPS_$1 += $1/addon_components.ipx
 
 #only support one custom board xml

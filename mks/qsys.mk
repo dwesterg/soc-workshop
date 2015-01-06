@@ -12,7 +12,6 @@ endif
 
 define create_qsys_targets
 
-
 HELP_TARGETS_$1 += qsys_generate_qsys-$1
 qsys_generate_qsys-$1.HELP := Create QSys for $1 revision
 
@@ -22,7 +21,8 @@ qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
-	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_add_default_components.tcl $1"
+	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1"
+	$(foreach t,$(QSYS_ADD_COMP_TCLS),qsys-script --system-file=$$(QSYS_FILE_$1) --script=$t)
 	$$(stamp_target)
   
 HELP_TARGETS_$1 += qsys_compile-$1
@@ -46,8 +46,6 @@ qsys_edit-$1: $$(QSYS_FILE_$1)
 	qsys-edit $$(QSYS_FILE_$1) &
 	
 $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QSYS_STAMP_$1)	
-
-
 
 #############
 # Target for pin assignments                                                                                                   

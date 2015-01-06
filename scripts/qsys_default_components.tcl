@@ -43,6 +43,28 @@ add_instance validator_subsys_0 validator_subsys 1.0
 add_instance sld_hub_controller_system_0 altera_sld_hub_controller_system
 set_instance_parameter_value sld_hub_controller_system_0 {ENABLE_JTAG_IO_SELECTION} {0}
 
+add_instance onchip_memory2_0 altera_avalon_onchip_memory2 
+set_instance_parameter_value onchip_memory2_0 {allowInSystemMemoryContentEditor} {0}
+set_instance_parameter_value onchip_memory2_0 {blockType} {AUTO}
+set_instance_parameter_value onchip_memory2_0 {dataWidth} {32}
+set_instance_parameter_value onchip_memory2_0 {dualPort} {0}
+set_instance_parameter_value onchip_memory2_0 {initMemContent} {1}
+set_instance_parameter_value onchip_memory2_0 {initializationFileName} {onchip_mem.hex}
+set_instance_parameter_value onchip_memory2_0 {instanceID} {NONE}
+set_instance_parameter_value onchip_memory2_0 {memorySize} {65536.0}
+set_instance_parameter_value onchip_memory2_0 {readDuringWriteMode} {DONT_CARE}
+set_instance_parameter_value onchip_memory2_0 {simAllowMRAMContentsFile} {0}
+set_instance_parameter_value onchip_memory2_0 {simMemInitOnlyFilename} {0}
+set_instance_parameter_value onchip_memory2_0 {singleClockOperation} {0}
+set_instance_parameter_value onchip_memory2_0 {slave1Latency} {1}
+set_instance_parameter_value onchip_memory2_0 {slave2Latency} {1}
+set_instance_parameter_value onchip_memory2_0 {useNonDefaultInitFile} {0}
+set_instance_parameter_value onchip_memory2_0 {copyInitFile} {0}
+set_instance_parameter_value onchip_memory2_0 {useShallowMemBlocks} {0}
+set_instance_parameter_value onchip_memory2_0 {writable} {1}
+set_instance_parameter_value onchip_memory2_0 {ecc_enabled} {0}
+set_instance_parameter_value onchip_memory2_0 {resetrequest_enabled} {1}
+
 # connections and connection parameters
 add_connection hps_0.h2f_lw_axi_master sysid_qsys.control_slave avalon
 set_connection_parameter_value hps_0.h2f_lw_axi_master/sysid_qsys.control_slave arbitrationPriority {1}
@@ -87,6 +109,11 @@ set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system
 set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system_0.s0 baseAddress {0x00030000}
 set_connection_parameter_value fpga_only_master.master/sld_hub_controller_system_0.s0 defaultConnection {0}
 
+add_connection hps_0.h2f_axi_master onchip_memory2_0.s1 avalon
+set_connection_parameter_value hps_0.h2f_axi_master/onchip_memory2_0.s1 arbitrationPriority {1}
+set_connection_parameter_value hps_0.h2f_axi_master/onchip_memory2_0.s1 baseAddress {0x0000}
+set_connection_parameter_value hps_0.h2f_axi_master/onchip_memory2_0.s1 defaultConnection {0}
+
 add_connection hps_0.h2f_user1_clock clk_0.clk_in clock
 
 add_connection hps_0.h2f_reset clk_0.clk_in_reset reset
@@ -126,6 +153,10 @@ add_connection hps_0.h2f_reset validator_subsys_0.reset reset
 add_connection hps_0.h2f_user1_clock sld_hub_controller_system_0.clk clock
 
 add_connection hps_0.h2f_reset sld_hub_controller_system_0.reset reset
+
+add_connection hps_0.h2f_user1_clock onchip_memory2_0.clk1 clock
+
+add_connection hps_0.h2f_reset onchip_memory2_0.reset1 reset
 
 add_connection hps_0.h2f_lw_axi_master validator_subsys_0.val_mm_bridge_s0 avalon
 set_connection_parameter_value hps_0.h2f_lw_axi_master/validator_subsys_0.val_mm_bridge_s0 arbitrationPriority {1}

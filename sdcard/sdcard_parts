@@ -1,7 +1,0 @@
-# partition table of /dev/loop2
-unit: sectors
-
-/dev/loop2p1 : start=     4096, size=  1024000, Id= b
-/dev/loop2p2 : start=  1028096, size=  1069056, Id=83
-/dev/loop2p3 : start=     2048, size=     2048, Id=a2
-/dev/loop2p4 : start=        0, size=        0, Id= 0
