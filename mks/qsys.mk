@@ -10,6 +10,12 @@ SET_QSYS_GENERATE_ENV = TMP="$(shell cygpath -m "$(TMP)")"
 endif
 endif
 
+define run_qsys_script
+$(call get_stamp_target,$1.$(notdir $2)):
+	qsys-script --system-file=$$(QSYS_FILE_$1) --script=$2
+	$$(stamp_target)
+endef
+
 define create_qsys_targets
 
 HELP_TARGETS_$1 += qsys_generate_qsys-$1
@@ -18,11 +24,17 @@ qsys_generate_qsys-$1.HELP := Create QSys for $1 revision
 .PHONY: qsys_generate_qsys-$1
 qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 
+$(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval $(call run_qsys_script,$1,$t)))
+
+QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$(notdir $t)))
+
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
 	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1"
-	$(foreach t,$(QSYS_ADD_COMP_TCLS),qsys-script --system-file=$$(QSYS_FILE_$1) --script=$t)
+# ugly hack for running qsys_add_*
+#	$(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval qsys-script --system-file=$$(QSYS_FILE_$1) --script=$t;))
+	$(MAKE) $$(QSYS_RUN_ADD_COMPS_$1)
 	$$(stamp_target)
   
 HELP_TARGETS_$1 += qsys_compile-$1

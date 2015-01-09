@@ -41,7 +41,7 @@ all: mmlink
 install: mmlink
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
-	$(CP) msgdma_user_space/fpga_fft $(INSTALL_DIR)/examples
+	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 
 .PHONY: mmlink
 mmlink: 

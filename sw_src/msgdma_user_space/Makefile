@@ -25,7 +25,7 @@
 # * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # *
 
-# set SOPCINFO to the directory that contains the sopcinfo for the fft project
+# set SOPCINFO to the directory that contains the sopcinfo
 SOPCINFO := ./soc_system.sopcinfo
 
 QSYS_HDR := hps_0.h
@@ -34,7 +34,7 @@ QSYS_HDR_DIR := qsys_headers
 SOCEDS_ROOT ?= $(SOCEDS_DEST_ROOT)
 SOCAL_ROOT := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/socal
 
-C_SRC := fpga_fft.c msgdma/sgdma_dispatcher.c
+C_SRC := memtest.c msgdma/sgdma_dispatcher.c
 CFLAGS := -g -O0 -Werror -Wall -lm -Imsgdma -I. -Iqsys_headers -I$(SOCAL_ROOT) -MD
 
 CROSS_COMPILE := arm-linux-gnueabihf-
