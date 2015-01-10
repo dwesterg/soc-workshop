@@ -32,8 +32,6 @@ $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
 	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1"
-# ugly hack for running qsys_add_*
-#	$(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval qsys-script --system-file=$$(QSYS_FILE_$1) --script=$t;))
 	$(MAKE) -j1 $$(QSYS_RUN_ADD_COMPS_$1)
 	$$(stamp_target)
   
