@@ -26,8 +26,6 @@ qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
 
 $(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval $(call run_qsys_script,$1,$t)))
 
-QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$(notdir $t)))
-
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1

@@ -100,6 +100,7 @@ AR_REGEX += overlay_template
 AR_REGEX += downloads
 AR_REGEX += *.defconfig
 AR_REGEX += *.config
+AR_REGEX += build.sh
 
 ################################################
 .PHONY: default
@@ -114,27 +115,28 @@ all: sd-fat
 # DEPS
                                                                           
 define create_deps
-CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target,create_project_$1)
+CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target,$1.create_project)
 
 CREATE_PROJECT_DEPS_$1 := scripts/create_ghrd_quartus_$1.tcl
 
-QUARTUS_STAMP_$1 := $(call get_stamp_target,quartus_$1)
+QUARTUS_STAMP_$1 := $(call get_stamp_target,$1.quartus)
 
-PRELOADER_GEN_STAMP_$1 := $(call get_stamp_target,preloader_gen-$1)
-PRELOADER_FIXUP_STAMP_$1 := $(call get_stamp_target,preloader_fixup-$1)
-PRELOADER_STAMP_$1 := $(call get_stamp_target,preloader-$1)
+PRELOADER_GEN_STAMP_$1 := $(call get_stamp_target,$1.preloader_gen)
+PRELOADER_FIXUP_STAMP_$1 := $(call get_stamp_target,$1.preloader_fixup)
+PRELOADER_STAMP_$1 := $(call get_stamp_target,$1.preloader)
 
-UBOOT_STAMP_$1 := $(call get_stamp_target,uboot-$1)
+UBOOT_STAMP_$1 := $(call get_stamp_target,$1.uboot)
 
-DTS_STAMP_$1 := $(call get_stamp_target,dts-$1)
-DTB_STAMP_$1 := $(call get_stamp_target,dtb-$1)
+DTS_STAMP_$1 := $(call get_stamp_target,$1.dts)
+DTB_STAMP_$1 := $(call get_stamp_target,$1.dtb)
 
-QSYS_STAMP_$1 := $(call get_stamp_target,qsys_compile-$1)
-QSYS_GEN_STAMP_$1 := $(call get_stamp_target,qsys_gen-$1)
-QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,qsys_add_comp-$1)
-QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1-$t))
+QSYS_STAMP_$1 := $(call get_stamp_target,$1.qsys_compile)
+QSYS_GEN_STAMP_$1 := $(call get_stamp_target,$1.qsys_gen)
+QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,$1.qsys_add_comp)
+#QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$t))
+QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$(notdir $t)))
 
-QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,quartus_pin_assignments-$1)
+QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,$1.quartus_pin_assignments)
 
 QUARTUS_DEPS_$1 += $$(QUARTUS_PROJECT_STAMP_$1) $(QUARTUS_HDL_SOURCE) $(QUARTUS_MISC_SOURCE)
 QUARTUS_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
