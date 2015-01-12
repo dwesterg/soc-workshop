@@ -206,5 +206,6 @@ set_location_assignment PIN_T23 -to hps_memory_mem_dqs_n[4]
 set_location_assignment PIN_D27 -to hps_memory_oct_rzqin
 
 set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE ../hdl_src/validator.stp
+set_global_assignment -name USE_SIGNALTAP_FILE ../hdl_src/fft_msgdma.stp
+set_global_assignment -name SIGNALTAP_FILE ../hdl_src/fft_msgdma.stp
 set_global_assignment -name SIGNALTAP_FILE ../hdl_src/validator.stp
