@@ -1,5 +1,6 @@
 package require -exact qsys 14.1
 
+#Add Components
 add_instance dma_read_master dma_read_master
 set_instance_parameter_value dma_read_master {DATA_WIDTH} {128}
 set_instance_parameter_value dma_read_master {LENGTH_WIDTH} {32}
@@ -82,7 +83,7 @@ set_instance_parameter_value write_msgdma_disp {STRIDE_ENABLE} {0}
 set_instance_parameter_value write_msgdma_disp {MAX_STRIDE} {1}
 set_instance_parameter_value write_msgdma_disp {PROGRAMMABLE_BURST_ENABLE} {0}
 
-# connections and connection parameters
+# mm bridge connections
 add_connection memtest_sys_bridge.m0 write_msgdma_disp.CSR avalon
 set_connection_parameter_value memtest_sys_bridge.m0/write_msgdma_disp.CSR arbitrationPriority {1}
 set_connection_parameter_value memtest_sys_bridge.m0/write_msgdma_disp.CSR baseAddress {0x0020}
@@ -108,16 +109,13 @@ set_connection_parameter_value memtest_sys_bridge.m0/memtest.control arbitration
 set_connection_parameter_value memtest_sys_bridge.m0/memtest.control baseAddress {0x0080}
 set_connection_parameter_value memtest_sys_bridge.m0/memtest.control defaultConnection {0}
 
-add_connection hps_0.h2f_lw_axi_master memtest_sys_bridge.s0 avalon
-set_connection_parameter_value hps_0.h2f_lw_axi_master/memtest_sys_bridge.s0 arbitrationPriority {1}
-set_connection_parameter_value hps_0.h2f_lw_axi_master/memtest_sys_bridge.s0 baseAddress {0x00050000}
-set_connection_parameter_value hps_0.h2f_lw_axi_master/memtest_sys_bridge.s0 defaultConnection {0}
+# HPS Connections
+add_connection lw_mm_bridge.m0 memtest_sys_bridge.s0 avalon
+set_connection_parameter_value lw_mm_bridge.m0/memtest_sys_bridge.s0 arbitrationPriority {1}
+set_connection_parameter_value lw_mm_bridge.m0/memtest_sys_bridge.s0 baseAddress {0x00050000}
+set_connection_parameter_value lw_mm_bridge.m0/memtest_sys_bridge.s0 defaultConnection {0}
 
-add_connection fpga_only_master.master memtest_sys_bridge.s0 avalon
-set_connection_parameter_value fpga_only_master.master/memtest_sys_bridge.s0 arbitrationPriority {1}
-set_connection_parameter_value fpga_only_master.master/memtest_sys_bridge.s0 baseAddress {0x00050000}
-set_connection_parameter_value fpga_only_master.master/memtest_sys_bridge.s0 defaultConnection {0}
-
+# Interrupts
 add_connection hps_0.f2h_irq0 read_msgdma_disp.csr_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/read_msgdma_disp.csr_irq irqNumber {3}
 
@@ -134,6 +132,7 @@ set_connection_parameter_value dma_write_master.Data_Write_Master/onchip_memory2
 set_connection_parameter_value dma_write_master.Data_Write_Master/onchip_memory2_0.s1 baseAddress {0x00000000}
 set_connection_parameter_value dma_write_master.Data_Write_Master/onchip_memory2_0.s1 defaultConnection {0}
 
+# Streaming
 add_connection dma_read_master.Data_Source memtest.indata avalon_streaming
 add_connection read_msgdma_disp.Read_Command_Source dma_read_master.Command_Sink avalon_streaming
 add_connection dma_read_master.Response_Source read_msgdma_disp.Read_Response_Sink avalon_streaming
@@ -141,6 +140,7 @@ add_connection dma_write_master.Response_Source write_msgdma_disp.Write_Response
 add_connection write_msgdma_disp.Write_Command_Source dma_write_master.Command_Sink avalon_streaming
 add_connection memtest.gendata dma_write_master.Data_Sink avalon_streaming
 
+# Clocks
 add_connection hps_0.h2f_user1_clock dma_write_master.Clock clock
 add_connection hps_0.h2f_user1_clock dma_read_master.Clock clock
 add_connection hps_0.h2f_user1_clock memtest.clk clock
@@ -148,6 +148,7 @@ add_connection hps_0.h2f_user1_clock memtest_sys_bridge.clk clock
 add_connection hps_0.h2f_user1_clock read_msgdma_disp.clock clock
 add_connection hps_0.h2f_user1_clock write_msgdma_disp.clock clock
 
+# Resets
 add_connection hps_0.h2f_reset dma_read_master.Clock_reset reset
 add_connection hps_0.h2f_reset dma_write_master.Clock_reset reset
 add_connection hps_0.h2f_reset write_msgdma_disp.clock_reset reset

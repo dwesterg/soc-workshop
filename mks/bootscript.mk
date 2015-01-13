@@ -6,11 +6,11 @@ BOOTSCRIPT_REVISION_LIST := $(REVISION_LIST)
 
 define build_boot_script
 
-HELP_TARGETS_$1 += boot_script_image-$1
-boot_script_image-$1.HELP := Make boot script image for $1
+HELP_TARGETS_$1 += $1.boot_script_image
+$1.boot_script_image.HELP := Make boot script image for $1
 
-.PHONY: boot_script_image-$1
-boot_script_image-$1: $1/u-boot.scr
+.PHONY: $1.boot_script_image
+$1.boot_script_image: $1/u-boot.scr
 
 $1/boot.script : Makefile $$(PRELOADER_STAMP_$1)
 	@$(MKDIR) $1

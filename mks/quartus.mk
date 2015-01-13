@@ -18,10 +18,10 @@ define create_quartus_targets
 # Create QuartusII Project
 #############
 
-# HELP_TARGETS_$1 += create_project-$1
-# create_project-$1.HELP := Create Quartus Project for $1
-# .PHONY: create_project-$1
-# create_project-$1: $$(CREATE_PROJECT_STAMP_$1)
+HELP_TARGETS_$1 += $1.create_project
+$1.create_project.HELP := Create Quartus Project for $1
+.PHONY: $1.create_project
+$1.create_project: $$(CREATE_PROJECT_STAMP_$1)
 
 $$(QUARTUS_QPF_$1): $$(CREATE_PROJECT_STAMP_$1)
 
@@ -47,11 +47,11 @@ $1/addon_components.ipx:
 # target for compilation
 #############
 
-HELP_TARGETS_$1 += quartus_compile-$1
-quartus_compile-$1.HELP := Compile Quartus Project Revision $1
+HELP_TARGETS_$1 += $1.quartus_compile
+$1.quartus_compile.HELP := Compile Quartus Project Revision $1
 
-.PHONY: quartus_compile-$1
-quartus_compile-$1: $$(QUARTUS_STAMP_$1)
+.PHONY: $1.quartus_compile
+$1.quartus_compile: $$(QUARTUS_STAMP_$1)
 
 $$(QUARTUS_SOF_$1): $$(QUARTUS_STAMP_$1)
 
@@ -76,11 +76,11 @@ $$(QUARTUS_RBF_$1): %.rbf: %.sof
 	quartus_cpf -c -o bitstream_compression=on $$< $$@
 
 
-HELP_TARGETS_$1 += quartus_edit-$1
-quartus_edit-$1.HELP := Launch Quartus II GUI for $1
+HELP_TARGETS_$1 += $1.quartus_edit
+$1.quartus_edit.HELP := Launch Quartus II GUI for $1
 
-.PHONY: quartus_edit-$1
-quartus_edit-$1: $$(CREATE_PROJECT_STAMP_$1)
+.PHONY: $1.quartus_edit
+$1.quartus_edit: $$(CREATE_PROJECT_STAMP_$1)
 	quartus $$(QUARTUS_QPF_$1) &
 	
 endef

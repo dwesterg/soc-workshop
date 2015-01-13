@@ -20,11 +20,11 @@ define build_preloader_revisions
 
 PRELOADER_DIR_$1 := $1/preloader
 
-HELP_TARGETS_$1 += preloader-$1
-preloader-$1.HELP := Build Preloader $1 BSP for this design into $(PRELOADER_DIR) directory
+HELP_TARGETS_$1 += $1.preloader
+$1.preloader.HELP := Build Preloader $1 BSP for this design into $(PRELOADER_DIR) directory
 
-.PHONY: preloader-$1
-preloader-$1: $$(PRELOADER_STAMP_$1)
+.PHONY: $1.preloader
+$1.preloader: $$(PRELOADER_STAMP_$1)
 
 # Create and build preloader with watchdog disabled.
 # This is useful for board bring up and troubleshooting.
@@ -68,11 +68,11 @@ UBOOT_MKIMAGE_$1 := $$(PRELOADER_DIR_$1)/uboot-socfpga/tools/mkimage$(EXE_EXT)
 
 $$(UBOOT_MKIMAGE_$1): $$(PRELOADER_STAMP_$1)
 
-HELP_TARGETS_$1 += uboot-$1
-uboot-$1.HELP := Build U-Boot $1 into $$(PRELOADER_DIR_$1) directory
+HELP_TARGETS_$1 += $1.uboot
+$1.uboot.HELP := Build U-Boot $1 into $$(PRELOADER_DIR_$1) directory
 
-.PHONY: uboot-$1
-uboot-$1: $$(UBOOT_STAMP_$1)
+.PHONY: $1.uboot
+$1.uboot: $$(UBOOT_STAMP_$1)
 
 endef # build_preloader_revisions
 

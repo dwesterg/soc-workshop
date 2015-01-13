@@ -1,6 +1,17 @@
 package require -exact qsys 14.1
 
-add_instance fft128_0 fft128 1.0
+#Add Components
+add_instance fft128_bridge altera_avalon_mm_bridge 14.1
+set_instance_parameter_value fft128_bridge {DATA_WIDTH} {32}
+set_instance_parameter_value fft128_bridge {SYMBOL_WIDTH} {8}
+set_instance_parameter_value fft128_bridge {ADDRESS_WIDTH} {19}
+set_instance_parameter_value fft128_bridge {USE_AUTO_ADDRESS_WIDTH} {1}
+set_instance_parameter_value fft128_bridge {ADDRESS_UNITS} {SYMBOLS}
+set_instance_parameter_value fft128_bridge {MAX_BURST_SIZE} {1}
+set_instance_parameter_value fft128_bridge {MAX_PENDING_RESPONSES} {4}
+set_instance_parameter_value fft128_bridge {LINEWRAPBURSTS} {0}
+set_instance_parameter_value fft128_bridge {PIPELINE_COMMAND} {1}
+set_instance_parameter_value fft128_bridge {PIPELINE_RESPONSE} {1}
 
 add_instance sgdma_to_fft altera_msgdma 14.1
 set_instance_parameter_value sgdma_to_fft {MODE} {1}
@@ -22,6 +33,8 @@ set_instance_parameter_value sgdma_to_fft {ERROR_ENABLE} {1}
 set_instance_parameter_value sgdma_to_fft {ERROR_WIDTH} {2}
 set_instance_parameter_value sgdma_to_fft {CHANNEL_ENABLE} {0}
 set_instance_parameter_value sgdma_to_fft {CHANNEL_WIDTH} {8}
+
+add_instance fft128_0 fft128 1.0
 
 add_instance sgdma_from_fft altera_msgdma 14.1
 set_instance_parameter_value sgdma_from_fft {MODE} {2}
@@ -66,30 +79,6 @@ set_instance_parameter_value data {writable} {1}
 set_instance_parameter_value data {ecc_enabled} {0}
 set_instance_parameter_value data {resetrequest_enabled} {1}
 
-add_instance fft128_bridge altera_avalon_mm_bridge 14.1
-set_instance_parameter_value fft128_bridge {DATA_WIDTH} {32}
-set_instance_parameter_value fft128_bridge {SYMBOL_WIDTH} {8}
-set_instance_parameter_value fft128_bridge {ADDRESS_WIDTH} {19}
-set_instance_parameter_value fft128_bridge {USE_AUTO_ADDRESS_WIDTH} {1}
-set_instance_parameter_value fft128_bridge {ADDRESS_UNITS} {SYMBOLS}
-set_instance_parameter_value fft128_bridge {MAX_BURST_SIZE} {1}
-set_instance_parameter_value fft128_bridge {MAX_PENDING_RESPONSES} {4}
-set_instance_parameter_value fft128_bridge {LINEWRAPBURSTS} {0}
-set_instance_parameter_value fft128_bridge {PIPELINE_COMMAND} {1}
-set_instance_parameter_value fft128_bridge {PIPELINE_RESPONSE} {1}
-
-# add_instance fft_ddr_bridge altera_avalon_mm_bridge 14.1
-# set_instance_parameter_value fft_ddr_bridge {DATA_WIDTH} {64}
-# set_instance_parameter_value fft_ddr_bridge {SYMBOL_WIDTH} {8}
-# set_instance_parameter_value fft_ddr_bridge {ADDRESS_WIDTH} {30}
-# set_instance_parameter_value fft_ddr_bridge {USE_AUTO_ADDRESS_WIDTH} {1}
-# set_instance_parameter_value fft_ddr_bridge {ADDRESS_UNITS} {SYMBOLS}
-# set_instance_parameter_value fft_ddr_bridge {MAX_BURST_SIZE} {16}
-# set_instance_parameter_value fft_ddr_bridge {MAX_PENDING_RESPONSES} {4}
-# set_instance_parameter_value fft_ddr_bridge {LINEWRAPBURSTS} {0}
-# set_instance_parameter_value fft_ddr_bridge {PIPELINE_COMMAND} {1}
-# set_instance_parameter_value fft_ddr_bridge {PIPELINE_RESPONSE} {1}
-
 add_instance fft_ddr_bridge altera_address_span_extender 14.1
 set_instance_parameter_value fft_ddr_bridge {DATA_WIDTH} {64}
 set_instance_parameter_value fft_ddr_bridge {MASTER_ADDRESS_WIDTH} {32}
@@ -100,9 +89,12 @@ set_instance_parameter_value fft_ddr_bridge {MASTER_ADDRESS_DEF} {0}
 set_instance_parameter_value fft_ddr_bridge {TERMINATE_SLAVE_PORT} {1}
 set_instance_parameter_value fft_ddr_bridge {MAX_PENDING_READS} {8}
 
+
+# Streaming connections
 add_connection fft128_0.out0 sgdma_from_fft.st_sink avalon_streaming
 add_connection sgdma_to_fft.st_source fft128_0.in0 avalon_streaming
 
+# fft mm bridge connections
 add_connection fft128_bridge.m0 sgdma_to_fft.csr avalon
 set_connection_parameter_value fft128_bridge.m0/sgdma_to_fft.csr arbitrationPriority {1}
 set_connection_parameter_value fft128_bridge.m0/sgdma_to_fft.csr baseAddress {0x1000}
@@ -138,26 +130,6 @@ set_connection_parameter_value fft128_bridge.m0/data.s1 arbitrationPriority {1}
 set_connection_parameter_value fft128_bridge.m0/data.s1 baseAddress {0x00000000}
 set_connection_parameter_value fft128_bridge.m0/data.s1 defaultConnection {0}
 
-# add_connection sgdma_to_fft.mm_read fft_ddr_bridge.s0 avalon
-# set_connection_parameter_value sgdma_to_fft.mm_read/fft_ddr_bridge.s0 arbitrationPriority {1}
-# set_connection_parameter_value sgdma_to_fft.mm_read/fft_ddr_bridge.s0 baseAddress {0x40000000}
-# set_connection_parameter_value sgdma_to_fft.mm_read/fft_ddr_bridge.s0 defaultConnection {0}
- 
-# add_connection sgdma_from_fft.mm_write fft_ddr_bridge.s0 avalon
-# set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.s0 arbitrationPriority {1}
-# set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.s0 baseAddress {0x40000000}
-# set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.s0 defaultConnection {0}
-
-# add_connection fft_ddr_bridge.m0 hps_0.f2h_sdram0_data avalon
-# set_connection_parameter_value fft_ddr_bridge.m0/hps_0.f2h_sdram0_data arbitrationPriority {1}
-# set_connection_parameter_value fft_ddr_bridge.m0/hps_0.f2h_sdram0_data baseAddress {0x0000}
-# set_connection_parameter_value fft_ddr_bridge.m0/hps_0.f2h_sdram0_data defaultConnection {0}
-
-add_connection hps_0.h2f_lw_axi_master fft128_bridge.s0 avalon
-set_connection_parameter_value hps_0.h2f_lw_axi_master/fft128_bridge.s0 arbitrationPriority {1}
-set_connection_parameter_value hps_0.h2f_lw_axi_master/fft128_bridge.s0 baseAddress {0x00060000}
-set_connection_parameter_value hps_0.h2f_lw_axi_master/fft128_bridge.s0 defaultConnection {0}
-
 add_connection sgdma_to_fft.mm_read fft_ddr_bridge.windowed_slave avalon
 set_connection_parameter_value sgdma_to_fft.mm_read/fft_ddr_bridge.windowed_slave arbitrationPriority {1}
 set_connection_parameter_value sgdma_to_fft.mm_read/fft_ddr_bridge.windowed_slave baseAddress {0x80000000}
@@ -168,17 +140,25 @@ set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.windowed_s
 set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.windowed_slave baseAddress {0x80000000}
 set_connection_parameter_value sgdma_from_fft.mm_write/fft_ddr_bridge.windowed_slave defaultConnection {0}
 
+# Connectivity to external host
+add_connection lw_mm_bridge.m0 fft128_bridge.s0 avalon
+set_connection_parameter_value lw_mm_bridge.m0/fft128_bridge.s0 arbitrationPriority {1}
+set_connection_parameter_value lw_mm_bridge.m0/fft128_bridge.s0 baseAddress {0x00060000}
+set_connection_parameter_value lw_mm_bridge.m0/fft128_bridge.s0 defaultConnection {0}
+
 add_connection fft_ddr_bridge.expanded_master hps_0.f2h_sdram0_data avalon
 set_connection_parameter_value fft_ddr_bridge.expanded_master/hps_0.f2h_sdram0_data arbitrationPriority {1}
 set_connection_parameter_value fft_ddr_bridge.expanded_master/hps_0.f2h_sdram0_data baseAddress {0x0000}
 set_connection_parameter_value fft_ddr_bridge.expanded_master/hps_0.f2h_sdram0_data defaultConnection {0}
 
+# Interrupts
 add_connection hps_0.f2h_irq0 sgdma_from_fft.csr_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/sgdma_from_fft.csr_irq irqNumber {5}
 
 add_connection hps_0.f2h_irq0 sgdma_to_fft.csr_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/sgdma_to_fft.csr_irq irqNumber {6}
 
+# Clocks
 add_connection hps_0.h2f_user1_clock fft128_bridge.clk clock
 add_connection hps_0.h2f_user1_clock fft_ddr_bridge.clock clock
 add_connection hps_0.h2f_user1_clock sgdma_to_fft.clock clock
@@ -186,6 +166,7 @@ add_connection hps_0.h2f_user1_clock fft128_0.clock clock
 add_connection hps_0.h2f_user1_clock sgdma_from_fft.clock clock
 add_connection hps_0.h2f_user1_clock data.clk1 clock
 
+# Clocks
 add_connection hps_0.h2f_reset fft128_bridge.reset reset
 add_connection hps_0.h2f_reset fft_ddr_bridge.reset reset
 add_connection hps_0.h2f_reset sgdma_to_fft.reset_n reset

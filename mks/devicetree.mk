@@ -16,11 +16,11 @@ $$(DEVICE_TREE_SOURCE_$1):$$(QSYS_SOPCINFO_$1)
 	$(DTS.SOPC2DTS) --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_SOURCE_$1) $$(DTS.SOPC2DTS_ARGS_$1)
 	$$(stamp_target)
 
-HELP_TARGETS_$1 += dts-$1
-dts-$1.HELP := Generate a device tree for $1
+HELP_TARGETS_$1 += $1.dts
+$1.dts.HELP := Generate a device tree for $1
 
-.PHONY: dts-$1
-dts-$1: $$(DEVICE_TREE_SOURCE_$1)
+.PHONY: $1.dts
+$1.dts: $$(DEVICE_TREE_SOURCE_$1)
 
 $$(DEVICE_TREE_BLOB_$1): $$(QSYS_SOPCINFO_$1)
 	$(DTS.SOPC2DTS) --type dtb --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_BLOB_$1) $$(DTS.SOPC2DTS_ARGS_$1)
@@ -28,11 +28,11 @@ $$(DEVICE_TREE_BLOB_$1): $$(QSYS_SOPCINFO_$1)
 
 
 
-HELP_TARGETS_$1 += dtb-$1
-dtb-$1.HELP := Generate a device tree blob for $1
+HELP_TARGETS_$1 += $1.dtb
+$1.dtb.HELP := Generate a device tree blob for $1
 
-.PHONY: dtb-$1
-dtb-$1: $$(DEVICE_TREE_BLOB_$1)
+.PHONY: $1.dtb
+$1.dtb: $$(DEVICE_TREE_BLOB_$1)
 
 endef # build_dts_revisions
 

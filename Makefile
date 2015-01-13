@@ -240,19 +240,19 @@ $(call get_stamp_target,toolchain.extract): $(DL)/$(TOOLCHAIN_SOURCE_TAR)
 
 ################################################
 # All projects stuff
-define create_project
+#define create_project
 
-.PHONY: create_project-$1
-create_project-$1: $$(QSYS_GEN_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
+#.PHONY: create_project-$1
+#create_project-$1: $$(QSYS_GEN_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
 
-HELP_TARGETS_$1 += create_project-$1
-create_project-$1.HELP := Create all files for $1 project
+#HELP_TARGETS_$1 += create_project-$1
+#create_project-$1.HELP := Create all files for $1 project
 
-endef
-$(foreach r,$(REVISION_LIST),$(eval $(call create_project,$r)))
+#endef
+#$(foreach r,$(REVISION_LIST),$(eval $(call create_project,$r)))
 
 .PHONY: create_all_projects
-create_all_projects: $(foreach r,$(REVISION_LIST),create_project-$r)
+create_all_projects: $(foreach r,$(REVISION_LIST),$r.create_project)
 HELP_TARGETS += create_all_projects
 create_all_projects.HELP := Create all quartus projects
 
@@ -365,6 +365,23 @@ downloads_clean:
 
 
 ################################################
+# Utils
+
+.PHONY: enable_signaltap
+HELP_TARGETS += enable_signaltap
+enable_signaltap.HELP := Enable SignalTap in project create scripts
+
+enable_signaltap:
+	sed -i '/ENABLE_SIGNALTAP/c set_global_assignment -name ENABLE_SIGNALTAP ON' scripts/create_ghrd_quartus_*.tcl
+
+.PHONY: disable_signaltap
+HELP_TARGETS += disable_signaltap
+disable_signaltap.HELP := Disable SignalTap in project create scripts
+
+disable_signaltap:
+	sed -i '/ENABLE_SIGNALTAP/c set_global_assignment -name ENABLE_SIGNALTAP OFF' scripts/create_ghrd_quartus_*.tcl
+
+################################################
 # Help system
 
 .PHONY: help
@@ -381,7 +398,7 @@ HELP_TARGETS_X := $(patsubst %,help-%,$(sort $(HELP_TARGETS)))
 
 HELP_TARGET_REVISION_X := $(foreach r,$(REVISION_LIST),$(patsubst %,help_rev-%,$(sort $(HELP_TARGETS_$r))))
 
-HELP_TARGET_REVISION_SHORT_X := $(sort $(patsubst %-$(firstword $(REVISION_LIST)),help_rev-%-REVISIONNAME,$(filter-out $(firstword $(REVISION_LIST)),$(HELP_TARGETS_$(firstword $(REVISION_LIST))))))
+HELP_TARGET_REVISION_SHORT_X := $(sort $(patsubst $(firstword $(REVISION_LIST)).%,help_rev-REVISIONNAME.%,$(filter-out $(firstword $(REVISION_LIST)),$(HELP_TARGETS_$(firstword $(REVISION_LIST))))))
 
 $(foreach h,$(filter-out $(firstword $(REVISION_LIST)),$(HELP_TARGETS_$(firstword $(REVISION_LIST)))),$(eval $(patsubst %-$(firstword $(REVISION_LIST)),%-REVISIONNAME,$h).HELP := $(subst $(firstword $(REVISION_LIST)),REVISIONNAME,$($h.HELP)))) 
 

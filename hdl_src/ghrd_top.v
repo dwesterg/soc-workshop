@@ -1,3 +1,9 @@
+`ifdef NOVTECH_NOVSOMCV_LITE
+  `define NO_QSPI
+`elsif DE0_NANO_SOC
+  `define NO_QSPI
+`endif
+
 module ghrd_top 
 #(
         parameter MEM_A_WIDTH,
@@ -37,7 +43,7 @@ module ghrd_top
 	input  wire        hps_emac1_RXD1,     
 	input  wire        hps_emac1_RXD2,     
 	input  wire        hps_emac1_RXD3, 
-`ifdef NOVTECH_NOVSOMCV_LITE
+`ifdef NO_QSPI
 `else
 	inout  wire        hps_qspi_IO0,       
 	inout  wire        hps_qspi_IO1,       
@@ -102,7 +108,7 @@ soc_system soc_inst (
   .hps_0_hps_io_hps_io_emac1_inst_RXD1   (hps_emac1_RXD1),   
   .hps_0_hps_io_hps_io_emac1_inst_RXD2   (hps_emac1_RXD2),   
   .hps_0_hps_io_hps_io_emac1_inst_RXD3   (hps_emac1_RXD3),
-`ifdef NOVTECH_NOVSOMCV_LITE
+`ifdef NO_QSPI
 `else  
   .hps_0_hps_io_hps_io_qspi_inst_IO0     (hps_qspi_IO0),     
   .hps_0_hps_io_hps_io_qspi_inst_IO1     (hps_qspi_IO1),     

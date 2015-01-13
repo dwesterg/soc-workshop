@@ -18,11 +18,11 @@ endef
 
 define create_qsys_targets
 
-HELP_TARGETS_$1 += qsys_generate_qsys-$1
-qsys_generate_qsys-$1.HELP := Create QSys for $1 revision
+HELP_TARGETS_$1 += $1.qsys_generate_qsys
+$1.qsys_generate_qsys.HELP := Create QSys for $1 revision
 
-.PHONY: qsys_generate_qsys-$1
-qsys_generate_qsys-$1: $$(QSYS_GEN_STAMP_$1)
+.PHONY: $1.qsys_generate_qsys
+$1.qsys_generate_qsys: $$(QSYS_GEN_STAMP_$1)
 
 $(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval $(call run_qsys_script,$1,$t)))
 
@@ -33,11 +33,11 @@ $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(MAKE) -j1 $$(QSYS_RUN_ADD_COMPS_$1)
 	$$(stamp_target)
   
-HELP_TARGETS_$1 += qsys_compile-$1
-qsys_compile-$1.HELP := Generate Qsys System - $1
+HELP_TARGETS_$1 += $1.qsys_compile
+$1.qsys_compile.HELP := Generate Qsys System - $1
 
-.PHONY: qsys_compile-$1
-qsys_compile-$1: $$(QSYS_STAMP_$1)
+.PHONY: $1.qsys_compile
+$1.qsys_compile: $$(QSYS_STAMP_$1)
 
 #so if qsys file changes, regenerate
 $$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1)
@@ -46,11 +46,11 @@ $$(QSYS_STAMP_$1): $$(QSYS_FILE_$1)
 	$(SET_QSYS_GENERATE_ENV) qsys-generate  $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
 	$$(stamp_target)
 
-HELP_TARGETS_$1 += qsys_edit-$1
-qsys_edit-$1.HELP := Launch QSys GUI - $1
+HELP_TARGETS_$1 += $1.qsys_edit
+$1.qsys_edit.HELP := Launch QSys GUI - $1
 
-.PHONY: qsys_edit-$1
-qsys_edit-$1: $$(QSYS_FILE_$1)
+.PHONY: $1.qsys_edit
+$1.qsys_edit: $$(QSYS_FILE_$1)
 	qsys-edit $$(QSYS_FILE_$1) &
 	
 $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QSYS_STAMP_$1)	
@@ -62,7 +62,7 @@ $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QS
 $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1): $$(QSYS_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
 	quartus_map $$(QUARTUS_QPF_$1) -c $1
 	quartus_cdb --merge $$(QUARTUS_QPF_$1) -c $1
-	$(MAKE) QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 quartus_apply_tcl_pin_assignments-$1 
+	$(MAKE) QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 $1.quartus_apply_tcl_pin_assignments 
 	$$(stamp_target)
 
 #######
@@ -76,8 +76,8 @@ ifeq ($$(QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY),1)
 QSYS_TCL_PIN_ASSIGNMENTS_$1 = $(wildcard $1/$(QSYS_BASE_NAME)/synthesis/submodules/*_pin_assignments.tcl)
 QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1 = $(patsubst %,$1_quartus_apply_tcl-%,$$(QSYS_TCL_PIN_ASSIGNMENTS_$1))
 
-.PHONY: quartus_apply_tcl_pin_assignments-$1
-quartus_apply_tcl_pin_assignments-$1: $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1)
+.PHONY: $1.quartus_apply_tcl_pin_assignments
+$1.quartus_apply_tcl_pin_assignments: $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1)
 
 .PHONY: $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1)
 $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1): $1_quartus_apply_tcl-% : %
