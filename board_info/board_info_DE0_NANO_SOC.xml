@@ -1,6 +1,6 @@
 <BoardInfo pov="hps_0_arm_a9_0">
 
-<DTAppend name="model" type="string" parentlabel="" val="Novtech NovSOM CycloneV Lite"/>
+<DTAppend name="model" type="string" parentlabel="" val="DE0 NANO SOC"/>
 <DTAppend name="compatible" parentlabel="" >
 	<val type="string">altr,socfpga-cyclone5</val>
 	<val type="string">altr,socfpga</val>
