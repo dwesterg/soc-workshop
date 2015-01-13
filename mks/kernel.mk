@@ -34,7 +34,7 @@ LINUX_PATCHES = $(sort $(wildcard patches/linux*.patch))
 linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p))
 define do_patch_lnx
 $(call get_stamp_target,$1): $(call get_stamp_target,linux.extract)
-	patch -d linux-socfpga -p1 < $1
+	patch -d linux-socfpga -p1 < $1 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 endef
 $(foreach p,$(LINUX_PATCHES),$(eval $(call do_patch_lnx,$p)))
@@ -52,13 +52,13 @@ endif
 HELP_TARGETS += linux.modules
 linux.modules.HELP := Build linux kernel modules
 linux.modules: linux.patches linux.dodefconfig toolchain.extract
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=overlay modules
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=overlay modules 2>&1 | tee logs/$(notdir $@).log
 
 
 HELP_TARGETS += linux.modules_install
 linux.modules_install.HELP := Build linux kernel modules
 linux.modules_install: linux.modules
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(CURDIR)/overlay modules_install
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(CURDIR)/overlay modules_install 2>&1 | tee logs/$(notdir $@).log
 
 # build                                   
 linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,linux.build)
@@ -71,7 +71,7 @@ linux.build.HELP := Build linux kernel
 .PHONY: linux.build
 linux.build: $(call get_stamp_target,linux.build) 
 $(call get_stamp_target,linux.build): $(LNX_DEPS)
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET)
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET) 2>&1 | tee logs/$(notdir $@).log
 	$(stamp_target)
 
 # update linux configuration and same defconfig

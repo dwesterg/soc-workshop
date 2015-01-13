@@ -3,12 +3,12 @@
 #############
 
 define set_default_project_settings
-	quartus_sh --no_banner --set -rev $1 PROJECT_OUTPUT_DIRECTORY=output_files $1/$1.qpf
-	quartus_sh --no_banner --set -rev $1 SMART_RECOMPILE=ON $1/$1.qpf
-	quartus_sh --no_banner --set -rev $1 TOP_LEVEL_ENTITY=$(TOP_LEVEL_ENTITY) $1/$1.qpf
-	quartus_sh --no_banner --set -rev $1 QIP_FILE=$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip $1/$1.qpf
-	quartus_sh --no_banner --set -rev $1 VERILOG_MACRO="$1=1" $1/$1.qpf
-	quartus_sh --no_banner --set -rev $1 SEARCH_PATH="../ip" $1/$1.qpf
+	quartus_sh --no_banner --set -rev $1 PROJECT_OUTPUT_DIRECTORY=output_files $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner --set -rev $1 SMART_RECOMPILE=ON $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner --set -rev $1 TOP_LEVEL_ENTITY=$(TOP_LEVEL_ENTITY) $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner --set -rev $1 QIP_FILE=$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner --set -rev $1 VERILOG_MACRO="$1=1" $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner --set -rev $1 SEARCH_PATH="../ip" $1/$1.qpf 2>&1 | tee -a logs/$$(notdir $$@).log
 endef
 
 define create_quartus_targets
@@ -28,9 +28,9 @@ $$(QUARTUS_QPF_$1): $$(CREATE_PROJECT_STAMP_$1)
 $$(CREATE_PROJECT_STAMP_$1): $$(CREATE_PROJECT_DEPS_$1) 
 	@$(RM) $1
 	@$(MKDIR) $1
-	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_project.tcl $1 -d $1 -c $1
-	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_revision.tcl $1/$1.qpf -new $1
-	quartus_sh --no_banner -t $$(SCRIPT_DIR)/project_run_script.tcl $1/$1.qpf -c $1 -script $(CURDIR)/$$< 
+	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_project.tcl $1 -d $1 -c $1 2>&1 | tee logs/$$(notdir $$@).log
+	quartus_sh --no_banner -t $$(SCRIPT_DIR)/create_revision.tcl $1/$1.qpf -new $1 2>&1 | tee -a logs/$$(notdir $$@).log
+	quartus_sh --no_banner -t $$(SCRIPT_DIR)/project_run_script.tcl $1/$1.qpf -c $1 -script $(CURDIR)/$$< 2>&1 | tee -a logs/$$(notdir $$@).log
 	$(call set_default_project_settings,$1)
 	$(MAKE) $1/addon_components.ipx
 	$$(stamp_target)
@@ -56,8 +56,8 @@ $1.quartus_compile: $$(QUARTUS_STAMP_$1)
 $$(QUARTUS_SOF_$1): $$(QUARTUS_STAMP_$1)
 
 $$(QUARTUS_STAMP_$1): $$(QUARTUS_DEPS_$1)
-	quartus_stp $$(QUARTUS_QPF_$1) -c $1
-	quartus_sh --flow compile $$(QUARTUS_QPF_$1) -c $1
+	quartus_stp $$(QUARTUS_QPF_$1) -c $1 2>&1 | tee logs/$$(notdir $$@).log
+	quartus_sh --flow compile $$(QUARTUS_QPF_$1) -c $1 2>&1 | tee -a logs/$$(notdir $$@).log
 	$$(stamp_target)	
 	
 #
@@ -73,7 +73,7 @@ QUARTUS_CPF_ARGS = bitstream_compression=on
 
 $$(QUARTUS_RBF_$1): %.rbf: %.sof
 	$(ECHO) $$(QUARTUS_RBF_$1)
-	quartus_cpf -c -o bitstream_compression=on $$< $$@
+	quartus_cpf -c -o bitstream_compression=on $$< $$@ 2>&1 | tee logs/$$(notdir $$@).log
 
 
 HELP_TARGETS_$1 += $1.quartus_edit

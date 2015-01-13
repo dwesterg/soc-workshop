@@ -13,7 +13,7 @@ DTS.SOPC2DTS_ARGS_$1 += $(DTS.SOPC2DTS_ARGS)
 DTS.SOPC2DTS_ARGS_$1 += $(if $$(DTS_BOARDINFO_$1),--board $$(DTS_BOARDINFO_$1))
 
 $$(DEVICE_TREE_SOURCE_$1):$$(QSYS_SOPCINFO_$1)
-	$(DTS.SOPC2DTS) --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_SOURCE_$1) $$(DTS.SOPC2DTS_ARGS_$1)
+	$(DTS.SOPC2DTS) --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_SOURCE_$1) $$(DTS.SOPC2DTS_ARGS_$1) 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 
 HELP_TARGETS_$1 += $1.dts
@@ -23,7 +23,7 @@ $1.dts.HELP := Generate a device tree for $1
 $1.dts: $$(DEVICE_TREE_SOURCE_$1)
 
 $$(DEVICE_TREE_BLOB_$1): $$(QSYS_SOPCINFO_$1)
-	$(DTS.SOPC2DTS) --type dtb --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_BLOB_$1) $$(DTS.SOPC2DTS_ARGS_$1)
+	$(DTS.SOPC2DTS) --type dtb --input $$(QSYS_SOPCINFO_$1) --output $$(DEVICE_TREE_BLOB_$1) $$(DTS.SOPC2DTS_ARGS_$1) 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 
 

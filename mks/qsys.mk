@@ -12,7 +12,7 @@ endif
 
 define run_qsys_script
 $(call get_stamp_target,$1.$(notdir $2)):
-	qsys-script --system-file=$$(QSYS_FILE_$1) --script=$2
+	qsys-script --system-file=$$(QSYS_FILE_$1) --script=$2  2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 endef
 
@@ -29,7 +29,7 @@ $(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval $(call run_qsys_script,$1,$t)))
 $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
-	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1"
+	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1" 2>&1 | tee logs/$$(notdir $$@).log
 	$(MAKE) -j1 $$(QSYS_RUN_ADD_COMPS_$1)
 	$$(stamp_target)
   
@@ -43,7 +43,7 @@ $1.qsys_compile: $$(QSYS_STAMP_$1)
 $$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1)
 
 $$(QSYS_STAMP_$1): $$(QSYS_FILE_$1)
-	$(SET_QSYS_GENERATE_ENV) qsys-generate  $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)
+	$(SET_QSYS_GENERATE_ENV) qsys-generate  $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)  2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 
 HELP_TARGETS_$1 += $1.qsys_edit
@@ -62,7 +62,7 @@ $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QS
 $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1): $$(QSYS_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
 	quartus_map $$(QUARTUS_QPF_$1) -c $1
 	quartus_cdb --merge $$(QUARTUS_QPF_$1) -c $1
-	$(MAKE) QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 $1.quartus_apply_tcl_pin_assignments 
+	$(MAKE) QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 $1.quartus_apply_tcl_pin_assignments 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 
 #######
@@ -82,7 +82,7 @@ $1.quartus_apply_tcl_pin_assignments: $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_
 .PHONY: $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1)
 $$(QSYS_TCL_PIN_ASSIGNMENTS_APPLY_TARGETS_$1): $1_quartus_apply_tcl-% : %
 	@$(ECHO) "Applying $$<... to $(QUARTUS_QPF_$1)..."
-	quartus_sh -t $(CURDIR)/$$< $(CURDIR)/$$(QUARTUS_QPF_$1)
+	quartus_sh -t $(CURDIR)/$$< $(CURDIR)/$$(QUARTUS_QPF_$1) 2>&1 | tee logs/$$(notdir $$@).log
 
 endif # QUARTUS_ENABLE_PIN_ASSIGNMENTS_APPLY == 1
 ######

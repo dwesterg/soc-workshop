@@ -49,7 +49,7 @@ $$(PRELOADER_FIXUP_STAMP_$1): $$(PRELOADER_FIXUP_DEPS_$1)
 	$$(stamp_target)
 
 $$(PRELOADER_STAMP_$1): $$(PRELOADER_DEPS_$1)
-	$(MAKE) -C $$(PRELOADER_DIR_$1)
+	$(MAKE) -C $$(PRELOADER_DIR_$1) 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)	
 
 $1/preloader/uboot-socfpga/u-boot.img: $$(UBOOT_STAMP_$1)
@@ -58,7 +58,7 @@ $1/u-boot.img: $1/preloader/uboot-socfpga/u-boot.img
 	$(CP) $$< $$@
 
 $$(UBOOT_STAMP_$1): $$(PRELOADER_STAMP_$1)
-	$(MAKE) -C $$(PRELOADER_DIR_$1) uboot
+	$(MAKE) -C $$(PRELOADER_DIR_$1) uboot 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 	
 ifeq ($(IS_WINDOWS_HOST),1)
