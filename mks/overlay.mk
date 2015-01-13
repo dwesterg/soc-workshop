@@ -14,7 +14,7 @@ HELP_TARGETS += overlay.make_all
 overlay.make_all.HELP := Install custom apps to overlay directory
 .PHONY: overlay.make_all
 overlay.make_all: overlay.extract toolchain.extract linux.patch
-	$(MAKE) -C sw_src PATH=$(TOOLCHAIN_DIR)/bin:$(PATH) CROSS_COMPILE=$(CROSS_COMPILE)  INSTALL_DIR=$(CURDIR)/overlay all
+	$(MAKE) -C sw_src PATH=$(TOOLCHAIN_DIR)/bin:$(PATH) CROSS_COMPILE=$(CROSS_COMPILE)  INSTALL_DIR=$(CURDIR)/overlay all 2>&1 | tee logs/$$(notdir $$@).log
 
 HELP_TARGETS += overlay.make_install
 overlay.make_install.HELP := Install custom apps to overlay directory

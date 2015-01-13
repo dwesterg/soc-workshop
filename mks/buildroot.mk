@@ -41,8 +41,8 @@ buildroot.build.HELP := Build buildroot
 .PHONY: buildroot.build
 buildroot.build: $(call get_stamp_target,buildroot.build)
 $(call get_stamp_target,buildroot.build): $(BR_DEPS)
-	$(MAKE) -C buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET)
-	$(MAKE) -C buildroot $(BUILDROOT_VARIABLES) all
+	$(MAKE) -C buildroot $(BUILDROOT_VARIABLES) $(BUILDROOT_DEFCONFIG_TARGET) 2>&1 | tee logs/$(notdir $@).log
+	$(MAKE) -C buildroot $(BUILDROOT_VARIABLES) all 2>&1 | tee -a logs/$(notdir $@).log
 	$(stamp_target)
 
 # dowload all buildroot sources required for the build
