@@ -101,6 +101,7 @@ AR_REGEX += downloads
 AR_REGEX += *.defconfig
 AR_REGEX += *.config
 AR_REGEX += build.sh
+AR_REGEX += boot.script
 
 ################################################
 .PHONY: default
@@ -196,12 +197,13 @@ AR_FILES += $1/preloader/preloader-mkpimage.bin
 
 AR_FILES += $1/u-boot.img
 AR_FILES += $1/preloader-mkpimage.bin
-AR_FILES += $1/boot.script $1/u-boot.scr
+#AR_FILES += $1/boot.script $1/u-boot.scr
 
 SD_FAT_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
 SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
 SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
-SD_FAT_$1 += $1/boot.script $1/u-boot.scr
+#SD_FAT_$1 += $1/boot.script $1/u-boot.scr
+SD_FAT_$1 += boot.script u-boot.scr
 
 .PHONY:$1.all
 $1.all: $$(SD_FAT_$1) sd_fat_$1.tar.gz
@@ -216,6 +218,7 @@ sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage
 endef
 $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))
 
+AR_FILES += boot.script u-boot.scr
 
 include mks/qsys.mk mks/quartus.mk mks/preloader_uboot.mk mks/devicetree.mk 
 include mks/bootscript.mk mks/kernel.mk mks/buildroot.mk mks/overlay.mk
@@ -341,6 +344,10 @@ scrub_clean.HELP := Restore design to its barebones state
 .PHONY: scrub scrub_clean
 scrub scrub_clean:
 	$(if $(strip $(wildcard $(SCRUB_CLEAN_FILES))),$(RM) $(wildcard $(SCRUB_CLEAN_FILES)),@$(ECHO) "You're already as clean as it gets!")
+
+.PHONY: test_scrub_clean
+test_scrub_clean:
+	$(if $(strip $(wildcard $(SCRUB_CLEAN_FILES))),$(ECHO) $(wildcard $(SCRUB_CLEAN_FILES)),@$(ECHO) "You're already as clean as it gets!")
 
 .PHONY: tgz_scrub_clean
 tgz_scrub_clean:

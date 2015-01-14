@@ -1,0 +1,32 @@
+echo ---Defaulting soc_workshop_revision so saved value is not used---
+env default soc_workshop_revision
+setenv fpga_do_config 1
+if test ${soc_workshop_revision} = MACNICA_HELIO_12; then
+setenv fpga_do_config 0
+fi
+if test ${soc_workshop_revision} = MACNICA_HELIO_13; then
+setenv fpga_do_config 0
+fi
+if test ${soc_workshop_revision} = MACNICA_HELIO_14; then
+setenv fpga_do_config 0
+fi
+
+if ${fpga_do_config}; then
+echo ---Programming FPGA---
+fatload mmc 0:1 $fpgadata ${soc_workshop_revision}/output_files/${soc_workshop_revision}.rbf;
+fpga load 0 $fpgadata $filesize;
+else
+echo ---FPGA Programming not supported on $soc_workshop_revision---
+fi
+
+echo ---Setting Env variables---
+set fdtimage ${soc_workshop_revision}/soc_system.dtb;
+set rootfsimage rootfs.img;
+setenv mmcroot /dev/ram;;
+setenv mmcload '${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fpgadata} ${rootfsimage}';
+setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} ${fpgadata} ${fdtaddr}';
+
+echo ---Booting Linux---
+run bridge_enable_handoff;
+run mmcload;
+run mmcboot;

@@ -18,6 +18,7 @@ TAR := tar
 TOUCH := touch
 WHICH := which
 XZ := xz
+MKIMAGE := mkimage
 
 # Preloader 
 
