@@ -51,14 +51,14 @@ arc_build_all:
 	$(MAKE) tar.compile
 	$(MAKE) coreutils.compile
 	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar downloads
-	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) $(ARC_BUILD_INTERMEDIATE_TARGETS)
+	$(MAKE) -j9 PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) $(ARC_BUILD_INTERMEDIATE_TARGETS)
 	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) all
 	
 define arc_build_project
 
 .PHONY: arc_build-$1
 arc_build-$1:
-	arc submit -i --watch -- arc vnc make -j1 $1.all
+	arc submit -i --watch acds/14.1,soceds/14.1,git os=linux64 ncpus=1 -- arc vnc make -j1 $1.all
 
 endef
 
