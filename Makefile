@@ -101,6 +101,7 @@ AR_REGEX += downloads
 AR_REGEX += *.defconfig
 AR_REGEX += *.config
 AR_REGEX += build.sh
+AR_REGEX += arc_build.sh
 AR_REGEX += boot.script
 
 ################################################
