@@ -46,16 +46,14 @@ ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 
 .PHONY: arc_build_all
 arc_build_all:
-	$(MAKE) http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) tar.get coreutils.get
+	ssh -M -S my_socket -fnNT -L 8080:sj-proxy.altera.com:8080 sj-interactive1
+	$(MAKE) http_proxy=localhost:8080 https_proxy=localhost:8080 tar.get coreutils.get
 	$(MAKE) tar.compile
 	$(MAKE) coreutils.compile
-	$(MAKE) http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar downloads
-	arc submit -i -- make KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) arc_build_all_sub
-
-.PHONY: arc_build_all_sub
-arc_build_all_sub:
+	$(MAKE) http_proxy=localhost:8080 https_proxy=localhost:8080 PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar downloads
 	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) $(ARC_BUILD_INTERMEDIATE_TARGETS)
-	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) all
+	$(MAKE) http_proxy=localhost:8080 https_proxy=localhost:8080 PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) all
+	ssh -S my_socket -O exit sj-interactive1
 
 	
 define arc_build_project

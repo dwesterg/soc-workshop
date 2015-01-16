@@ -277,7 +277,7 @@ create_all_qsys.HELP := Create all qsys files
 
 ################################################
 
-SD_FAT_TGZ := sd_fat.tar.gz
+SD_FAT_TGZ := sd_fat.$(KBUILD_BUILD_VERSION).tar.gz
 
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(ALL_DEPS_$r))
 SD_FAT_TGZ_DEPS += zImage
@@ -380,6 +380,11 @@ logs:
 
 ################################################
 # Utils
+
+.PHONY: setup_sw_env
+setup_sw_env: toolchain.extract linux.dodefconfig buildroot.dodefconfig
+HELP_TARGETS += setup_sw_env
+setup_sw_env.HELP := Setup SW build environment
 
 .PHONY: enable_signaltap
 HELP_TARGETS += enable_signaltap

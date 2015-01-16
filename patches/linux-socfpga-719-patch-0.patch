@@ -1,64 +1,6 @@
-From 965bc4054f524c43f255bc7f1754fa7747a1eaee Mon Sep 17 00:00:00 2001
-From: Aaron Ferrucci <aferrucc@altera.com>
-Date: Mon, 14 Jul 2014 13:51:48 -0700
-Subject: [PATCH] FogBugz #175246: Rename sld-hub to mm-debug-link; add new
- commands.
-
-The name "sld-hub" happens to reflect current usage of this driver, but
-in the future we may come up with other uses for the debug hardware.
-In actuality, the driver code communicates with an instance of
-altera_mm_debug_link (which in turn communicates with the SLD Hub
-controller hardware). The first part of this change is a search-
-and-replace from "sld-hub"-like text to "mm-debug-link"-like text.
------------------------------------------------------------------
-The second part of this change adds new functionality to this
-driver, implemented via ioctl:
-  - ENABLE command
-  - RESET command
-  - version
-  - signature ("SysC")
------------------------------------------------------------------
-The ioctl command values are implemented via the standard _IOR
-and _IOW macros defined in linux/ioctl.h, using a "type" value
-of 0xA1 (reserved in Documentation/ioctl/ioctl-number.txt).
------------------------------------------------------------------
-During testing, I noted that the size of the hardware FIFOs within
-altera_mm_debug_link have a significant effect on performance. I've
-laid the groundwork for allowing the user ot choose the size of
-those FIFOs by adding registers for reading out the FIFO sizes,
-and having the driver allocate a buffer (pdata->kbuf) of the correct
-size (as opposed to having a fixed-size buffer).
------------------------------------------------------------------
-These changes were originally covered in a previous review:
-  crucible:8060/cru/linux-socfpga-693
-But enough time has passed (and changes made that were not
-part of the original concept) that I think it's worth starting
-fresh with a new review.
-
-V2: Add version check; minor cleanup.
-
-Signed-off-by: Aaron Ferrucci <aferrucc@altera.com>
----
- .../bindings/arm/altera/mm-debug-link.txt          |  19 +
- .../devicetree/bindings/arm/altera/sld-hub.txt     |  19 -
- Documentation/ioctl/ioctl-number.txt               |   1 +
- drivers/char/Kconfig                               |  10 +-
- drivers/char/Makefile                              |   2 +-
- drivers/char/mm-debug-link.c                       | 442 +++++++++++++++++++++
- drivers/char/sld-hub.c                             | 305 --------------
- include/linux/mm-debug-link.h                      |  39 ++
- 8 files changed, 508 insertions(+), 329 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt
- delete mode 100644 Documentation/devicetree/bindings/arm/altera/sld-hub.txt
- create mode 100644 drivers/char/mm-debug-link.c
- delete mode 100644 drivers/char/sld-hub.c
- create mode 100644 include/linux/mm-debug-link.h
-
-diff --git a/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt b/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt
-new file mode 100644
-index 0000000..46999d1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt
+diff -Naur linux-socfpga/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt linux-socfpga-patched/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt
+--- linux-socfpga/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt	1969-12-31 16:00:00.000000000 -0800
++++ linux-socfpga-patched/Documentation/devicetree/bindings/arm/altera/mm-debug-link.txt	2015-01-16 09:18:51.480196179 -0800
 @@ -0,0 +1,19 @@
 +Altera MM Debug Link driver
 +
@@ -79,11 +21,9 @@ index 0000000..46999d1
 +                compatible = "altr,mm-debug-link-1.0";
 +                reg = <0xFF240000 0x80>;
 +        };
-diff --git a/Documentation/devicetree/bindings/arm/altera/sld-hub.txt b/Documentation/devicetree/bindings/arm/altera/sld-hub.txt
-deleted file mode 100644
-index f7fafad..0000000
---- a/Documentation/devicetree/bindings/arm/altera/sld-hub.txt
-+++ /dev/null
+diff -Naur linux-socfpga/Documentation/devicetree/bindings/arm/altera/sld-hub.txt linux-socfpga-patched/Documentation/devicetree/bindings/arm/altera/sld-hub.txt
+--- linux-socfpga/Documentation/devicetree/bindings/arm/altera/sld-hub.txt	2014-12-04 23:29:16.000000000 -0800
++++ linux-socfpga-patched/Documentation/devicetree/bindings/arm/altera/sld-hub.txt	1969-12-31 16:00:00.000000000 -0800
 @@ -1,19 +0,0 @@
 -Altera SLD HUB driver
 -
@@ -104,11 +44,10 @@ index f7fafad..0000000
 -		compatible = "altr,sld-hub";
 -		reg = <0xFF240000 0x80>;
 -	};
-diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
-index 7cbfa3c..6c59281 100644
---- a/Documentation/ioctl/ioctl-number.txt
-+++ b/Documentation/ioctl/ioctl-number.txt
-@@ -295,6 +295,7 @@ Code  Seq#(hex)	Include File		Comments
+diff -Naur linux-socfpga/Documentation/ioctl/ioctl-number.txt linux-socfpga-patched/Documentation/ioctl/ioctl-number.txt
+--- linux-socfpga/Documentation/ioctl/ioctl-number.txt	2014-12-04 23:29:16.000000000 -0800
++++ linux-socfpga-patched/Documentation/ioctl/ioctl-number.txt	2015-01-16 09:18:51.481196187 -0800
+@@ -293,6 +293,7 @@
  					<mailto:buk@buks.ipn.de>
  0xA0	all	linux/sdp/sdp.h		Industrial Device Project
  					<mailto:kenji@bitgate.com>
@@ -116,11 +55,339 @@ index 7cbfa3c..6c59281 100644
  0xA2	00-0F	arch/tile/include/asm/hardwall.h
  0xA3	80-8F	Port ACL		in development:
  					<mailto:tlewis@mindspring.com>
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index c453c0a..8e8b294 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -599,12 +599,14 @@ config TILE_SROM
+diff -Naur linux-socfpga/Documentation/ioctl/ioctl-number.txt.orig linux-socfpga-patched/Documentation/ioctl/ioctl-number.txt.orig
+--- linux-socfpga/Documentation/ioctl/ioctl-number.txt.orig	1969-12-31 16:00:00.000000000 -0800
++++ linux-socfpga-patched/Documentation/ioctl/ioctl-number.txt.orig	2014-12-04 23:29:16.000000000 -0800
+@@ -0,0 +1,325 @@
++Ioctl Numbers
++19 October 1999
++Michael Elizabeth Chastain
++<mec@shout.net>
++
++If you are adding new ioctl's to the kernel, you should use the _IO
++macros defined in <linux/ioctl.h>:
++
++    _IO    an ioctl with no parameters
++    _IOW   an ioctl with write parameters (copy_from_user)
++    _IOR   an ioctl with read parameters  (copy_to_user)
++    _IOWR  an ioctl with both write and read parameters.
++
++'Write' and 'read' are from the user's point of view, just like the
++system calls 'write' and 'read'.  For example, a SET_FOO ioctl would
++be _IOW, although the kernel would actually read data from user space;
++a GET_FOO ioctl would be _IOR, although the kernel would actually write
++data to user space.
++
++The first argument to _IO, _IOW, _IOR, or _IOWR is an identifying letter
++or number from the table below.  Because of the large number of drivers,
++many drivers share a partial letter with other drivers.
++
++If you are writing a driver for a new device and need a letter, pick an
++unused block with enough room for expansion: 32 to 256 ioctl commands.
++You can register the block by patching this file and submitting the
++patch to Linus Torvalds.  Or you can e-mail me at <mec@shout.net> and
++I'll register one for you.
++
++The second argument to _IO, _IOW, _IOR, or _IOWR is a sequence number
++to distinguish ioctls from each other.  The third argument to _IOW,
++_IOR, or _IOWR is the type of the data going into the kernel or coming
++out of the kernel (e.g.  'int' or 'struct foo').  NOTE!  Do NOT use
++sizeof(arg) as the third argument as this results in your ioctl thinking
++it passes an argument of type size_t.
++
++Some devices use their major number as the identifier; this is OK, as
++long as it is unique.  Some devices are irregular and don't follow any
++convention at all.
++
++Following this convention is good because:
++
++(1) Keeping the ioctl's globally unique helps error checking:
++    if a program calls an ioctl on the wrong device, it will get an
++    error rather than some unexpected behaviour.
++
++(2) The 'strace' build procedure automatically finds ioctl numbers
++    defined with _IO, _IOW, _IOR, or _IOWR.
++
++(3) 'strace' can decode numbers back into useful names when the
++    numbers are unique.
++
++(4) People looking for ioctls can grep for them more easily when
++    this convention is used to define the ioctl numbers.
++
++(5) When following the convention, the driver code can use generic
++    code to copy the parameters between user and kernel space.
++
++This table lists ioctls visible from user land for Linux/x86.  It contains
++most drivers up to 2.6.31, but I know I am missing some.  There has been
++no attempt to list non-X86 architectures or ioctls from drivers/staging/.
++
++Code  Seq#(hex)	Include File		Comments
++========================================================
++0x00	00-1F	linux/fs.h		conflict!
++0x00	00-1F	scsi/scsi_ioctl.h	conflict!
++0x00	00-1F	linux/fb.h		conflict!
++0x00	00-1F	linux/wavefront.h	conflict!
++0x02	all	linux/fd.h
++0x03	all	linux/hdreg.h
++0x04	D2-DC	linux/umsdos_fs.h	Dead since 2.6.11, but don't reuse these.
++0x06	all	linux/lp.h
++0x09	all	linux/raid/md_u.h
++0x10	00-0F	drivers/char/s390/vmcp.h
++0x12	all	linux/fs.h
++		linux/blkpg.h
++0x1b	all	InfiniBand Subsystem	<http://infiniband.sourceforge.net/>
++0x20	all	drivers/cdrom/cm206.h
++0x22	all	scsi/sg.h
++'#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
++'$'	00-0F	linux/perf_counter.h, linux/perf_event.h
++'&'	00-07	drivers/firewire/nosy-user.h
++'1'	00-1F	<linux/timepps.h>	PPS kit from Ulrich Windl
++					<ftp://ftp.de.kernel.org/pub/linux/daemons/ntp/PPS/>
++'2'	01-04	linux/i2o.h
++'3'	00-0F	drivers/s390/char/raw3270.h	conflict!
++'3'	00-1F	linux/suspend_ioctls.h	conflict!
++		and kernel/power/user.c
++'8'	all				SNP8023 advanced NIC card
++					<mailto:mcr@solidum.com>
++';'	64-7F	linux/vfio.h
++'@'	00-0F	linux/radeonfb.h	conflict!
++'@'	00-0F	drivers/video/aty/aty128fb.c	conflict!
++'A'	00-1F	linux/apm_bios.h	conflict!
++'A'	00-0F	linux/agpgart.h		conflict!
++		and drivers/char/agp/compat_ioctl.h
++'A'	00-7F	sound/asound.h		conflict!
++'B'	00-1F	linux/cciss_ioctl.h	conflict!
++'B'	00-0F	include/linux/pmu.h	conflict!
++'B'	C0-FF				advanced bbus
++					<mailto:maassen@uni-freiburg.de>
++'C'	all	linux/soundcard.h	conflict!
++'C'	01-2F	linux/capi.h		conflict!
++'C'	F0-FF	drivers/net/wan/cosa.h	conflict!
++'D'	all	arch/s390/include/asm/dasd.h
++'D'	40-5F	drivers/scsi/dpt/dtpi_ioctl.h
++'D'	05	drivers/scsi/pmcraid.h
++'E'	all	linux/input.h		conflict!
++'E'	00-0F	xen/evtchn.h		conflict!
++'F'	all	linux/fb.h		conflict!
++'F'	01-02	drivers/scsi/pmcraid.h	conflict!
++'F'	20	drivers/video/fsl-diu-fb.h	conflict!
++'F'	20	drivers/video/intelfb/intelfb.h	conflict!
++'F'	20	linux/ivtvfb.h		conflict!
++'F'	20	linux/matroxfb.h	conflict!
++'F'	20	drivers/video/aty/atyfb_base.c	conflict!
++'F'	00-0F	video/da8xx-fb.h	conflict!
++'F'	80-8F	linux/arcfb.h		conflict!
++'F'	DD	video/sstfb.h		conflict!
++'G'	00-3F	drivers/misc/sgi-gru/grulib.h	conflict!
++'G'	00-0F	linux/gigaset_dev.h	conflict!
++'H'	00-7F	linux/hiddev.h		conflict!
++'H'	00-0F	linux/hidraw.h		conflict!
++'H'	01	linux/mei.h		conflict!
++'H'	00-0F	sound/asound.h		conflict!
++'H'	20-40	sound/asound_fm.h	conflict!
++'H'	80-8F	sound/sfnt_info.h	conflict!
++'H'	10-8F	sound/emu10k1.h		conflict!
++'H'	10-1F	sound/sb16_csp.h	conflict!
++'H'	10-1F	sound/hda_hwdep.h	conflict!
++'H'	40-4F	sound/hdspm.h		conflict!
++'H'	40-4F	sound/hdsp.h		conflict!
++'H'	90	sound/usb/usx2y/usb_stream.h
++'H'	A0	uapi/linux/usb/cdc-wdm.h
++'H'	C0-F0	net/bluetooth/hci.h	conflict!
++'H'	C0-DF	net/bluetooth/hidp/hidp.h	conflict!
++'H'	C0-DF	net/bluetooth/cmtp/cmtp.h	conflict!
++'H'	C0-DF	net/bluetooth/bnep/bnep.h	conflict!
++'H'	F1	linux/hid-roccat.h	<mailto:erazor_de@users.sourceforge.net>
++'I'	all	linux/isdn.h		conflict!
++'I'	00-0F	drivers/isdn/divert/isdn_divert.h	conflict!
++'I'	40-4F	linux/mISDNif.h		conflict!
++'J'	00-1F	drivers/scsi/gdth_ioctl.h
++'K'	all	linux/kd.h
++'L'	00-1F	linux/loop.h		conflict!
++'L'	10-1F	drivers/scsi/mpt2sas/mpt2sas_ctl.h	conflict!
++'L'	E0-FF	linux/ppdd.h		encrypted disk device driver
++					<http://linux01.gwdg.de/~alatham/ppdd.html>
++'M'	all	linux/soundcard.h	conflict!
++'M'	01-16	mtd/mtd-abi.h		conflict!
++		and drivers/mtd/mtdchar.c
++'M'	01-03	drivers/scsi/megaraid/megaraid_sas.h
++'M'	00-0F	drivers/video/fsl-diu-fb.h	conflict!
++'N'	00-1F	drivers/usb/scanner.h
++'N'	40-7F	drivers/block/nvme.c
++'O'     00-06   mtd/ubi-user.h		UBI
++'P'	all	linux/soundcard.h	conflict!
++'P'	60-6F	sound/sscape_ioctl.h	conflict!
++'P'	00-0F	drivers/usb/class/usblp.c	conflict!
++'Q'	all	linux/soundcard.h
++'R'	00-1F	linux/random.h		conflict!
++'R'	01	linux/rfkill.h		conflict!
++'R'	C0-DF	net/bluetooth/rfcomm.h
++'S'	all	linux/cdrom.h		conflict!
++'S'	80-81	scsi/scsi_ioctl.h	conflict!
++'S'	82-FF	scsi/scsi.h		conflict!
++'S'	00-7F	sound/asequencer.h	conflict!
++'T'	all	linux/soundcard.h	conflict!
++'T'	00-AF	sound/asound.h		conflict!
++'T'	all	arch/x86/include/asm/ioctls.h	conflict!
++'T'	C0-DF	linux/if_tun.h		conflict!
++'U'	all	sound/asound.h		conflict!
++'U'	00-CF	linux/uinput.h		conflict!
++'U'	00-EF	linux/usbdevice_fs.h
++'U'	C0-CF	drivers/bluetooth/hci_uart.h
++'V'	all	linux/vt.h		conflict!
++'V'	all	linux/videodev2.h	conflict!
++'V'	C0	linux/ivtvfb.h		conflict!
++'V'	C0	linux/ivtv.h		conflict!
++'V'	C0	media/davinci/vpfe_capture.h	conflict!
++'V'	C0	media/si4713.h		conflict!
++'W'	00-1F	linux/watchdog.h	conflict!
++'W'	00-1F	linux/wanrouter.h	conflict!		(pre 3.9)
++'W'	00-3F	sound/asound.h		conflict!
++'X'	all	fs/xfs/xfs_fs.h		conflict!
++		and fs/xfs/linux-2.6/xfs_ioctl32.h
++		and include/linux/falloc.h
++		and linux/fs.h
++'X'	all	fs/ocfs2/ocfs_fs.h	conflict!
++'X'	01	linux/pktcdvd.h		conflict!
++'Y'	all	linux/cyclades.h
++'Z'	14-15	drivers/message/fusion/mptctl.h
++'['	00-07	linux/usb/tmc.h		USB Test and Measurement Devices
++					<mailto:gregkh@linuxfoundation.org>
++'a'	all	linux/atm*.h, linux/sonet.h	ATM on linux
++					<http://lrcwww.epfl.ch/>
++'b'	00-FF				conflict! bit3 vme host bridge
++					<mailto:natalia@nikhefk.nikhef.nl>
++'c'	all	linux/cm4000_cs.h	conflict!
++'c'	00-7F	linux/comstats.h	conflict!
++'c'	00-7F	linux/coda.h		conflict!
++'c'	00-1F	linux/chio.h		conflict!
++'c'	80-9F	arch/s390/include/asm/chsc.h	conflict!
++'c'	A0-AF   arch/x86/include/asm/msr.h	conflict!
++'d'	00-FF	linux/char/drm/drm/h	conflict!
++'d'	02-40	pcmcia/ds.h		conflict!
++'d'	F0-FF	linux/digi1.h
++'e'	all	linux/digi1.h		conflict!
++'e'	00-1F	drivers/net/irda/irtty-sir.h	conflict!
++'f'	00-1F	linux/ext2_fs.h		conflict!
++'f'	00-1F	linux/ext3_fs.h		conflict!
++'f'	00-0F	fs/jfs/jfs_dinode.h	conflict!
++'f'	00-0F	fs/ext4/ext4.h		conflict!
++'f'	00-0F	linux/fs.h		conflict!
++'f'	00-0F	fs/ocfs2/ocfs2_fs.h	conflict!
++'g'	00-0F	linux/usb/gadgetfs.h
++'g'	20-2F	linux/usb/g_printer.h
++'h'	00-7F				conflict! Charon filesystem
++					<mailto:zapman@interlan.net>
++'h'	00-1F	linux/hpet.h		conflict!
++'h'	80-8F	fs/hfsplus/ioctl.c
++'i'	00-3F	linux/i2o-dev.h		conflict!
++'i'	0B-1F	linux/ipmi.h		conflict!
++'i'	80-8F	linux/i8k.h
++'j'	00-3F	linux/joystick.h
++'k'	00-0F	linux/spi/spidev.h	conflict!
++'k'	00-05	video/kyro.h		conflict!
++'k'	10-17	linux/hsi/hsi_char.h	HSI character device
++'l'	00-3F	linux/tcfs_fs.h		transparent cryptographic file system
++					<http://web.archive.org/web/*/http://mikonos.dia.unisa.it/tcfs>
++'l'	40-7F	linux/udf_fs_i.h	in development:
++					<http://sourceforge.net/projects/linux-udf/>
++'m'	00-09	linux/mmtimer.h		conflict!
++'m'	all	linux/mtio.h		conflict!
++'m'	all	linux/soundcard.h	conflict!
++'m'	all	linux/synclink.h	conflict!
++'m'	00-19	drivers/message/fusion/mptctl.h	conflict!
++'m'	00	drivers/scsi/megaraid/megaraid_ioctl.h	conflict!
++'m'	00-1F	net/irda/irmod.h	conflict!
++'n'	00-7F	linux/ncp_fs.h and fs/ncpfs/ioctl.c
++'n'	80-8F	linux/nilfs2_fs.h	NILFS2
++'n'	E0-FF	linux/matroxfb.h	matroxfb
++'o'	00-1F	fs/ocfs2/ocfs2_fs.h	OCFS2
++'o'     00-03   mtd/ubi-user.h		conflict! (OCFS2 and UBI overlaps)
++'o'     40-41   mtd/ubi-user.h		UBI
++'o'     01-A1   linux/dvb/*.h		DVB
++'p'	00-0F	linux/phantom.h		conflict! (OpenHaptics needs this)
++'p'	00-1F	linux/rtc.h		conflict!
++'p'	00-3F	linux/mc146818rtc.h	conflict!
++'p'	40-7F	linux/nvram.h
++'p'	80-9F	linux/ppdev.h		user-space parport
++					<mailto:tim@cyberelk.net>
++'p'	A1-A5	linux/pps.h		LinuxPPS
++					<mailto:giometti@linux.it>
++'q'	00-1F	linux/serio.h
++'q'	80-FF	linux/telephony.h	Internet PhoneJACK, Internet LineJACK
++		linux/ixjuser.h		<http://web.archive.org/web/*/http://www.quicknet.net>
++'r'	00-1F	linux/msdos_fs.h and fs/fat/dir.c
++'s'	all	linux/cdk.h
++'t'	00-7F	linux/ppp-ioctl.h
++'t'	80-8F	linux/isdn_ppp.h
++'t'	90	linux/toshiba.h
++'u'	00-1F	linux/smb_fs.h		gone
++'u'	20-3F	linux/uvcvideo.h	USB video class host driver
++'v'	00-1F	linux/ext2_fs.h		conflict!
++'v'	00-1F	linux/fs.h		conflict!
++'v'	00-0F	linux/sonypi.h		conflict!
++'v'	C0-FF	linux/meye.h		conflict!
++'w'	all				CERN SCI driver
++'y'	00-1F				packet based user level communications
++					<mailto:zapman@interlan.net>
++'z'	00-3F				CAN bus card	conflict!
++					<mailto:hdstich@connectu.ulm.circular.de>
++'z'	40-7F				CAN bus card	conflict!
++					<mailto:oe@port.de>
++'z'	10-4F	drivers/s390/crypto/zcrypt_api.h	conflict!
++'|'	00-7F	linux/media.h
++0x80	00-1F	linux/fb.h
++0x89	00-06	arch/x86/include/asm/sockios.h
++0x89	0B-DF	linux/sockios.h
++0x89	E0-EF	linux/sockios.h		SIOCPROTOPRIVATE range
++0x89	E0-EF	linux/dn.h		PROTOPRIVATE range
++0x89	F0-FF	linux/sockios.h		SIOCDEVPRIVATE range
++0x8B	all	linux/wireless.h
++0x8C	00-3F				WiNRADiO driver
++					<http://www.winradio.com.au/>
++0x90	00	drivers/cdrom/sbpcd.h
++0x92	00-0F	drivers/usb/mon/mon_bin.c
++0x93	60-7F	linux/auto_fs.h
++0x94	all	fs/btrfs/ioctl.h
++0x97	00-7F	fs/ceph/ioctl.h		Ceph file system
++0x99	00-0F				537-Addinboard driver
++					<mailto:buk@buks.ipn.de>
++0xA0	all	linux/sdp/sdp.h		Industrial Device Project
++					<mailto:kenji@bitgate.com>
++0xA2	00-0F	arch/tile/include/asm/hardwall.h
++0xA3	80-8F	Port ACL		in development:
++					<mailto:tlewis@mindspring.com>
++0xA3	90-9F	linux/dtlk.h
++0xAB	00-1F	linux/nbd.h
++0xAC	00-1F	linux/raw.h
++0xAD	00	Netfilter device	in development:
++					<mailto:rusty@rustcorp.com.au>
++0xAE	all	linux/kvm.h		Kernel-based Virtual Machine
++					<mailto:kvm@vger.kernel.org>
++0xAF	00-1F	linux/fsl_hypervisor.h	Freescale hypervisor
++0xB0	all	RATIO devices		in development:
++					<mailto:vgo@ratio.de>
++0xB1	00-1F	PPPoX			<mailto:mostrows@styx.uwaterloo.ca>
++0xB3	00	linux/mmc/ioctl.h
++0xC0	00-0F	linux/usb/iowarrior.h
++0xCB	00-1F	CBM serial IEC bus	in development:
++					<mailto:michael.klein@puffin.lb.shuttle.de>
++0xCD	01	linux/reiserfs_fs.h
++0xCF	02	fs/cifs/ioctl.c
++0xDB	00-0F	drivers/char/mwave/mwavepub.h
++0xDD	00-3F	ZFCP device driver	see drivers/s390/scsi/
++					<mailto:aherrman@de.ibm.com>
++0xF3	00-3F	drivers/usb/misc/sisusbvga/sisusb.h	sisfb (in development)
++					<mailto:thomas@winischhofer.net>
++0xF4	00-1F	video/mbxfb.h		mbxfb
++					<mailto:raph@8d.com>
++0xF6	all	LTTng			Linux Trace Toolkit Next Generation
++					<mailto:mathieu.desnoyers@efficios.com>
++0xFD	all	linux/dm-ioctl.h
+diff -Naur linux-socfpga/drivers/char/Kconfig linux-socfpga-patched/drivers/char/Kconfig
+--- linux-socfpga/drivers/char/Kconfig	2014-12-04 23:29:16.000000000 -0800
++++ linux-socfpga-patched/drivers/char/Kconfig	2015-01-16 09:18:51.481196187 -0800
+@@ -605,12 +605,14 @@
  	  device appear much like a simple EEPROM, and knows
  	  how to partition a single ROM for multiple purposes.
  
@@ -139,21 +406,638 @@ index c453c0a..8e8b294 100644
  
  endmenu
  
-diff --git a/drivers/char/Makefile b/drivers/char/Makefile
-index 7808c50..33db59f 100644
---- a/drivers/char/Makefile
-+++ b/drivers/char/Makefile
-@@ -63,4 +63,4 @@ js-rtc-y = rtc.o
+diff -Naur linux-socfpga/drivers/char/Kconfig.orig linux-socfpga-patched/drivers/char/Kconfig.orig
+--- linux-socfpga/drivers/char/Kconfig.orig	1969-12-31 16:00:00.000000000 -0800
++++ linux-socfpga-patched/drivers/char/Kconfig.orig	2014-12-04 23:29:16.000000000 -0800
+@@ -0,0 +1,616 @@
++#
++# Character device configuration
++#
++
++menu "Character devices"
++
++source "drivers/tty/Kconfig"
++
++config DEVKMEM
++	bool "/dev/kmem virtual device support"
++	default y
++	help
++	  Say Y here if you want to support the /dev/kmem device. The
++	  /dev/kmem device is rarely used, but can be used for certain
++	  kind of kernel debugging operations.
++	  When in doubt, say "N".
++
++config STALDRV
++	bool "Stallion multiport serial support"
++	depends on SERIAL_NONSTANDARD
++	help
++	  Stallion cards give you many serial ports.  You would need something
++	  like this to connect more than two modems to your Linux box, for
++	  instance in order to become a dial-in server.  If you say Y here,
++	  you will be asked for your specific card model in the next
++	  questions.  Make sure to read <file:Documentation/serial/stallion.txt>
++	  in this case.  If you have never heard about all this, it's safe to
++	  say N.
++
++config SGI_SNSC
++	bool "SGI Altix system controller communication support"
++	depends on (IA64_SGI_SN2 || IA64_GENERIC)
++	help
++	  If you have an SGI Altix and you want to enable system
++	  controller communication from user space (you want this!),
++	  say Y.  Otherwise, say N.
++
++config SGI_TIOCX
++       bool "SGI TIO CX driver support"
++       depends on (IA64_SGI_SN2 || IA64_GENERIC)
++       help
++         If you have an SGI Altix and you have fpga devices attached
++         to your TIO, say Y here, otherwise say N.
++
++config SGI_MBCS
++       tristate "SGI FPGA Core Services driver support"
++       depends on SGI_TIOCX
++       help
++         If you have an SGI Altix with an attached SABrick
++         say Y or M here, otherwise say N.
++
++source "drivers/tty/serial/Kconfig"
++
++config TTY_PRINTK
++	bool "TTY driver to output user messages via printk"
++	depends on EXPERT && TTY
++	default n
++	---help---
++	  If you say Y here, the support for writing user messages (i.e.
++	  console messages) via printk is available.
++
++	  The feature is useful to inline user messages with kernel
++	  messages.
++	  In order to use this feature, you should output user messages
++	  to /dev/ttyprintk or redirect console to this TTY.
++
++	  If unsure, say N.
++
++config BFIN_OTP
++	tristate "Blackfin On-Chip OTP Memory Support"
++	depends on BLACKFIN && (BF51x || BF52x || BF54x)
++	default y
++	help
++	  If you say Y here, you will get support for a character device
++	  interface into the One Time Programmable memory pages that are
++	  stored on the Blackfin processor.  This will not get you access
++	  to the secure memory pages however.  You will need to write your
++	  own secure code and reader for that.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called bfin-otp.
++
++	  If unsure, it is safe to say Y.
++
++config BFIN_OTP_WRITE_ENABLE
++	bool "Enable writing support of OTP pages"
++	depends on BFIN_OTP
++	default n
++	help
++	  If you say Y here, you will enable support for writing of the
++	  OTP pages.  This is dangerous by nature as you can only program
++	  the pages once, so only enable this option when you actually
++	  need it so as to not inadvertently clobber data.
++
++	  If unsure, say N.
++
++config PRINTER
++	tristate "Parallel printer support"
++	depends on PARPORT
++	---help---
++	  If you intend to attach a printer to the parallel port of your Linux
++	  box (as opposed to using a serial printer; if the connector at the
++	  printer has 9 or 25 holes ["female"], then it's serial), say Y.
++	  Also read the Printing-HOWTO, available from
++	  <http://www.tldp.org/docs.html#howto>.
++
++	  It is possible to share one parallel port among several devices
++	  (e.g. printer and ZIP drive) and it is safe to compile the
++	  corresponding drivers into the kernel.
++
++	  To compile this driver as a module, choose M here and read
++	  <file:Documentation/parport.txt>.  The module will be called lp.
++
++	  If you have several parallel ports, you can specify which ports to
++	  use with the "lp" kernel command line option.  (Try "man bootparam"
++	  or see the documentation of your boot loader (lilo or loadlin) about
++	  how to pass options to the kernel at boot time.)  The syntax of the
++	  "lp" command line option can be found in <file:drivers/char/lp.c>.
++
++	  If you have more than 8 printers, you need to increase the LP_NO
++	  macro in lp.c and the PARPORT_MAX macro in parport.h.
++
++config LP_CONSOLE
++	bool "Support for console on line printer"
++	depends on PRINTER
++	---help---
++	  If you want kernel messages to be printed out as they occur, you
++	  can have a console on the printer. This option adds support for
++	  doing that; to actually get it to happen you need to pass the
++	  option "console=lp0" to the kernel at boot time.
++
++	  If the printer is out of paper (or off, or unplugged, or too
++	  busy..) the kernel will stall until the printer is ready again.
++	  By defining CONSOLE_LP_STRICT to 0 (at your own risk) you
++	  can make the kernel continue when this happens,
++	  but it'll lose the kernel messages.
++
++	  If unsure, say N.
++
++config PPDEV
++	tristate "Support for user-space parallel port device drivers"
++	depends on PARPORT
++	---help---
++	  Saying Y to this adds support for /dev/parport device nodes.  This
++	  is needed for programs that want portable access to the parallel
++	  port, for instance deviceid (which displays Plug-and-Play device
++	  IDs).
++
++	  This is the parallel port equivalent of SCSI generic support (sg).
++	  It is safe to say N to this -- it is not needed for normal printing
++	  or parallel port CD-ROM/disk support.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ppdev.
++
++	  If unsure, say N.
++
++source "drivers/tty/hvc/Kconfig"
++
++config VIRTIO_CONSOLE
++	tristate "Virtio console"
++	depends on VIRTIO && TTY
++	select HVC_DRIVER
++	help
++	  Virtio console for use with lguest and other hypervisors.
++
++	  Also serves as a general-purpose serial device for data
++	  transfer between the guest and host.  Character devices at
++	  /dev/vportNpn will be created when corresponding ports are
++	  found, where N is the device number and n is the port number
++	  within that device.  If specified by the host, a sysfs
++	  attribute called 'name' will be populated with a name for
++	  the port which can be used by udev scripts to create a
++	  symlink to the device.
++
++config IBM_BSR
++	tristate "IBM POWER Barrier Synchronization Register support"
++	depends on PPC_PSERIES
++	help
++	  This devices exposes a hardware mechanism for fast synchronization
++	  of threads across a large system which avoids bouncing a cacheline
++	  between several cores on a system
++
++source "drivers/char/ipmi/Kconfig"
++
++config DS1620
++	tristate "NetWinder thermometer support"
++	depends on ARCH_NETWINDER
++	help
++	  Say Y here to include support for the thermal management hardware
++	  found in the NetWinder. This driver allows the user to control the
++	  temperature set points and to read the current temperature.
++
++	  It is also possible to say M here to build it as a module (ds1620)
++	  It is recommended to be used on a NetWinder, but it is not a
++	  necessity.
++
++config NWBUTTON
++	tristate "NetWinder Button"
++	depends on ARCH_NETWINDER
++	---help---
++	  If you say Y here and create a character device node /dev/nwbutton
++	  with major and minor numbers 10 and 158 ("man mknod"), then every
++	  time the orange button is pressed a number of times, the number of
++	  times the button was pressed will be written to that device.
++
++	  This is most useful for applications, as yet unwritten, which
++	  perform actions based on how many times the button is pressed in a
++	  row.
++
++	  Do not hold the button down for too long, as the driver does not
++	  alter the behaviour of the hardware reset circuitry attached to the
++	  button; it will still execute a hard reset if the button is held
++	  down for longer than approximately five seconds.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called nwbutton.
++
++	  Most people will answer Y to this question and "Reboot Using Button"
++	  below to be able to initiate a system shutdown from the button.
++
++config NWBUTTON_REBOOT
++	bool "Reboot Using Button"
++	depends on NWBUTTON
++	help
++	  If you say Y here, then you will be able to initiate a system
++	  shutdown and reboot by pressing the orange button a number of times.
++	  The number of presses to initiate the shutdown is two by default,
++	  but this can be altered by modifying the value of NUM_PRESSES_REBOOT
++	  in nwbutton.h and recompiling the driver or, if you compile the
++	  driver as a module, you can specify the number of presses at load
++	  time with "insmod button reboot_count=<something>".
++
++config NWFLASH
++	tristate "NetWinder flash support"
++	depends on ARCH_NETWINDER
++	---help---
++	  If you say Y here and create a character device /dev/flash with
++	  major 10 and minor 160 you can manipulate the flash ROM containing
++	  the NetWinder firmware. Be careful as accidentally overwriting the
++	  flash contents can render your computer unbootable. On no account
++	  allow random users access to this device. :-)
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called nwflash.
++
++	  If you're not sure, say N.
++
++source "drivers/char/hw_random/Kconfig"
++
++config NVRAM
++	tristate "/dev/nvram support"
++	depends on ATARI || X86 || (ARM && RTC_DRV_CMOS) || GENERIC_NVRAM
++	---help---
++	  If you say Y here and create a character special file /dev/nvram
++	  with major number 10 and minor number 144 using mknod ("man mknod"),
++	  you get read and write access to the extra bytes of non-volatile
++	  memory in the real time clock (RTC), which is contained in every PC
++	  and most Ataris.  The actual number of bytes varies, depending on the
++	  nvram in the system, but is usually 114 (128-14 for the RTC).
++
++	  This memory is conventionally called "CMOS RAM" on PCs and "NVRAM"
++	  on Ataris. /dev/nvram may be used to view settings there, or to
++	  change them (with some utility). It could also be used to frequently
++	  save a few bits of very important data that may not be lost over
++	  power-off and for which writing to disk is too insecure. Note
++	  however that most NVRAM space in a PC belongs to the BIOS and you
++	  should NEVER idly tamper with it. See Ralf Brown's interrupt list
++	  for a guide to the use of CMOS bytes by your BIOS.
++
++	  On Atari machines, /dev/nvram is always configured and does not need
++	  to be selected.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called nvram.
++
++#
++# These legacy RTC drivers just cause too many conflicts with the generic
++# RTC framework ... let's not even try to coexist any more.
++#
++if RTC_LIB=n
++
++config RTC
++	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
++	depends on !PPC && !PARISC && !IA64 && !M68K && !SPARC && !FRV \
++			&& !ARM && !SUPERH && !S390 && !AVR32 && !BLACKFIN && !UML
++	---help---
++	  If you say Y here and create a character special file /dev/rtc with
++	  major number 10 and minor number 135 using mknod ("man mknod"), you
++	  will get access to the real time clock (or hardware clock) built
++	  into your computer.
++
++	  Every PC has such a clock built in. It can be used to generate
++	  signals from as low as 1Hz up to 8192Hz, and can also be used
++	  as a 24 hour alarm. It reports status information via the file
++	  /proc/driver/rtc and its behaviour is set by various ioctls on
++	  /dev/rtc.
++
++	  If you run Linux on a multiprocessor machine and said Y to
++	  "Symmetric Multi Processing" above, you should say Y here to read
++	  and set the RTC in an SMP compatible fashion.
++
++	  If you think you have a use for such a device (such as periodic data
++	  sampling), then say Y here, and read <file:Documentation/rtc.txt>
++	  for details.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called rtc.
++
++config JS_RTC
++	tristate "Enhanced Real Time Clock Support"
++	depends on SPARC32 && PCI
++	---help---
++	  If you say Y here and create a character special file /dev/rtc with
++	  major number 10 and minor number 135 using mknod ("man mknod"), you
++	  will get access to the real time clock (or hardware clock) built
++	  into your computer.
++
++	  Every PC has such a clock built in. It can be used to generate
++	  signals from as low as 1Hz up to 8192Hz, and can also be used
++	  as a 24 hour alarm. It reports status information via the file
++	  /proc/driver/rtc and its behaviour is set by various ioctls on
++	  /dev/rtc.
++
++	  If you think you have a use for such a device (such as periodic data
++	  sampling), then say Y here, and read <file:Documentation/rtc.txt>
++	  for details.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called js-rtc.
++
++config GEN_RTC
++	tristate "Generic /dev/rtc emulation"
++	depends on RTC!=y && !IA64 && !ARM && !M32R && !MIPS && !SPARC && !FRV && !S390 && !SUPERH && !AVR32 && !BLACKFIN && !UML
++	---help---
++	  If you say Y here and create a character special file /dev/rtc with
++	  major number 10 and minor number 135 using mknod ("man mknod"), you
++	  will get access to the real time clock (or hardware clock) built
++	  into your computer.
++
++	  It reports status information via the file /proc/driver/rtc and its
++	  behaviour is set by various ioctls on /dev/rtc. If you enable the
++	  "extended RTC operation" below it will also provide an emulation
++	  for RTC_UIE which is required by some programs and may improve
++	  precision in some cases.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called genrtc.
++
++config GEN_RTC_X
++	bool "Extended RTC operation"
++	depends on GEN_RTC
++	help
++	  Provides an emulation for RTC_UIE which is required by some programs
++	  and may improve precision of the generic RTC support in some cases.
++
++config EFI_RTC
++	bool "EFI Real Time Clock Services"
++	depends on IA64
++
++config DS1302
++	tristate "DS1302 RTC support"
++	depends on M32R && (PLAT_M32700UT || PLAT_OPSPUT)
++	help
++	  If you say Y here and create a character special file /dev/rtc with
++	  major number 121 and minor number 0 using mknod ("man mknod"), you
++	  will get access to the real time clock (or hardware clock) built
++	  into your computer.
++
++endif # RTC_LIB
++
++config DTLK
++	tristate "Double Talk PC internal speech card support"
++	depends on ISA
++	help
++	  This driver is for the DoubleTalk PC, a speech synthesizer
++	  manufactured by RC Systems (<http://www.rcsys.com/>).  It is also
++	  called the `internal DoubleTalk'.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called dtlk.
++
++config XILINX_HWICAP
++	tristate "Xilinx HWICAP Support"
++	depends on XILINX_VIRTEX || MICROBLAZE
++	help
++	  This option enables support for Xilinx Internal Configuration
++	  Access Port (ICAP) driver.  The ICAP is used on Xilinx Virtex
++	  FPGA platforms to partially reconfigure the FPGA at runtime.
++
++	  If unsure, say N.
++
++config R3964
++	tristate "Siemens R3964 line discipline"
++	depends on TTY
++	---help---
++	  This driver allows synchronous communication with devices using the
++	  Siemens R3964 packet protocol. Unless you are dealing with special
++	  hardware like PLCs, you are unlikely to need this.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called n_r3964.
++
++	  If unsure, say N.
++
++config APPLICOM
++	tristate "Applicom intelligent fieldbus card support"
++	depends on PCI
++	---help---
++	  This driver provides the kernel-side support for the intelligent
++	  fieldbus cards made by Applicom International. More information
++	  about these cards can be found on the WWW at the address
++	  <http://www.applicom-int.com/>, or by email from David Woodhouse
++	  <dwmw2@infradead.org>.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called applicom.
++
++	  If unsure, say N.
++
++config SONYPI
++	tristate "Sony Vaio Programmable I/O Control Device support"
++	depends on X86 && PCI && INPUT && !64BIT
++	---help---
++	  This driver enables access to the Sony Programmable I/O Control
++	  Device which can be found in many (all ?) Sony Vaio laptops.
++
++	  If you have one of those laptops, read
++	  <file:Documentation/laptops/sonypi.txt>, and say Y or M here.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called sonypi.
++
++config GPIO_TB0219
++	tristate "TANBAC TB0219 GPIO support"
++	depends on TANBAC_TB022X
++	select GPIO_VR41XX
++
++source "drivers/char/pcmcia/Kconfig"
++
++config MWAVE
++	tristate "ACP Modem (Mwave) support"
++	depends on X86 && TTY
++	select SERIAL_8250
++	---help---
++	  The ACP modem (Mwave) for Linux is a WinModem. It is composed of a
++	  kernel driver and a user level application. Together these components
++	  support direct attachment to public switched telephone networks (PSTNs)
++	  and support selected world wide countries.
++
++	  This version of the ACP Modem driver supports the IBM Thinkpad 600E,
++	  600, and 770 that include on board ACP modem hardware.
++
++	  The modem also supports the standard communications port interface
++	  (ttySx) and is compatible with the Hayes AT Command Set.
++
++	  The user level application needed to use this driver can be found at
++	  the IBM Linux Technology Center (LTC) web site:
++	  <http://www.ibm.com/linux/ltc/>.
++
++	  If you own one of the above IBM Thinkpads which has the Mwave chipset
++	  in it, say Y.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mwave.
++
++config SCx200_GPIO
++	tristate "NatSemi SCx200 GPIO Support"
++	depends on SCx200
++	select NSC_GPIO
++	help
++	  Give userspace access to the GPIO pins on the National
++	  Semiconductor SCx200 processors.
++
++	  If compiled as a module, it will be called scx200_gpio.
++
++config PC8736x_GPIO
++	tristate "NatSemi PC8736x GPIO Support"
++	depends on X86_32 && !UML
++	default SCx200_GPIO	# mostly N
++	select NSC_GPIO		# needed for support routines
++	help
++	  Give userspace access to the GPIO pins on the National
++	  Semiconductor PC-8736x (x=[03456]) SuperIO chip.  The chip
++	  has multiple functional units, inc several managed by
++	  hwmon/pc87360 driver.  Tested with PC-87366
++
++	  If compiled as a module, it will be called pc8736x_gpio.
++
++config NSC_GPIO
++	tristate "NatSemi Base GPIO Support"
++	depends on X86_32
++	# selected by SCx200_GPIO and PC8736x_GPIO
++	# what about 2 selectors differing: m != y
++	help
++	  Common support used (and needed) by scx200_gpio and
++	  pc8736x_gpio drivers.  If those drivers are built as
++	  modules, this one will be too, named nsc_gpio
++
++config RAW_DRIVER
++	tristate "RAW driver (/dev/raw/rawN)"
++	depends on BLOCK
++	help
++	  The raw driver permits block devices to be bound to /dev/raw/rawN.
++	  Once bound, I/O against /dev/raw/rawN uses efficient zero-copy I/O.
++	  See the raw(8) manpage for more details.
++
++          Applications should preferably open the device (eg /dev/hda1)
++          with the O_DIRECT flag.
++
++config MAX_RAW_DEVS
++	int "Maximum number of RAW devices to support (1-65536)"
++	depends on RAW_DRIVER
++	default "256"
++	help
++	  The maximum number of RAW devices that are supported.
++	  Default is 256. Increase this number in case you need lots of
++	  raw devices.
++
++config HPET
++	bool "HPET - High Precision Event Timer" if (X86 || IA64)
++	default n
++	depends on ACPI
++	help
++	  If you say Y here, you will have a miscdevice named "/dev/hpet/".  Each
++	  open selects one of the timers supported by the HPET.  The timers are
++	  non-periodic and/or periodic.
++
++config HPET_MMAP
++	bool "Allow mmap of HPET"
++	default y
++	depends on HPET
++	help
++	  If you say Y here, user applications will be able to mmap
++	  the HPET registers.
++
++	  In some hardware implementations, the page containing HPET
++	  registers may also contain other things that shouldn't be
++	  exposed to the user.  If this applies to your hardware,
++	  say N here.
++
++config HANGCHECK_TIMER
++	tristate "Hangcheck timer"
++	depends on X86 || IA64 || PPC64 || S390
++	help
++	  The hangcheck-timer module detects when the system has gone
++	  out to lunch past a certain margin.  It can reboot the system
++	  or merely print a warning.
++
++config MMTIMER
++	tristate "MMTIMER Memory mapped RTC for SGI Altix"
++	depends on IA64_GENERIC || IA64_SGI_SN2
++	default y
++	help
++	  The mmtimer device allows direct userspace access to the
++	  Altix system timer.
++
++config UV_MMTIMER
++	tristate "UV_MMTIMER Memory mapped RTC for SGI UV"
++	depends on X86_UV
++	default m
++	help
++	  The uv_mmtimer device allows direct userspace access to the
++	  UV system timer.
++
++source "drivers/char/tpm/Kconfig"
++
++config TELCLOCK
++	tristate "Telecom clock driver for ATCA SBC"
++	depends on X86
++	default n
++	help
++	  The telecom clock device is specific to the MPCBL0010 and MPCBL0050
++	  ATCA computers and allows direct userspace access to the
++	  configuration of the telecom clock configuration settings.  This
++	  device is used for hardware synchronization across the ATCA backplane
++	  fabric.  Upon loading, the driver exports a sysfs directory,
++	  /sys/devices/platform/telco_clock, with a number of files for
++	  controlling the behavior of this hardware.
++
++config DEVPORT
++	bool
++	depends on !M68K
++	depends on ISA || PCI
++	default y
++
++source "drivers/s390/char/Kconfig"
++
++config MSM_SMD_PKT
++	bool "Enable device interface for some SMD packet ports"
++	default n
++	depends on MSM_SMD
++	help
++	  Enables userspace clients to read and write to some packet SMD
++	  ports via device interface for MSM chipset.
++
++config TILE_SROM
++	bool "Character-device access via hypervisor to the Tilera SPI ROM"
++	depends on TILE
++	default y
++	---help---
++	  This device provides character-level read-write access
++	  to the SROM, typically via the "0", "1", and "2" devices
++	  in /dev/srom/.  The Tilera hypervisor makes the flash
++	  device appear much like a simple EEPROM, and knows
++	  how to partition a single ROM for multiple purposes.
++
++config SLDHUB
++	tristate "SLD HUB driver"
++	depends on m
++	depends on OF
++	help
++		The System-Level Debug HUB supports debugging of Altera FPGA Designs
++
++endmenu
++
+diff -Naur linux-socfpga/drivers/char/Makefile linux-socfpga-patched/drivers/char/Makefile
+--- linux-socfpga/drivers/char/Makefile	2014-12-04 23:29:16.000000000 -0800
++++ linux-socfpga-patched/drivers/char/Makefile	2015-01-16 09:18:51.481196187 -0800
+@@ -63,4 +63,4 @@
  
  obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
  
 -obj-$(CONFIG_SLDHUB)	+= sld-hub.o
 +obj-$(CONFIG_ALTERA_MMDEBUGLINK) += mm-debug-link.o
-diff --git a/drivers/char/mm-debug-link.c b/drivers/char/mm-debug-link.c
-new file mode 100644
-index 0000000..d8c28eb
---- /dev/null
-+++ b/drivers/char/mm-debug-link.c
+diff -Naur linux-socfpga/drivers/char/mm-debug-link.c linux-socfpga-patched/drivers/char/mm-debug-link.c
+--- linux-socfpga/drivers/char/mm-debug-link.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-socfpga-patched/drivers/char/mm-debug-link.c	2015-01-16 09:18:51.481196187 -0800
 @@ -0,0 +1,442 @@
 +/*
 + *  drivers/char/mm-debug-link.c
@@ -597,11 +1481,9 @@ index 0000000..d8c28eb
 +MODULE_AUTHOR("Aaron Ferrucci (Altera)");
 +MODULE_DESCRIPTION("Altera MM DEBUG_LINK Driver");
 +MODULE_LICENSE("GPL v2");
-diff --git a/drivers/char/sld-hub.c b/drivers/char/sld-hub.c
-deleted file mode 100644
-index 8ece995..0000000
---- a/drivers/char/sld-hub.c
-+++ /dev/null
+diff -Naur linux-socfpga/drivers/char/sld-hub.c linux-socfpga-patched/drivers/char/sld-hub.c
+--- linux-socfpga/drivers/char/sld-hub.c	2014-12-04 23:29:16.000000000 -0800
++++ linux-socfpga-patched/drivers/char/sld-hub.c	1969-12-31 16:00:00.000000000 -0800
 @@ -1,305 +0,0 @@
 - /*
 -  *  drivers/char/sld-hub.c
@@ -908,11 +1790,9 @@ index 8ece995..0000000
 -MODULE_AUTHOR("Graham Moore (Altera)");
 -MODULE_DESCRIPTION("Altera SLD HUB Driver");
 -MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mm-debug-link.h b/include/linux/mm-debug-link.h
-new file mode 100644
-index 0000000..004b52d
---- /dev/null
-+++ b/include/linux/mm-debug-link.h
+diff -Naur linux-socfpga/include/linux/mm-debug-link.h linux-socfpga-patched/include/linux/mm-debug-link.h
+--- linux-socfpga/include/linux/mm-debug-link.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-socfpga-patched/include/linux/mm-debug-link.h	2015-01-16 09:18:51.481196187 -0800
 @@ -0,0 +1,39 @@
 +/*
 + *  include/linux/mm-debug-link.h
@@ -953,5 +1833,3 @@ index 0000000..004b52d
 +#define MM_DEBUG_LINK_IOCTL_DEBUG_RESET	_IOW((MM_DEBUG_LINK_CODE), 4, int)
 +
 +#endif /* #ifndef __MM_DEBUG_LINK_H__ */
--- 
-1.8.2.1

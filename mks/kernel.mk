@@ -31,10 +31,10 @@ $(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATC
 
 LINUX_PATCHES = $(sort $(wildcard patches/linux*.patch))
 .PHONY: linux.patch
-linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p)) | logs
+linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p))
 define do_patch_lnx
 $(call get_stamp_target,$1): $(call get_stamp_target,linux.extract)
-	patch -d linux-socfpga -p1 < $1 2>&1 | tee logs/$$(notdir $$@).log
+	patch -d linux-socfpga -p1 < $1 2>&1
 	$$(stamp_target)
 endef
 $(foreach p,$(LINUX_PATCHES),$(eval $(call do_patch_lnx,$p)))
@@ -51,7 +51,7 @@ endif
 
 HELP_TARGETS += linux.modules
 linux.modules.HELP := Build linux kernel modules
-linux.modules: linux.patches linux.dodefconfig toolchain.extract
+linux.modules: linux.patch linux.dodefconfig toolchain.extract
 	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=overlay modules 2>&1 | tee logs/$(notdir $@).log
 
 
@@ -83,14 +83,5 @@ linux.menuconfig: linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
 	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) savedefconfig
 	$(CP) $(LINUX_DEFCONFIG) $(LINUX_DEFCONFIG).$(KBUILD_BUILD_VERSION).old
 	$(CP)  linux-socfpga/defconfig $(LINUX_DEFCONFIG)     
-	
-.PHONY: linux.patches
-linux.patches: $(call get_stamp_target,linux.patches)
-$(call get_stamp_target,linux.patches): $(call get_stamp_target,linux.extract) $(EBII_LINUX_PATCHES)
-#	ifneq ("$EBII_LINUX_PATCHES","")
-#		$(PATCH) -d linux-socfpga -p1 < $(EBII_LINUX_PATCHES)
-#	endif
-	$(stamp_target)
-
 	
 ################################################################################
