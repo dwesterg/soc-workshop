@@ -74,7 +74,7 @@ LINUX_DEFCONFIG := $(wildcard linux.defconfig)
 LINUX_MAKE_TARGET := zImage
 KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 #LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
-LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract logs
+LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract | logs
 
 # Buildroot Config
 BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
@@ -118,7 +118,7 @@ all: sd-fat
 define create_deps
 CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target,$1.create_project)
 
-CREATE_PROJECT_DEPS_$1 := scripts/create_ghrd_quartus_$1.tcl logs
+CREATE_PROJECT_DEPS_$1 := scripts/create_ghrd_quartus_$1.tcl | logs
 
 QUARTUS_STAMP_$1 := $(call get_stamp_target,$1.quartus)
 
@@ -139,21 +139,16 @@ QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_targe
 
 QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,$1.quartus_pin_assignments)
 
-QUARTUS_DEPS_$1 += logs
 QUARTUS_DEPS_$1 += $$(QUARTUS_PROJECT_STAMP_$1) $(QUARTUS_HDL_SOURCE) $(QUARTUS_MISC_SOURCE)
 QUARTUS_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
 QUARTUS_DEPS_$1 += $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1) $$(QSYS_STAMP_$1)
 
-PRELOADER_GEN_DEPS_$1 += logs
 PRELOADER_GEN_DEPS_$1 += $$(QUARTUS_STAMP_$1)
-PRELOADER_FIXUP_DEPS_$1 += logs
 PRELOADER_FIXUP_DEPS_$1 += $$(PRELOADER_GEN_STAMP_$1)
 PRELOADER_DEPS_$1 += $$(PRELOADER_FIXUP_STAMP_$1)
 
 # QSYS_DEPS_$1 := $$(QSYS_GEN_STAMP_$1)
-QSYS_DEPS_$1 += logs
 QSYS_DEPS_$1 += $1/$(QSYS_BASE_NAME).qsys $1/addon_components.ipx
-QSYS_GEN_DEPS_$1 += logs
 QSYS_GEN_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
 # QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys.tcl scripts/devkit_hps_configurations.tcl
 QSYS_GEN_DEPS_$1 += scripts/create_ghrd_qsys_$1.tcl scripts/qsys_default_components.tcl
@@ -164,9 +159,7 @@ QSYS_GEN_DEPS_$1 += $1/addon_components.ipx
 #DTS_BOARDINFO_$1 := $(firstword $(filter $1, $(DTS_BOARD_INFOS)))
 DTS_BOARDINFO_$1 := board_info/board_info_$1.xml
 
-DTS_DEPS_$1 += logs
 DTS_DEPS_$1 += $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
-DTB_DEPS_$1 += logs
 DTB_DEPS_$1 += $$(DTS_BOARDINFO_$1) $(DTS_COMMON) $$(QSYS_STAMP_$1)
 
 QUARTUS_QPF_$1 := $1/$1.qpf
@@ -366,7 +359,7 @@ HELP_TARGETS += downloads
 downloads.HELP := Download toolchain, kernel, and buildroot + required buildroot packages
 
 .PHONY: downloads
-downloads: toolchain.get buildroot.get linux.get buildroot.downloads
+downloads: toolchain.get buildroot.get linux.get buildroot.downloads coreutils.get tar.get
 
 HELP_TARGETS += downloads_clean	
 downloads_clean.HELP := Clean downloads directory

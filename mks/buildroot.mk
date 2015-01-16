@@ -31,7 +31,7 @@ $(call get_stamp_target,buildroot.extract): $(DL)/buildroot.tgz $(EBII_BUILDROOT
 
 # apply custom buildroot configuration
 .PHONY: buildroot.dodefconfig
-buildroot.dodefconfig: buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET)
+buildroot.dodefconfig: buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET) | logs
 buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET): buildroot.extract $(BUILDROOT_DEFCONFIG)
 	$(CP) $(BUILDROOT_DEFCONFIG) buildroot/configs/$(BUILDROOT_DEFCONFIG_TARGET)
 

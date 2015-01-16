@@ -5,8 +5,8 @@ COREUTILS_SOURCE := coreutils-8.23.tar.xz
 COREUTILS_SOURCE_TAR := coreutils-8.23.tar
 COREUTILS_SOURCE_PACKAGE := "http://ftp.gnu.org/gnu/coreutils/$(COREUTILS_SOURCE)"
 
-.PHONY: coreutils.download
-coreutils.download: $(DL)/$(COREUTILS_SOURCE)
+.PHONY: coreutils.get
+coreutils.get: $(DL)/$(COREUTILS_SOURCE)
 $(DL)/$(COREUTILS_SOURCE):
 	$(MKDIR) $(DL)
 	wget -O $@ $(COREUTILS_SOURCE_PACKAGE)
@@ -24,7 +24,7 @@ $(call get_stamp_target,coreutils.compile): $(call get_stamp_target,coreutils.ex
 	$(MAKE) -C coreutils all
 	$(stamp_target)
 
-.PHONY: tar.download
+.PHONY: tar.get
 tar.download: $(DL)/$(TAR_SOURCE)
 $(DL)/$(TAR_SOURCE):
 	$(MKDIR) $(DL)
@@ -46,11 +46,16 @@ ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 
 .PHONY: arc_build_all
 arc_build_all:
-	$(MAKE)  http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) tar.compile
-	$(MAKE)  http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) coreutils.compile
-	$(MAKE) TAR=$(CURDIR)/tar/src/tar http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) downloads
-	$(MAKE) TAR=$(CURDIR)/tar/src/tar $(ARC_BUILD_INTERMEDIATE_TARGETS)
-	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar all
+	$(MAKE) http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) tar.get coreutils.get
+	$(MAKE) tar.compile
+	$(MAKE) coreutils.compile
+	$(MAKE) http_proxy=$(HTTP_PROXY) https_proxy=$(HTTPS_PROXY) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar downloads
+	arc submit -i -- make KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) arc_build_all_sub
+
+.PHONY: arc_build_all_sub
+arc_build_all_sub:
+	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) $(ARC_BUILD_INTERMEDIATE_TARGETS)
+	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) all
 
 	
 define arc_build_project
