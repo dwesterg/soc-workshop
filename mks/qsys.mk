@@ -11,7 +11,7 @@ endif
 endif
 
 define run_qsys_script
-$(call get_stamp_target,$1.$(notdir $2)):
+$(call get_stamp_target,$1.$(notdir $2)): $$(QSYS_GEN_STAMP_$1)
 	qsys-script --system-file=$$(QSYS_FILE_$1) --script=$2  2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 endef
@@ -30,9 +30,12 @@ $$(QSYS_GEN_STAMP_$1): $$(QSYS_GEN_DEPS_$1)
 	$(RM) $$(QSYS_FILE_$1)
 	$(MKDIR) $1
 	qsys-script --cmd="source scripts/create_ghrd_qsys_$1.tcl; build_qsys scripts/qsys_default_components.tcl $1" 2>&1 | tee logs/$$(notdir $$@).log
+	$$(stamp_target)
+ 
+$$(QSYS_ADD_ALL_COMP_STAMP_$1): $$(QSYS_GEN_STAMP_$1)
 	$(MAKE) -j1 $$(QSYS_RUN_ADD_COMPS_$1)
 	$$(stamp_target)
-  
+ 
 HELP_TARGETS_$1 += $1.qsys_compile
 $1.qsys_compile.HELP := Generate Qsys System - $1
 
@@ -40,9 +43,9 @@ $1.qsys_compile.HELP := Generate Qsys System - $1
 $1.qsys_compile: $$(QSYS_STAMP_$1)
 
 #so if qsys file changes, regenerate
-$$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1)
+$$(QSYS_FILE_$1): $$(QSYS_GEN_STAMP_$1) $$(QSYS_ADD_ALL_COMP_STAMP_$1)
 
-$$(QSYS_STAMP_$1): $$(QSYS_FILE_$1)
+$$(QSYS_STAMP_$1): $$(QSYS_FILE_$1) $$(QSYS_ADD_ALL_COMP_STAMP_$1)
 	$(SET_QSYS_GENERATE_ENV) qsys-generate  $$(QSYS_FILE_$1) --synthesis=VERILOG $(QSYS_GENERATE_ARGS)  2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 

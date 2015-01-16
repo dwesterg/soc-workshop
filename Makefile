@@ -133,7 +133,7 @@ DTB_STAMP_$1 := $(call get_stamp_target,$1.dtb)
 
 QSYS_STAMP_$1 := $(call get_stamp_target,$1.qsys_compile)
 QSYS_GEN_STAMP_$1 := $(call get_stamp_target,$1.qsys_gen)
-QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,$1.qsys_add_comp)
+QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,$1.qsys_add_all_comp)
 #QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$t))
 QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$(notdir $t)))
 
@@ -192,18 +192,22 @@ AR_FILES += $1/u-boot.img
 AR_FILES += $1/preloader-mkpimage.bin
 #AR_FILES += $1/boot.script $1/u-boot.scr
 
-SD_FAT_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
-SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
-SD_FAT_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
-#SD_FAT_$1 += $1/boot.script $1/u-boot.scr
+ALL_DEPS_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
+ALL_DEPS_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
+ALL_DEPS_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
+
+SD_FAT_$1 += $$(ALL_DEPS_$1)
 SD_FAT_$1 += boot.script u-boot.scr
 
 .PHONY:$1.all
-$1.all: $$(SD_FAT_$1) sd_fat_$1.tar.gz
+$1.all: $$(ALL_DEPS_$1)
 HELP_TARGETS += $1.all
 $1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for $1 board
 
 #tar file target per project just 4 kicks.
+HELP_TARGETS += sd_fat_$1.tar.gz
+sd_fat_$1.tar.gz.HELP := Tar of SDCard's FAT filesystem contents for $1
+
 sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage
 	$(RM) $@
 	$(TAR) -czf $$@ $$^
@@ -275,9 +279,10 @@ create_all_qsys.HELP := Create all qsys files
 
 SD_FAT_TGZ := sd_fat.tar.gz
 
-SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(SD_FAT_$r))
+SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(ALL_DEPS_$r))
 SD_FAT_TGZ_DEPS += zImage
 SD_FAT_TGZ_DEPS += rootfs.img
+SD_FAT_TGZ_DEPS += boot.script u-boot.scr
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
