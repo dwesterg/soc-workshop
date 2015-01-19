@@ -30,9 +30,9 @@ $(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATC
 	$(stamp_target)
 
 .PHONY: linux.patch
-linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p))
+linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$(notdir $p)))
 define do_patch_lnx
-$(call get_stamp_target,$1): $(call get_stamp_target,linux.extract)
+$(call get_stamp_target,$(notdir $1)): $(call get_stamp_target,linux.extract)
 	patch -d linux-socfpga -p1 < $1 2>&1
 	$$(stamp_target)
 endef

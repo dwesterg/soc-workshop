@@ -16,7 +16,7 @@ endif
 PRELOADER_EXTRA_ARGS += --set spl.boot.FAT_LOAD_PAYLOAD_NAME $1/u-boot.img
 
 define do_patch_uboot
-$(call get_stamp_target,$1.$2): $3
+$(call get_stamp_target,$1.$(notdir $2)): $3
 	$(CP) $2 $1/preloader/
 	$$(stamp_target)
 endef
@@ -53,7 +53,7 @@ $(foreach p,$(UBOOT_PATCHES),$(eval $(call do_patch_uboot,$1,$p,$(PRELOADER_GEN_
 .PHONY: $1.uboot_patch
 $1.uboot_patch: $$(PRELOADER_FIXUP_STAMP_$1)
 
-$$(PRELOADER_FIXUP_STAMP_$1): $(foreach p,$(UBOOT_PATCHES),$(call get_stamp_target,$1.$p))
+$$(PRELOADER_FIXUP_STAMP_$1): $(foreach p,$(UBOOT_PATCHES),$(call get_stamp_target,$1.$(notdir $p)))
 	@$(ECHO) "#define CONFIG_SOC_WORKSHOP_REVISION $1" >> $1/preloader/generated/build.h
 	$$(stamp_target)
 	
