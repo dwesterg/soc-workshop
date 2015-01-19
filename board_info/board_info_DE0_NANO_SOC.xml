@@ -27,7 +27,7 @@
 <DTAppend name="#size-cells" type="number" parentlabel="hps_0_qspi" val="0"/>
 <DTAppend name="master-ref-clk" type="number" parentlabel="hps_0_qspi" val="400000000"/>
 <DTAppend name="ext-decoder" type="number" parentlabel="hps_0_qspi" val="0"/>
---!>
+-->
 
 <!--
 <DTAppend name="n25q00@0" type="node" parentlabel="hps_0_qspi" newlabel="flash0"/>
@@ -63,8 +63,8 @@
 
 <DTAppend name="snps,phy-addr" type="hex" parentlabel="hps_0_gmac1" val="0xffffffff"/>
 <DTAppend name="phy-addr" type="hex" parentlabel="hps_0_gmac1" val="0xffffffff"/>
-<DTAppend name="txc-skew-ps" type="number" parentlabel="hps_0_gmac1" val="3000"/>
-<DTAppend name="rxc-skew-ps" type="number" parentlabel="hps_0_gmac1" val="3000"/>
+<DTAppend name="txc-skew-ps" type="number" parentlabel="hps_0_gmac1" val="0xa28"/>
+<DTAppend name="rxc-skew-ps" type="number" parentlabel="hps_0_gmac1" val="0x7d0"/>
 <DTAppend name="txen-skew-ps" type="number" parentlabel="hps_0_gmac1" val="0"/>
 <DTAppend name="rxdv-skew-ps" type="number" parentlabel="hps_0_gmac1" val="0"/>
 <DTAppend name="rxd0-skew-ps" type="number" parentlabel="hps_0_gmac1" val="0"/>
