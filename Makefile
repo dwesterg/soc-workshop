@@ -29,7 +29,9 @@ PROJECT_ASSIGN_SCRIPTS = $(filter scripts/create_ghrd_quartus_%.tcl,$(TCL_SOURCE
 
 QSYS_ADD_COMP_TCLS := $(sort $(wildcard scripts/qsys_add_*.tcl))
 
-UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch patches/soc_workshop_uboot_patch_2.patch
+#UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch patches/soc_workshop_uboot_patch_2.patch
+UBOOT_PATCHES = $(sort $(wildcard patches/soc_workshop_uboot*.patch))
+LINUX_PATCHES = $(sort $(wildcard patches/linux*.patch))
 DTS_COMMON = board_info/hps_common_board_info.xml
 DTS_BOARD_INFOS = $(wildcard board_info/board_info_*.xml)
 

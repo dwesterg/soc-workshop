@@ -29,7 +29,6 @@ $(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATC
 	$(TAR) -xvzf $(DL)/linux-socfpga.tgz --strip-components 1 -C linux-socfpga
 	$(stamp_target)
 
-LINUX_PATCHES = $(sort $(wildcard patches/linux*.patch))
 .PHONY: linux.patch
 linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$p))
 define do_patch_lnx
