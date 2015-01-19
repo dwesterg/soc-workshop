@@ -342,6 +342,7 @@ scrub_clean.HELP := Restore design to its barebones state
 
 .PHONY: scrub scrub_clean
 scrub scrub_clean:
+	$(MAKE) -C sw_src clean
 	$(if $(strip $(wildcard $(SCRUB_CLEAN_FILES))),$(RM) $(wildcard $(SCRUB_CLEAN_FILES)),@$(ECHO) "You're already as clean as it gets!")
 
 .PHONY: test_scrub_clean

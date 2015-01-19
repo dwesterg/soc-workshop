@@ -7,7 +7,7 @@ LINUX_VARIABLES += CROSS_COMPILE=$(CROSS_COMPILE)
 ifneq ("$(DEVICETREE_SRC)","")
 	LINUX_VARIABLES += CONFIG_DTB_SOURCE=$(DEVICETREE_SRC)
 endif
-
+LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/overlay
 
 ################################################################################
 # linux
@@ -51,14 +51,14 @@ endif
 
 HELP_TARGETS += linux.modules
 linux.modules.HELP := Build linux kernel modules
-linux.modules: linux.patch linux.dodefconfig toolchain.extract
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=overlay modules 2>&1 | tee logs/$(notdir $@).log
+linux.modules: linux.patch linux.dodefconfig toolchain.extract | logs
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) modules 2>&1 | tee logs/$(notdir $@).log
 
 
 HELP_TARGETS += linux.modules_install
 linux.modules_install.HELP := Build linux kernel modules
-linux.modules_install: linux.modules
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) INSTALL_MOD_PATH=$(CURDIR)/overlay modules_install 2>&1 | tee logs/$(notdir $@).log
+linux.modules_install: linux.modules | logs
+	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) modules_install 2>&1 | tee logs/$(notdir $@).log
 
 # build                                   
 linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,linux.build)
