@@ -4,7 +4,7 @@ if [ "`cat /sys/devices/soc0/machine`" == "Altera SOCFPGA Cyclone V" ]; then
 elif [ "`cat /sys/devices/soc0/machine`" == "Altera SOCFPGA Arria V" ]; then
 	MACHINE="arria5"
 else
-	MACHINE="undef"
+	MACHINE="cyclone5"
 fi
 
 case $MACHINE in
