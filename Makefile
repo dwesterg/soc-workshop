@@ -29,7 +29,7 @@ PROJECT_ASSIGN_SCRIPTS = $(filter scripts/create_ghrd_quartus_%.tcl,$(TCL_SOURCE
 
 QSYS_ADD_COMP_TCLS := $(sort $(wildcard scripts/qsys_add_*.tcl))
 
-UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch
+UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch patches/soc_workshop_uboot_patch_2.patch
 DTS_COMMON = board_info/hps_common_board_info.xml
 DTS_BOARD_INFOS = $(wildcard board_info/board_info_*.xml)
 
@@ -67,8 +67,8 @@ TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
 # Kernel Config
-LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
-#LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
+LNX_SOURCE_PACKAGE_LTSI := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
+LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
 LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
 LINUX_DEFCONFIG := $(wildcard linux.defconfig)
 LINUX_MAKE_TARGET := zImage
