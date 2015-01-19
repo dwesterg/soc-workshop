@@ -22,7 +22,11 @@ fi
 echo ---Setting Env variables---
 set fdtimage ${soc_workshop_revision}/soc_system.dtb;
 set rootfsimage rootfs.img;
+if test ${soc_workshop_use_ltsi} = 1; then
+setenv bootimage zImage_ltsi
+else
 setenv bootimage zImage
+fi
 setenv mmcroot /dev/ram;;
 setenv mmcload '${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fpgadata} ${rootfsimage}';
 setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} ${fpgadata} ${fdtaddr}';
