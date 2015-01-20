@@ -55,6 +55,8 @@ $1.uboot_patch: $$(PRELOADER_FIXUP_STAMP_$1)
 
 $$(PRELOADER_FIXUP_STAMP_$1): $(foreach p,$(UBOOT_PATCHES),$(call get_stamp_target,$1.$(notdir $p)))
 	@$(ECHO) "#define CONFIG_SOC_WORKSHOP_REVISION $1" >> $1/preloader/generated/build.h
+	@$(ECHO) "#define CONFIG_SOCFPGA_GPIO 1" >> $1/preloader/generated/build.h
+	@$(ECHO) "#define CONFIG_CMD_GPIO 1" >> $1/preloader/generated/build.h
 	$$(stamp_target)
 	
 #$$(PRELOADER_FIXUP_STAMP_$1): $$(PRELOADER_FIXUP_DEPS_$1)
