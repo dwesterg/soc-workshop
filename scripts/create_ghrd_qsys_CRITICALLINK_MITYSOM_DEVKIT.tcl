@@ -33,14 +33,13 @@ proc build_qsys {default_script {devkitname} {qsys_name "soc_system" }} {
 }
 
 proc add_hps {} {
-    add_instance hps_0 altera_hps 
+    add_instance hps_0 altera_hps 14.1
     set_instance_parameter_value hps_0 {MEM_VENDOR} {JEDEC}
     set_instance_parameter_value hps_0 {MEM_FORMAT} {DISCRETE}
     set_instance_parameter_value hps_0 {RDIMM_CONFIG} {0000000000000000}
     set_instance_parameter_value hps_0 {LRDIMM_EXTENDED_CONFIG} {0x000000000000000000}
     set_instance_parameter_value hps_0 {DISCRETE_FLY_BY} {1}
     set_instance_parameter_value hps_0 {DEVICE_DEPTH} {1}
-    set_instance_parameter_value hps_0 {DEVICE_WIDTH} {1}
     set_instance_parameter_value hps_0 {MEM_MIRROR_ADDRESSING} {0}
     set_instance_parameter_value hps_0 {MEM_CLK_FREQ_MAX} {800.0}
     set_instance_parameter_value hps_0 {MEM_ROW_ADDR_WIDTH} {15}
@@ -66,6 +65,8 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {PINGPONGPHY_EN} {0}
     set_instance_parameter_value hps_0 {DUPLICATE_AC} {0}
     set_instance_parameter_value hps_0 {REFRESH_BURST_VALIDATION} {0}
+    set_instance_parameter_value hps_0 {AP_MODE_EN} {0}
+    set_instance_parameter_value hps_0 {AP_MODE} {0}
     set_instance_parameter_value hps_0 {MEM_BL} {OTF}
     set_instance_parameter_value hps_0 {MEM_BT} {Sequential}
     set_instance_parameter_value hps_0 {MEM_ASR} {Manual}
@@ -256,6 +257,13 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {TRACKING_ERROR_TEST} {0}
     set_instance_parameter_value hps_0 {TRACKING_WATCH_TEST} {0}
     set_instance_parameter_value hps_0 {MARGIN_VARIATION_TEST} {0}
+    set_instance_parameter_value hps_0 {AC_ROM_USER_ADD_0} {0_0000_0000_0000}
+    set_instance_parameter_value hps_0 {AC_ROM_USER_ADD_1} {0_0000_0000_1000}
+    set_instance_parameter_value hps_0 {TREFI} {35100}
+    set_instance_parameter_value hps_0 {REFRESH_INTERVAL} {15000}
+    set_instance_parameter_value hps_0 {ENABLE_NON_DES_CAL_TEST} {0}
+    set_instance_parameter_value hps_0 {TRFC} {350}
+    set_instance_parameter_value hps_0 {ENABLE_NON_DES_CAL} {0}
     set_instance_parameter_value hps_0 {EXTRA_SETTINGS} {}
     set_instance_parameter_value hps_0 {MEM_DEVICE} {MISSING_MODEL}
     set_instance_parameter_value hps_0 {FORCE_SYNTHESIS_LANGUAGE} {}
@@ -488,7 +496,7 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {CAN1_Mode} {N/A}
     set_instance_parameter_value hps_0 {TRACE_PinMuxing} {Unused}
     set_instance_parameter_value hps_0 {TRACE_Mode} {N/A}
-    set_instance_parameter_value hps_0 {GPIO_Enable} {No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No}
+    set_instance_parameter_value hps_0 {GPIO_Enable} {Yes No No No No No No No No Yes No No No No No No No No No No No No No No No No No No Yes No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No}
     set_instance_parameter_value hps_0 {LOANIO_Enable} {No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No No}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_EMAC0_MD_CLK} {100}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_EMAC0_GTX_CLK} {100}
@@ -501,6 +509,5 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C0_CLK} {100}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C1_CLK} {100}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C2_CLK} {100}
-    set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C3_CLK} {100}
-}
+    set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C3_CLK} {100}}
 

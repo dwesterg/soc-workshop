@@ -52,6 +52,11 @@ module ghrd_top
 	output wire        hps_qspi_SS0,       
 	output wire        hps_qspi_CLK,
 `endif
+`ifdef CRITICALLINK_MITYSOM_DEVKIT
+	output wire        hps_gpio_GPIO00,
+	output wire        hps_gpio_GPIO09,
+	output wire        hps_gpio_GPIO28,
+`endif
 	inout  wire        hps_sdio_CMD,       
 	inout  wire        hps_sdio_D0,        
 	inout  wire        hps_sdio_D1,        
@@ -137,6 +142,11 @@ soc_system soc_inst (
   .hps_0_hps_io_hps_io_usb1_inst_NXT     (hps_usb1_NXT),     
   .hps_0_hps_io_hps_io_uart0_inst_RX     (hps_uart0_RX),     
   .hps_0_hps_io_hps_io_uart0_inst_TX     (hps_uart0_TX),     
+`ifdef CRITICALLINK_MITYSOM_DEVKIT
+  .hps_0_hps_io_hps_io_gpio_inst_GPIO00  (hps_gpio_GPIO00),
+  .hps_0_hps_io_hps_io_gpio_inst_GPIO09  (hps_gpio_GPIO09),
+  .hps_0_hps_io_hps_io_gpio_inst_GPIO28  (hps_gpio_GPIO28),
+`endif 
   .hps_0_h2f_reset_reset_n               (),
   .hps_0_h2f_clk_clk                     ()
 );  
