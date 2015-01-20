@@ -95,9 +95,9 @@ set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_usb1_DIR
 set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_usb1_NXT
 set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_usb1_STP
 
-set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO00,
-set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO09,
-set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO28,
+set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO00
+set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO09
+set_instance_assignment -name IO_STANDARD "1.8 V" -to hps_gpio_GPIO28
 
 set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE ../hdl_src/fft_msgdma.stp
