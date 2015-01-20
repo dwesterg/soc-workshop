@@ -53,9 +53,9 @@ module ghrd_top
 	output wire        hps_qspi_CLK,
 `endif
 `ifdef CRITICALLINK_MITYSOM_DEVKIT
-	output wire        hps_gpio_GPIO00,
-	output wire        hps_gpio_GPIO09,
-	output wire        hps_gpio_GPIO28,
+	inout wire        hps_gpio_GPIO00,
+	inout wire        hps_gpio_GPIO09,
+	inout wire        hps_gpio_GPIO28,
 `endif
 	inout  wire        hps_sdio_CMD,       
 	inout  wire        hps_sdio_D0,        
