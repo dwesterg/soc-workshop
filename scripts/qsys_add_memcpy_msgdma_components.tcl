@@ -36,6 +36,16 @@ set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.descriptor_slave de
 add_connection hps_0.f2h_irq0 memcpy_msgdma.csr_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/memcpy_msgdma.csr_irq irqNumber {7}
 
+add_connection memcpy_msgdma.mm_read hps_0.f2h_axi_slave avalon
+set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave arbitrationPriority {1}
+set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave baseAddress {0x0000}
+set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave defaultConnection {0}
+
+add_connection memcpy_msgdma.mm_write hps_0.f2h_axi_slave avalon
+set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave arbitrationPriority {1}
+set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave baseAddress {0x0000}
+set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave defaultConnection {0}
+
 # Clocks and Resets
 add_connection hps_0.h2f_user1_clock memcpy_msgdma.clock clock
 add_connection hps_0.h2f_reset memcpy_msgdma.reset_n reset
