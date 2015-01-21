@@ -1,7 +1,7 @@
 set devicefamily ARRIAV
 set device 5ASTFD5K3F40I3
 
-set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip"
+set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
 set hdlfiles "../hdl_src/ghrd_top.v,../ip/edge_detect/altera_edge_detector.v,../ip/debounce/debounce.v"
 set topname ghrd_top
 
