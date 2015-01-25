@@ -13,7 +13,7 @@ $(call get_stamp_target,overlay.extract):
 HELP_TARGETS += overlay.make_all
 overlay.make_all.HELP := Install custom apps to overlay directory
 .PHONY: overlay.make_all
-overlay.make_all: overlay.extract toolchain.extract linux.patch linux.modules
+overlay.make_all: overlay.extract toolchain.extract linux.build linux.modules
 	$(MAKE) -C sw_src $(LINUX_VARIABLES)  INSTALL_DIR=$(CURDIR)/overlay all 2>&1 | tee logs/$$(notdir $$@).log
 
 HELP_TARGETS += overlay.make_install

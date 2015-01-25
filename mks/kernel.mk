@@ -50,7 +50,7 @@ endif
 
 HELP_TARGETS += linux.modules
 linux.modules.HELP := Build linux kernel modules
-linux.modules: linux.patch linux.dodefconfig toolchain.extract | logs
+linux.modules: linux.patch linux.dodefconfig linux.build toolchain.extract | logs
 	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) modules 2>&1 | tee logs/$(notdir $@).log
 
 

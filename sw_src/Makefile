@@ -53,7 +53,7 @@ install: mmlink msgdma_memtest validator_devmem validator_module
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
-	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
+#	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
 	make -C validator_module OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
 
 .PHONY: mmlink
