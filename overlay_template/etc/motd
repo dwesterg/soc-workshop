@@ -1,35 +1,14 @@
 
 ********************************************************************
 Welcome to the SoC Workshop
-The rootfs is a ram based filesystem, no changes will survive a boot
-Examples can be found in the /examples directory
 
-To assign a static IP, use the following command
+The rootfs is a ram based filesystem built using Buildroot, no changes will survive a reboot
 
-ifconfig eth0 192.168.10.2 
+A good place to start is /readme.txt which provides some basic instructions and notes.  To read it, do the following:
 
-configure your PC/Laptop with an IP address in the same subnet, IE:
-192.168.10.1
+less /readme.txt
 
-The board should try to get a dhcp address.  To find the address type
-
-ifconfig
-
-if a dhcp address is not obtained try
-
-ifdown eth0
-ifup eth0
-
-To mount the FAT partition on the SDCard, do the following
-
-mkdir /mnt/fat
-mount /dev/mmcblk0p1 /mnt/fat
-
-Make sure to unmount it with
-
-umount /mnt/fat
-
-when you are done
+'q' will quit from the above command
 
 The root password is "password"
 ********************************************************************
