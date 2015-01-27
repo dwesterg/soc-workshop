@@ -1,0 +1,2 @@
+#!/bin/sh
+DROPBEAR_ARGS="-b /etc/motd"

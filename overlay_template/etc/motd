@@ -1,0 +1,15 @@
+
+********************************************************************
+Welcome to the SoC Workshop
+The rootfs is a ram based filesystem, no changes will survive a boot
+Examples can be found in the /examples directory
+
+To assign a static IP, use the following command
+
+ifconfig eth0 192.168.10.2 
+
+configure your PC/Laptop with an IP address in the same subnet, IE:
+192.168.10.1
+
+The root password is "password"
+********************************************************************
