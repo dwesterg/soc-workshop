@@ -11,5 +11,25 @@ ifconfig eth0 192.168.10.2
 configure your PC/Laptop with an IP address in the same subnet, IE:
 192.168.10.1
 
+The board should try to get a dhcp address.  To find the address type
+
+ifconfig
+
+if a dhcp address is not obtained try
+
+ifdown eth0
+ifup eth0
+
+To mount the FAT partition on the SDCard, do the following
+
+mkdir /mnt/fat
+mount /dev/mmcblk0p1 /mnt/fat
+
+Make sure to unmount it with
+
+umount /mnt/fat
+
+when you are done
+
 The root password is "password"
 ********************************************************************
