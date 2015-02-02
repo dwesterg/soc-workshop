@@ -55,6 +55,8 @@ $1.quartus_compile: $$(QUARTUS_STAMP_$1)
 
 $$(QUARTUS_SOF_$1): $$(QUARTUS_STAMP_$1)
 
+$$(QUARTUS_JDI_$1): $$(QUARTUS_STAMP_$1)
+
 $$(QUARTUS_STAMP_$1): $$(QUARTUS_DEPS_$1)
 	quartus_stp $$(QUARTUS_QPF_$1) -c $1 2>&1 | tee logs/$$(notdir $$@).log
 	quartus_sh --flow compile $$(QUARTUS_QPF_$1) -c $1 2>&1 | tee -a logs/$$(notdir $$@).log

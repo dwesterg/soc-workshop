@@ -169,6 +169,7 @@ QUARTUS_QPF_$1 := $1/$1.qpf
 QUARTUS_QSF_$1 := $1/$1.qsf
 QUARTUS_SOF_$1 := $1/output_files/$1.sof
 QUARTUS_RBF_$1 := $1/output_files/$1.rbf
+QUARTUS_JDI_$1 := $1/output_files/$1.jdi
 
 QSYS_FILE_$1 := $1/$(QSYS_BASE_NAME).qsys
 QSYS_SOPCINFO_$1 := $1/$(QSYS_BASE_NAME).sopcinfo
@@ -195,9 +196,11 @@ AR_FILES += $1/u-boot.img
 AR_FILES += $1/preloader-mkpimage.bin
 #AR_FILES += $1/boot.script $1/u-boot.scr
 
-ALL_DEPS_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1)
+ALL_DEPS_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1) $$(QUARTUS_JDI_$1)
 ALL_DEPS_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
 ALL_DEPS_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
+ALL_DEPS_$1 += $$(QUARTUS_JDI_$1) $$(QSYS_SOPCINFO_$1) $$(QSYS_FILE_$1)
+ALL_DEPS_$1 += $1/hps_isw_handoff $1/$1.qpf $1/$1.qsf
 
 SD_FAT_$1 += $$(ALL_DEPS_$1)
 SD_FAT_$1 += boot.script u-boot.scr
@@ -286,6 +289,8 @@ SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(ALL_DEPS_$r))
 SD_FAT_TGZ_DEPS += zImage
 SD_FAT_TGZ_DEPS += rootfs.img
 SD_FAT_TGZ_DEPS += boot.script u-boot.scr
+SD_FAT_TGZ_DEPS += hdl_src
+SD_FAT_TGZ_DEPS += board_info
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
