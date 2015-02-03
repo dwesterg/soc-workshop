@@ -1,0 +1,78 @@
+diff -Naur uboot-socfpga-orig/board/altera/common/chipid2mac.c uboot-socfpga/board/altera/common/chipid2mac.c
+--- uboot-socfpga-orig/board/altera/common/chipid2mac.c	1969-12-31 16:00:00.000000000 -0800
++++ uboot-socfpga/board/altera/common/chipid2mac.c	2015-02-03 07:31:54.609881055 -0800
+@@ -0,0 +1,74 @@
++#include <common.h>
++#include <command.h>
++#include <asm/io.h>
++
++#define SHORT_HELP\
++        "chip2mac - use chipid in soc workshop design to generate temporary mac address.\n"
++
++#define LONG_HELP\
++       "\n"\
++       "chipid2mac\n"\
++	"	-  use chipid in soc workshop design to generate temporary mac address.\n"\
++       "\n"
++
++static int do_chipid2mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++        char *chipid_addr;
++        char *chipid_addr_env;
++	unsigned char ethaddr[6];
++        char ethaddr_env[32];
++	int chipid_sum;
++	int timeout = 0;
++
++	if((chipid_addr_env = getenv("chipid_addr")) != NULL)
++                chipid_addr = (char *) simple_strtoul(chipid_addr_env, NULL, 16);
++        else {
++                printf("chipid_addr not set!\n");
++                return -1;
++        }
++
++
++	ethaddr[0] = 0x00;
++	ethaddr[1] = 0x07;
++	ethaddr[2] = 0xed;
++	
++	while(readl(chipid_addr) != 0x33221100) {
++		timeout++;
++		if (timeout == 0xFFFF) {
++			printf("timeout waiting for validator sync\n");
++			return -1;
++		}
++	}
++
++	chipid_sum = (readb(chipid_addr+0x20) + readb(chipid_addr+0x1C)) << 24;
++	chipid_sum +=(readb(chipid_addr+0x21) + readb(chipid_addr+0x1D)) << 16; 
++	chipid_sum +=(readb(chipid_addr+0x22) + readb(chipid_addr+0x1E)) << 8; 
++	chipid_sum +=(readb(chipid_addr+0x23) + readb(chipid_addr+0x1F)) << 0; 
++
++	ethaddr[3] = 0xFF & (chipid_sum >> 16);
++	ethaddr[4] = 0xFF & (chipid_sum >> 8);
++	ethaddr[5] = 0xFF & (chipid_sum >> 0);
++
++	printf("ethaddr = %02x:%02x:%02x:%02x:%02x:%02x\n",
++                                ethaddr[0],
++                                ethaddr[1],
++                                ethaddr[2],
++                                ethaddr[3],
++                                ethaddr[4],
++                                ethaddr[5]);
++
++        sprintf(ethaddr_env, "%02x:%02x:%02x:%02x:%02x:%02x",
++                                ethaddr[0],
++                                ethaddr[1],
++                                ethaddr[2],
++                                ethaddr[3],
++                                ethaddr[4],
++                                ethaddr[5]);
++
++        setenv("ethaddr", ethaddr_env);
++        return 0;
++}
++
++/*-----------------------------------------------------------------------*/
++U_BOOT_CMD( chipid2mac, 1, 1, do_chipid2mac, SHORT_HELP, LONG_HELP );
++	

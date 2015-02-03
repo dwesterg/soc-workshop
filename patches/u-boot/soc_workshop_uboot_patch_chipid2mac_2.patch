@@ -1,0 +1,13 @@
+--- uboot-socfpga-orig/board/altera/socfpga/Makefile	2014-12-04 08:03:53.000000000 -0800
++++ uboot-socfpga/board/altera/socfpga/Makefile	2015-02-03 06:48:29.309245167 -0800
+@@ -34,6 +34,10 @@
+ COBJS-$(CONFIG_SPL_BUILD) += pinmux_config_cyclone5.o iocsr_config_cyclone5.o
+ endif
+ 
++ifndef CONFIG_SPL_BUILD
++COBJS-$(CONFIG_CMD_CHIPID2MAC) += ../common/chipid2mac.o
++endif 
++
+ COBJS	:= $(COBJS-y)
+ SRCS	:= $(COBJS:.o=.c)
+ OBJS	:= $(addprefix $(obj),$(COBJS))

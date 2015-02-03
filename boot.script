@@ -41,5 +41,7 @@ setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait
 
 echo ---Booting Linux---
 run bridge_enable_handoff;
+set chipid_addr 0xFF240000;
+chipid2mac;
 run mmcload;
 run mmcboot;
