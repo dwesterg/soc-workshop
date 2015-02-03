@@ -1,0 +1,37 @@
+Altera OpenCL SoC Driver for Linux
+------------------------------------------
+
+This directory contains full source code for the Altera OpenCL 
+SoC Driver for Linux on ARM [1][2].  
+
+
+PREREQUISITES
+-------------
+Cross-compiler installed
+
+COMPIILE and INSTALL
+--------------------
+
+To compile the driver, first modify the KDIR variable in Makefile
+to point to Linux kernel source files that came with SoC EDS installation.
+Then run 'make' as regular user. The compiled driver file will be named
+aclsoc_drv.ko.
+
+To load the compiled driver:
+  insmod aclsoc_drv.ko
+  
+(The driver must be loaded to run host programs AND to reprogram 
+the device).
+
+To quickly test if the driver and the FPGA work
+  aocl diagnostic
+
+To reprogram the FPGA core from within ARM, load the driver and run
+  aocl program /dev/acl0 <aocx_filename>
+
+To unload the driver:
+  rmmod aclsoc_drv
+
+
+[1] Altera, Quartus, and Stratix are tradermarks of Altera Corporation.
+[2] OpenCL and the OpenCL logo are trademarks of Apple Inc.

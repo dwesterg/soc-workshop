@@ -49,12 +49,13 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 all: install
 
 .PHONY: install
-install: mmlink msgdma_memtest validator_devmem validator_module
+install: mmlink msgdma_memtest
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 #	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
-	make -C validator_module OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
+#	make -C validator_module OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
+#	make -C acl OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
 
 .PHONY: mmlink
 mmlink: 
@@ -71,6 +72,10 @@ validator_devmem:
 .PHONY: validator_module
 validator_module:
 	make -C validator_module OUT_DIR=$(CURDIR)/../linux-socfpga $(LINUX_VARIABLES) modules
+
+.PHONY: acl_module
+acl_module:
+	make -C acl OUT_DIR=$(CURDIR)/../linux-socfpga $(LINUX_VARIABLES) all
 	
 .PHONY: clean
 clean:
