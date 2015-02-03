@@ -42,7 +42,8 @@ $1/addon_components.ipx:
 	@$(ECHO) "   <path path=\"../ip/**/*\" />" >> $1/addon_components.ipx
 	@$(ECHO) "</library>" >> $1/addon_components.ipx
 
- 
+$1/hps_isw_handoff: $$(QUARTUS_STAMP_$1)
+
 #############
 # target for compilation
 #############
