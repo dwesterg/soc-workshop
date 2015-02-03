@@ -1,0 +1,17 @@
+diff -Naur uboot-socfpga/arch/arm/include/asm/arch-socfpga/gpio.h uboot-socfpga-gpio/arch/arm/include/asm/arch-socfpga/gpio.h
+--- uboot-socfpga/arch/arm/include/asm/arch-socfpga/gpio.h	1969-12-31 16:00:00.000000000 -0800
++++ uboot-socfpga-gpio/arch/arm/include/asm/arch-socfpga/gpio.h	2014-12-05 10:42:57.000000000 -0800
+@@ -0,0 +1,13 @@
++/*
++ * HPS GPIO definitions for Altera SOC module.
++ */
++
++#define GPIO_MODULE0_ADDR       0xFF708000
++#define GPIO_MODULE1_ADDR       0xFF709000
++#define GPIO_MODULE2_ADDR       0xFF70A000
++
++#define GPIO_SWPORTA_DR_OFFSET  0x0
++#define GPIO_SWPORTA_DDR_OFFSET 0x1
++
++#define GPIO_WIDTH      29 /* ugh */
++

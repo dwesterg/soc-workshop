@@ -1,0 +1,10 @@
+--- uboot-socfpga-orig/include/configs/socfpga_common.h	2014-09-05 11:10:31.000000000 -0700
++++ uboot-socfpga/include/configs/socfpga_common.h	2014-11-01 16:22:20.479488340 -0700
+@@ -179,6 +179,7 @@
+ #define CONFIG_BOOTARGS "console=ttyS0," __stringify(CONFIG_BAUDRATE)
+ 
+ #define CONFIG_EXTRA_ENV_SETTINGS \
++	"soc_workshop_revision="  __stringify(CONFIG_SOC_WORKSHOP_REVISION) "\0" \
+ 	"verify=n\0" \
+ 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+ 	"fdtaddr=0x00000100\0" \
