@@ -14,19 +14,18 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/overlay
 
 # download linux source from rocketboards
 .PHONY:	linux.get
-linux.get: $(DL)/linux-socfpga.tgz
-$(DL)/linux-socfpga.tgz: 
+linux.get: $(DL)/$(LINUX_BRANCH).tgz
+$(DL)/$(LINUX_BRANCH).tgz: 
 	$(MKDIR) $(DL)
-	wget -O $(DL)/linux-socfpga.tgz $(LNX_SOURCE_PACKAGE)
-	$(stamp_target)
+	wget -O $(DL)/$(LINUX_BRANCH).tgz $(LNX_SOURCE_PACKAGE)
 
 # extract linux source
 .PHONY: linux.extract
 linux.extract: $(call get_stamp_target,linux.extract)
-$(call get_stamp_target,linux.extract):$(DL)/linux-socfpga.tgz $(EBII_LINUX_PATCHES)
+$(call get_stamp_target,linux.extract):$(DL)/$(LINUX_BRANCH).tgz $(LINUX_PATCHES)
 	$(RM) linux-socfpga
 	$(MKDIR) linux-socfpga
-	$(TAR) -xvzf $(DL)/linux-socfpga.tgz --strip-components 1 -C linux-socfpga
+	$(TAR) -xvzf $(DL)/$(LINUX_BRANCH).tgz --strip-components 1 -C linux-socfpga
 	$(stamp_target)
 
 .PHONY: linux.patch
