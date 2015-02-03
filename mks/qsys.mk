@@ -65,7 +65,7 @@ $$(QSYS_SOPCINFO_$1) $1/$(QSYS_BASE_NAME)/synthesis/$(QSYS_BASE_NAME).qip: $$(QS
 $$(QSYS_PIN_ASSIGNMENTS_STAMP_$1): $$(QSYS_STAMP_$1) $$(CREATE_PROJECT_STAMP_$1)
 	quartus_map $$(QUARTUS_QPF_$1) -c $1
 	quartus_cdb --merge $$(QUARTUS_QPF_$1) -c $1
-	$(MAKE) QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 $1.quartus_apply_tcl_pin_assignments 2>&1 | tee logs/$$(notdir $$@).log
+	$(MAKE) -j1 QSYS_ENABLE_PIN_ASSIGNMENTS_APPLY=1 $1.quartus_apply_tcl_pin_assignments 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 
 #######

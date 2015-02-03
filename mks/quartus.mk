@@ -44,6 +44,8 @@ $1/addon_components.ipx:
 
 $1/hps_isw_handoff: $$(QUARTUS_STAMP_$1)
 
+$1/$1.qsf: $$(CREATE_PROJECT_STAMP_$1)
+
 #############
 # target for compilation
 #############
