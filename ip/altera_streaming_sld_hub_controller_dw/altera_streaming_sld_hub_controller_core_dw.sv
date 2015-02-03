@@ -18,7 +18,7 @@
 
 `default_nettype none
 `timescale 1 ns / 1 ns
-module altera_streaming_sld_hub_controller_core #(
+module altera_streaming_sld_hub_controller_core_dw #(
     parameter DEVICE_FAMILY = "Stratix IV",
               ENABLE_JTAG_IO_SELECTION = 0,
               ST_DATA_W = 8 // hidden parameter

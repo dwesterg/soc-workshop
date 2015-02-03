@@ -51,11 +51,6 @@ set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE true
 set_module_property STATIC_TOP_LEVEL_MODULE_NAME sld_hub_csr_slave
 
-add_parameter DEVICE_FAMILY STRING "Stratix IV"
-set_parameter_property DEVICE_FAMILY SYSTEM_INFO DEVICE_FAMILY
-set_parameter_property DEVICE_FAMILY VISIBLE false
-set_parameter_property DEVICE_FAMILY HDL_PARAMETER true
-
 # +-----------------------------------
 # | connection point clk
 # | 
@@ -112,6 +107,19 @@ add_interface_port csr csr_writedata writedata Input 32
 add_interface_port csr csr_addr address Input 1
 #set_port_property csr_addr termination true
 
+add_interface jtag_io_enable conduit end
+set_interface_property jtag_io_enable associatedClock ""
+set_interface_property jtag_io_enable associatedReset ""
+set_interface_property jtag_io_enable ENABLED true
+set_interface_property jtag_io_enable EXPORT_OF ""
+set_interface_property jtag_io_enable PORT_NAME_MAP ""
+set_interface_property jtag_io_enable CMSIS_SVD_VARIABLES ""
+set_interface_property jtag_io_enable SVD_ADDRESS_GROUP ""
+set_interface_property jtag_io_enable ENABLED true
+
+add_interface_port jtag_io_enable enable_user_jtag_io export Output 1
+
 set_module_assignment embeddedsw.dts.vendor "altr"
+set_module_assignment embeddedsw.dts.group "debug"
 set_module_assignment embeddedsw.dts.compatible "altr,sld_hub_csr-1.0"
 set_module_assignment embeddedsw.dts.name "sld_hub_csr"
