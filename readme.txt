@@ -21,6 +21,6 @@ mmlink
 ------
 The basic design includes the ability for the SoC to access the SLD nodes in the fpga via FPGA hardware.  This allows for ethernet based remote jtag via the SoC.  The mmlink kernel module and user application need to be insmoded and run. On the host side, system-console is used to create a jtag interface using a command like the following
 
-system-console -jtag_server -rc_script=mmlink_setup.tcl ALTERA_CV_SOC/output_files/ALTERA_CV_SOC.sof 192.165.1.2 3333
+system-console -jtag_server -rc_script=scripts/mmlink_setup.tcl ALTERA_CV_SOC/output_files/ALTERA_CV_SOC.sof 192.165.1.2 3333
 
 mmlink_setup.tcl is in the scripts directory

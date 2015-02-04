@@ -74,7 +74,7 @@ LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=sna
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
 LINUX_DEFCONFIG_TARGET = socfpga_custom_defconfig
-LINUX_DEFCONFIG := $(wildcard linux.defconfig)
+LINUX_DEFCONFIG := $(wildcard linux.defconfig.$(LINUX_BRANCH))
 LINUX_MAKE_TARGET := zImage
 KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 #LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
@@ -288,7 +288,7 @@ create_all_qsys.HELP := Create all qsys files
 SD_FAT_TGZ := sd_fat.$(KBUILD_BUILD_VERSION).tar.gz
 
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(ALL_DEPS_$r))
-SD_FAT_TGZ_DEPS += zImage
+SD_FAT_TGZ_DEPS += zImage.$(LINUX_BRANCH)
 SD_FAT_TGZ_DEPS += rootfs.img
 SD_FAT_TGZ_DEPS += boot.script u-boot.scr
 SD_FAT_TGZ_DEPS += hdl_src
@@ -297,7 +297,7 @@ SD_FAT_TGZ_DEPS += board_info
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
 	@$(MKDIR) $(@D)
-	$(TAR) -czf $@ $^
+	$(TAR) -czf $@ $^ zImage.*
 
 QUARTUS_OUT_TGZ := quartus_out.tar.gz 
 QUARTUS_OUT_TGZ_DEPS += $(ALL_QUARTUS_RBF) $(ALL_QUARTUS_SOF)

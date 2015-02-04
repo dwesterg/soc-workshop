@@ -3,7 +3,19 @@
 
 
 start() {
-	cat /etc/motd
+	echo "********************************************************************"
+	echo "Welcome to the SoC Workshop"
+	echo ""
+	echo "The rootfs is a ram based filesystem built using Buildroot, no changes will survive a reboot"
+	echo ""
+	echo "A good place to start is /readme.txt which provides some basic instructions and notes.  To read it, do the following:"
+	echo ""
+	echo "less /readme.txt"
+	echo ""
+	echo "'q' will quit from the above command"
+	echo ""
+	echo "The root password is 'password'"
+	echo "********************************************************************"
 }
 stop() {
 	echo

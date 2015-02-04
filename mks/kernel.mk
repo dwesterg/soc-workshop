@@ -21,65 +21,66 @@ $(DL)/$(LINUX_BRANCH).tgz:
 
 # extract linux source
 .PHONY: linux.extract
-linux.extract: $(call get_stamp_target,linux.extract)
-$(call get_stamp_target,linux.extract):$(DL)/$(LINUX_BRANCH).tgz $(LINUX_PATCHES)
-	$(RM) linux-socfpga
-	$(MKDIR) linux-socfpga
-	$(TAR) -xvzf $(DL)/$(LINUX_BRANCH).tgz --strip-components 1 -C linux-socfpga
+linux.extract: $(call get_stamp_target,$(LINUX_BRANCH).linux.extract)
+$(call get_stamp_target,$(LINUX_BRANCH).linux.extract):$(DL)/$(LINUX_BRANCH).tgz $(LINUX_PATCHES)
+	$(RM) $(LINUX_BRANCH)
+	$(MKDIR) $(LINUX_BRANCH)
+	$(TAR) -xvzf $(DL)/$(LINUX_BRANCH).tgz --strip-components 1 -C $(LINUX_BRANCH)
 	$(stamp_target)
 
 .PHONY: linux.patch
-linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$(notdir $p)))
+linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$(LINUX_BRANCH).$(notdir $p)))
 define do_patch_lnx
-$(call get_stamp_target,$(notdir $1)): $(call get_stamp_target,linux.extract)
-	patch -d linux-socfpga -p1 < $1 2>&1
+$(call get_stamp_target,$(LINUX_BRANCH).$(notdir $1)): $(call get_stamp_target,$(LINUX_BRANCH).linux.extract)
+	patch -d $(LINUX_BRANCH) -p1 < $1 2>&1
 	$$(stamp_target)
 endef
 $(foreach p,$(LINUX_PATCHES),$(eval $(call do_patch_lnx,$p)))
 
 # apply defconfig
 .PHONY: linux.dodefconfig
-linux.dodefconfig: linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
+linux.dodefconfig: $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
 
-linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract linux.patch $(LINUX_DEFCONFIG)
+$(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract linux.patch $(LINUX_DEFCONFIG)
 ifneq ("$(LINUX_DEFCONFIG)","")
-	$(CP) $(LINUX_DEFCONFIG) linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
+	$(CP) $(LINUX_DEFCONFIG) $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
 endif
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
 
 HELP_TARGETS += linux.modules
 linux.modules.HELP := Build linux kernel modules
 linux.modules: linux.patch linux.dodefconfig linux.build toolchain.extract | logs
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) modules 2>&1 | tee logs/$(notdir $@).log
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) modules 2>&1 | tee logs/$(notdir $@).log
 
 
 HELP_TARGETS += linux.modules_install
 linux.modules_install.HELP := Build linux kernel modules
 linux.modules_install: linux.modules | logs
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) modules_install 2>&1 | tee logs/$(notdir $@).log
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install 2>&1 | tee logs/$(notdir $@).log
 
 # build                                   
-linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,linux.build)
+$(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,$(LINUX_BRANCH).linux.build)
 
-$(LINUX_MAKE_TARGET): linux-socfpga/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET)
+$(LINUX_MAKE_TARGET).$(LINUX_BRANCH): $(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET)
 	$(CP) $< $@
 
 HELP_TARGETS += linux.build
 linux.build.HELP := Build linux kernel
 .PHONY: linux.build
-linux.build: $(call get_stamp_target,linux.build) 
-$(call get_stamp_target,linux.build): $(LNX_DEPS)
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET) 2>&1 | tee logs/$(notdir $@).log
+linux.build: $(call get_stamp_target,$(LINUX_BRANCH).linux.build) 
+$(call get_stamp_target,$(LINUX_BRANCH).linux.build): $(LNX_DEPS)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET) 2>&1 | tee logs/$(notdir $@).log
 	$(stamp_target)
 
 # update linux configuration and same defconfig
 HELP_TARGETS += linux.menuconfig
 linux.menuconfig.HELP := Menuconfig for linux.  Also saves output to SRC directory
-linux.menuconfig: linux-socfpga/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) menuconfig
-	$(MAKE) -C linux-socfpga $(LINUX_VARIABLES) savedefconfig
+linux.menuconfig: $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
+	$(CP) $(LINUX_DEFCONFIG) $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $(LINUX_DEFCONFIG_TARGET)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) menuconfig
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) savedefconfig
 	$(CP) $(LINUX_DEFCONFIG) $(LINUX_DEFCONFIG).$(KBUILD_BUILD_VERSION).old
-	$(CP)  linux-socfpga/defconfig $(LINUX_DEFCONFIG)     
+	$(CP)  $(LINUX_BRANCH)/defconfig $(LINUX_DEFCONFIG)
 	
 ################################################################################

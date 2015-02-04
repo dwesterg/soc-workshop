@@ -45,21 +45,30 @@ ifneq ("$(DEVICETREE_SRC)","")
 endif
 LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 
+ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
+	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest validator_module acl_module sld_hub_csr_module
+else
+	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest
+endif
+
 .PHONY: all
 all: install
 
 .PHONY: install
-install: mmlink msgdma_memtest validator_module acl_module
+install: $(SW_SRC_INSTALL_DEPS)
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 #	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
-	make -C validator_module OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
-	make -C acl OUT_DIR=../../linux-socfpga $(LINUX_VARIABLES) modules_install
+ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
+	make -C sld_hub_csr_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+	make -C validator_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+	make -C acl OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+endif
 
 .PHONY: mmlink
 mmlink: 
-	make -C mmlink KERNEL_SRC_DIR=$(CURDIR)/../linux-socfpga CROSS_COMPILE=$(CROSS_COMPILE)	
+	make -C mmlink KERNEL_SRC_DIR=$(CURDIR)/../$(LINUX_BRANCH) CROSS_COMPILE=$(CROSS_COMPILE)	
 
 .PHONY: msgdma_memtest
 msgdma_memtest:
@@ -71,15 +80,21 @@ validator_devmem:
 
 .PHONY: validator_module
 validator_module:
-	make -C validator_module OUT_DIR=$(CURDIR)/../linux-socfpga $(LINUX_VARIABLES) modules
+	make -C validator_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules
 
 .PHONY: acl_module
 acl_module:
-	make -C acl OUT_DIR=$(CURDIR)/../linux-socfpga $(LINUX_VARIABLES) all
-	
+	make -C acl OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) all
+
+
+.PHONY: sld_hub_csr_module
+sld_hub_csr_module:
+	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules
+
 .PHONY: clean
 clean:
 	make -C mmlink clean
 	make -C msgdma_user_space clean
 	make -C validator_devmem_app clean
-	make -C validator_module OUT_DIR=$(CURDIR)/../linux-socfpga clean
+	make -C validator_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
+	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
