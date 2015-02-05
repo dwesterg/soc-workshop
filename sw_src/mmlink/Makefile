@@ -19,7 +19,7 @@ mmlink: $(MMLINK_OBJS)
 udp_log.o: udp_log.cpp udp_log.h
 	$(CPP) $(CFLAGS) \
 	  -D MM_LINK_UDP_DEBUG \
-	  -D MM_LINK_UDP_DEBUG_IP=\"192.168.100.254\" \
+	  -D MM_LINK_UDP_DEBUG_IP=\"192.168.10.1\" \
 	  -D MM_LINK_UDP_DEBUG_PORT=4444 \
 	  udp_log.cpp
 
