@@ -1,0 +1,34 @@
+package require -exact qsys 14.1
+
+#Add Components
+add_instance sld_hub_controller_system_0 altera_sld_hub_controller_system_dw
+set_instance_parameter_value sld_hub_controller_system_0 {ENABLE_JTAG_IO_SELECTION} {1}
+
+add_instance sld_hub_csr_slave_dw_0 sld_hub_csr_slave_dw
+
+# HPS Connectivity
+add_connection lw_mm_bridge.m0 sld_hub_controller_system_0.s0 avalon
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_controller_system_0.s0 arbitrationPriority {1}
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_controller_system_0.s0 baseAddress {0x00030000}
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_controller_system_0.s0 defaultConnection {0}
+
+add_connection lw_mm_bridge.m0 sld_hub_csr_slave_dw_0.csr avalon
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_csr_slave_dw_0.csr arbitrationPriority {1}
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_csr_slave_dw_0.csr baseAddress {0x00034000}
+set_connection_parameter_value lw_mm_bridge.m0/sld_hub_csr_slave_dw_0.csr defaultConnection {0}
+
+# Clocks and Resets
+add_connection hps_0.h2f_user1_clock sld_hub_controller_system_0.clk clock
+add_connection hps_0.h2f_reset sld_hub_controller_system_0.reset reset
+
+add_connection hps_0.h2f_user1_clock sld_hub_csr_slave_dw_0.clk clock
+add_connection hps_0.h2f_reset sld_hub_csr_slave_dw_0.reset reset
+
+add_connection sld_hub_csr_slave_dw_0.jtag_io_enable sld_hub_controller_system_0.jtag_io_enable conduit
+set_connection_parameter_value sld_hub_csr_slave_dw_0.jtag_io_enable/sld_hub_controller_system_0.jtag_io_enable endPort {}
+set_connection_parameter_value sld_hub_csr_slave_dw_0.jtag_io_enable/sld_hub_controller_system_0.jtag_io_enable endPortLSB {0}
+set_connection_parameter_value sld_hub_csr_slave_dw_0.jtag_io_enable/sld_hub_controller_system_0.jtag_io_enable startPort {}
+set_connection_parameter_value sld_hub_csr_slave_dw_0.jtag_io_enable/sld_hub_controller_system_0.jtag_io_enable startPortLSB {0}
+set_connection_parameter_value sld_hub_csr_slave_dw_0.jtag_io_enable/sld_hub_controller_system_0.jtag_io_enable width {0}
+
+save_system
