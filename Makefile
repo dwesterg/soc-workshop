@@ -93,7 +93,6 @@ BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.11.ta
 # initial save file list
 AR_REGEX += ip readme.txt mks                                                                      
 AR_REGEX += scripts                                                                        
-AR_REGEX += scripts                                                                        
 AR_REGEX += $(SCRIPT_DIR) 
 AR_REGEX += patches
 AR_REGEX += board_info
@@ -102,7 +101,7 @@ AR_REGEX += sw_src
 AR_REGEX += utils
 AR_REGEX += overlay_template
 AR_REGEX += downloads
-AR_REGEX += *.defconfig
+AR_REGEX += *.defconfig.*
 AR_REGEX += *.config
 AR_REGEX += build.sh
 AR_REGEX += arc_build.sh
