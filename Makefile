@@ -215,9 +215,9 @@ $1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for
 HELP_TARGETS += sd_fat_$1.tar.gz
 sd_fat_$1.tar.gz.HELP := Tar of SDCard's FAT filesystem contents for $1
 
-sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage
+sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage.$(LINUX_BRANCH)
 	$(RM) $@
-	$(TAR) -czf $$@ $$^
+	$(TAR) -czf $$@ $$^ zImage.*
 
 endef
 $(foreach r,$(REVISION_LIST),$(eval $(call create_deps,$r)))

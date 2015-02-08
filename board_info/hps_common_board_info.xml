@@ -71,4 +71,15 @@ these aliases allows seamless support of multiple emacs
 <DTAppend name="clocks" type="phandle" parentlabel="fpgabridge2" val="l4_main_clk"/>
 <DTAppend name="init-val" type="number" parentlabel="fpgabridge2" val="1"/>
 
+
+<DTAppend name="reg" parentlabel="hps_0_usb0">
+<val type="hex">0xffb00000</val>
+<val type="hex">0xffff</val>
+</DTAppend>
+
+<DTAppend name="reg" parentlabel="hps_0_usb1">
+<val type="hex">0xffb40000</val>
+<val type="hex">0xffff</val>
+</DTAppend>
+
 </BoardInfo>
