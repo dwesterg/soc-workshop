@@ -74,12 +74,12 @@ these aliases allows seamless support of multiple emacs
 
 <DTAppend name="reg" parentlabel="hps_0_usb0">
 <val type="hex">0xffb00000</val>
-<val type="hex">0xffff</val>
+<val type="hex">0x40000</val>
 </DTAppend>
 
 <DTAppend name="reg" parentlabel="hps_0_usb1">
 <val type="hex">0xffb40000</val>
-<val type="hex">0xffff</val>
+<val type="hex">0x40000</val>
 </DTAppend>
 
 </BoardInfo>

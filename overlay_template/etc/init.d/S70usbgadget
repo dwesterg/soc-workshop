@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# $Id: dhcp3-server.init.d,v 1.4 2003/07/13 19:12:41 mdz Exp $
+#
+
+# On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
+#       Separate multiple interfaces with spaces, e.g. "eth0 eth1".
+MANUFACTURER="Terasic"
+SERIALNUMBER=0
+PRODUCT="DE0_NANO_SOC"
+DEV_ADDR="00:07:ED:01:02:03"
+INTERFACE="usb0"
+
+# Sanity checks
+test -f /usr/sbin/udhcpd || exit 0
+test -f /etc/udhcpd.conf || exit 0
+
+case "$1" in
+	start)
+		echo -n "Setting up network / storage gadget"
+		modprobe g_multi file=/dev/mmcblk0p1 cdrom=0 stall=0 removable=1 nofua=1 iSerialNumber=${SERIALNUMBER} iManufacturer=${MANUFACTURER} iProduct=${PRODUCT} host_addr=${DEV_ADDR}
+		sleep 1
+		echo -n "Starting DHCP server: "
+		test -d /var/lib/misc/ || mkdir -p /var/lib/misc/
+		test -f /var/lib/misc/dhcpd.leases || touch /var/lib/misc/dhcpd.leases
+		/sbin/ifconfig usb0 hw ether ${DEV_ADDR}
+		/sbin/ifconfig usb0 192.168.7.1 netmask 255.255.255.0
+		start-stop-daemon -S -x /usr/sbin/udhcpd -S /etc/udhcpd.conf
+		[ $? = 0 ] && echo "OK" || echo "FAIL"
+		;;
+	stop)
+		echo -n "Stopping Not Supported"
+		[ $? = 0 ] && echo "OK" || echo "FAIL"
+		;;
+	restart | force-reload)
+		$0 stop
+		sleep 2
+		$0 start
+		if [ "$?" != "0" ]; then
+			exit 1
+		fi
+		;;
+	*)
+		echo "Usage: /etc/init.d/dhcp-server {start|stop|restart|force-reload}"
+		exit 1
+esac
+
+exit 0
