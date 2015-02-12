@@ -292,6 +292,7 @@ SD_FAT_TGZ_DEPS += rootfs.img
 SD_FAT_TGZ_DEPS += boot.script u-boot.scr
 SD_FAT_TGZ_DEPS += hdl_src
 SD_FAT_TGZ_DEPS += board_info
+SD_FAT_TGZ_DEPS += ip
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
