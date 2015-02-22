@@ -82,4 +82,6 @@ these aliases allows seamless support of multiple emacs
 <val type="hex">0x40000</val>
 </DTAppend>
 
+<DTAppend name="compatible" type="string" parentlabel="memcpy_msgdma" val="demo,memcpy_msgdma"/>
+
 </BoardInfo>
