@@ -106,6 +106,7 @@ AR_REGEX += *.config
 AR_REGEX += build.sh
 AR_REGEX += arc_build.sh
 AR_REGEX += boot.script
+AR_REGEX += buildroot.defconfig
 
 ################################################
 .PHONY: default
