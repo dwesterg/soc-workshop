@@ -109,14 +109,14 @@ set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out baseAddress {0x98030}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out defaultConnection {0}
 
 # Clocks and Resets
-add_connection hps_0.h2f_user1_clock fifo_0.clk_in clock
-add_connection hps_0.h2f_reset fifo_0.reset_in reset
+add_connection clk_0.clk fifo_0.clk_in clock
+add_connection clk_0.clk_reset fifo_0.reset_in reset
 
-add_connection hps_0.h2f_user1_clock fifo_1.clk_in clock
-add_connection hps_0.h2f_reset fifo_1.reset_in reset
+add_connection clk_0.clk fifo_1.clk_in clock
+add_connection clk_0.clk_reset fifo_1.reset_in reset
 
-add_connection hps_0.h2f_user1_clock fifo_2.clk_in clock
-add_connection hps_0.h2f_reset fifo_2.reset_in reset
+add_connection clk_0.clk fifo_2.clk_in clock
+add_connection clk_0.clk_reset fifo_2.reset_in reset
 
 
 save_system

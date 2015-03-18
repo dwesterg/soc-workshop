@@ -83,5 +83,6 @@ these aliases allows seamless support of multiple emacs
 </DTAppend>
 
 <DTAppend name="compatible" type="string" parentlabel="memcpy_msgdma" val="demo,memcpy_msgdma"/>
+<DTAppend name="compatible" type="string" parentlabel="fft_sub_FFT_STadapter_0" val="altr,fft_stadapter" />
 
 </BoardInfo>

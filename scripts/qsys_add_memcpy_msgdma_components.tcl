@@ -47,7 +47,7 @@ set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave baseAd
 set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave defaultConnection {0}
 
 # Clocks and Resets
-add_connection hps_0.h2f_user1_clock memcpy_msgdma.clock clock
-add_connection hps_0.h2f_reset memcpy_msgdma.reset_n reset
+add_connection clk_0.clk memcpy_msgdma.clock clock
+add_connection clk_0.clk_reset memcpy_msgdma.reset_n reset
                                   
 save_system

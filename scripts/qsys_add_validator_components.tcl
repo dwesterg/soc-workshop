@@ -10,7 +10,7 @@ set_connection_parameter_value lw_mm_bridge.m0/validator_subsys_0.val_mm_bridge_
 set_connection_parameter_value lw_mm_bridge.m0/validator_subsys_0.val_mm_bridge_s0 defaultConnection {0}
 
 # Clocks and Resets
-add_connection hps_0.h2f_user1_clock validator_subsys_0.clk clock
-add_connection hps_0.h2f_reset validator_subsys_0.reset reset
+add_connection clk_0.clk validator_subsys_0.clk clock
+add_connection clk_0.clk_reset validator_subsys_0.reset reset
 
 save_system

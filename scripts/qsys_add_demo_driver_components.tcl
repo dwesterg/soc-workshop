@@ -13,7 +13,7 @@ add_connection hps_0.f2h_irq0 demo_driver_subsys_0.demo_timer_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/demo_driver_subsys_0.demo_timer_irq irqNumber {8}
 
 # Clocks and Resets
-add_connection hps_0.h2f_user1_clock demo_driver_subsys_0.clk clock
-add_connection hps_0.h2f_reset demo_driver_subsys_0.reset reset
+add_connection clk_0.clk demo_driver_subsys_0.clk clock
+add_connection clk_0.clk_reset demo_driver_subsys_0.reset reset
 
 save_system

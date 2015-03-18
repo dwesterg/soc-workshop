@@ -118,27 +118,27 @@ set_connection_parameter_value hps_0.f2h_irq0/jtag_uart.irq irqNumber {2}
 
 # Clocks
 add_connection hps_0.h2f_user1_clock clk_0.clk_in clock
-add_connection hps_0.h2f_user1_clock hps_0.f2h_sdram0_clock clock
-add_connection hps_0.h2f_user1_clock hps_0.h2f_axi_clock clock
-add_connection hps_0.h2f_user1_clock hps_0.f2h_axi_clock clock
-add_connection hps_0.h2f_user1_clock hps_0.h2f_lw_axi_clock clock
-add_connection hps_0.h2f_user1_clock hps_only_master.clk clock
-add_connection hps_0.h2f_user1_clock fpga_only_master.clk clock
-add_connection hps_0.h2f_user1_clock f2sdram_only_master.clk clock
-add_connection hps_0.h2f_user1_clock jtag_uart.clk clock
-add_connection hps_0.h2f_user1_clock sysid_qsys.clk clock
-add_connection hps_0.h2f_user1_clock onchip_memory2_0.clk1 clock
-add_connection hps_0.h2f_user1_clock lw_mm_bridge.clk clock
+add_connection clk_0.clk hps_0.f2h_sdram0_clock clock
+add_connection clk_0.clk hps_0.h2f_axi_clock clock
+add_connection clk_0.clk hps_0.f2h_axi_clock clock
+add_connection clk_0.clk hps_0.h2f_lw_axi_clock clock
+add_connection clk_0.clk hps_only_master.clk clock
+add_connection clk_0.clk fpga_only_master.clk clock
+add_connection clk_0.clk f2sdram_only_master.clk clock
+add_connection clk_0.clk jtag_uart.clk clock
+add_connection clk_0.clk sysid_qsys.clk clock
+add_connection clk_0.clk onchip_memory2_0.clk1 clock
+add_connection clk_0.clk lw_mm_bridge.clk clock
 
 # Resets
 add_connection hps_0.h2f_reset clk_0.clk_in_reset reset
-add_connection hps_0.h2f_reset fpga_only_master.clk_reset reset
-add_connection hps_0.h2f_reset hps_only_master.clk_reset reset
-add_connection hps_0.h2f_reset f2sdram_only_master.clk_reset reset
-add_connection hps_0.h2f_reset jtag_uart.reset reset
-add_connection hps_0.h2f_reset sysid_qsys.reset reset
-add_connection hps_0.h2f_reset onchip_memory2_0.reset1 reset
-add_connection hps_0.h2f_reset lw_mm_bridge.reset reset
+add_connection clk_0.clk_reset fpga_only_master.clk_reset reset
+add_connection clk_0.clk_reset hps_only_master.clk_reset reset
+add_connection clk_0.clk_reset f2sdram_only_master.clk_reset reset
+add_connection clk_0.clk_reset jtag_uart.reset reset
+add_connection clk_0.clk_reset sysid_qsys.reset reset
+add_connection clk_0.clk_reset onchip_memory2_0.reset1 reset
+add_connection clk_0.clk_reset lw_mm_bridge.reset reset
 
 # exported interfaces
 add_interface memory conduit end
