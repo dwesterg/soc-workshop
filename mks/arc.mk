@@ -1,65 +1,22 @@
-TAR_SOURCE := tar-1.28.tar.gz
-TAR_SOURCE_PACKAGE := "http://ftp.gnu.org/gnu/tar/$(TAR_SOURCE)"
-
-COREUTILS_SOURCE := coreutils-8.23.tar.xz
-COREUTILS_SOURCE_TAR := coreutils-8.23.tar
-COREUTILS_SOURCE_PACKAGE := "http://ftp.gnu.org/gnu/coreutils/$(COREUTILS_SOURCE)"
-
-.PHONY: coreutils.get
-coreutils.get: $(DL)/$(COREUTILS_SOURCE)
-$(DL)/$(COREUTILS_SOURCE):
-	$(MKDIR) $(DL)
-	wget -O $@ $(COREUTILS_SOURCE_PACKAGE)
-
-$(call get_stamp_target,coreutils.extract): $(DL)/$(COREUTILS_SOURCE)
-	$(CAT) $< | $(XZ) -d > $(DL)/$(COREUTILS_SOURCE_TAR)
-	$(MKDIR) coreutils
-	$(TAR) -xvf $(DL)/$(COREUTILS_SOURCE_TAR) --strip-components 1 -C coreutils
-	$(stamp_target)
-
-.PHONY: coreutils.compile
-coreutils.compile: $(call get_stamp_target,coreutils.compile)
-$(call get_stamp_target,coreutils.compile): $(call get_stamp_target,coreutils.extract)
-	$(shell cd coreutils;./configure > /dev/null)
-	$(MAKE) -C coreutils all
-	$(stamp_target)
-
-.PHONY: tar.get
-tar.download: $(DL)/$(TAR_SOURCE)
-$(DL)/$(TAR_SOURCE):
-	$(MKDIR) $(DL)
-	wget -O $@ $(TAR_SOURCE_PACKAGE)
-
-$(call get_stamp_target,tar.extract): $(DL)/$(TAR_SOURCE)
-	$(MKDIR) tar
-	$(TAR) -xzvf $< --strip-components 1 -C tar
-	$(stamp_target)
-
-.PHONY: tar.compile
-tar.compile: $(call get_stamp_target,tar.compile)
-$(call get_stamp_target,tar.compile): $(call get_stamp_target,tar.extract)
-	$(shell cd tar;./configure > /dev/null)
-	$(MAKE) -C tar all
-	$(stamp_target)
+SRVR := sj-swip-nx2.altera.com
 
 ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 #
 .PHONY: arc_build_all
 arc_build_all:
-	$(MAKE) coreutils.get
-	$(MAKE) tar.get
-	$(MAKE) tar.compile
-	$(MAKE) coreutils.compile
-	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar downloads
-	$(MAKE) -j9 PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) $(ARC_BUILD_INTERMEDIATE_TARGETS)
-	$(MAKE) PATH=$(CURDIR)/coreutils/src:$(PATH) TAR=$(CURDIR)/tar/src/tar KBUILD_BUILD_VERSION=$(KBUILD_BUILD_VERSION) all
+	$(MAKE) $(ARC_BUILD_INTERMEDIATE_TARGETS)
 	
 define arc_build_project
 
 .PHONY: arc_build-$1
 arc_build-$1:
-	arc submit -i --watch acds/14.1,soceds/14.1,git os=linux64 ncpus=1 -- arc vnc make -j1 $1.all
+	arc submit -i --watch acds/14.1.1,soceds/14.1,git os=linux64 ncpus=1 iwd=$(CURDIR) -- arc vnc make -j1 $1.all
 
 endef
 
 $(foreach r,$(REVISION_LIST),$(eval $(call arc_build_project,$r)))
+
+.PHONY: arc_build_sync
+arc_build_sync:
+	rsync -e 'ssh -q' -avzP --delete --include=*/preloader/uboot-socfpga/u-boot.img --exclude=*/db --exclude=*/incremental_db --exclude=*/preloader/uboot-socfpga/* $(SRVR):$(CURDIR)/ $(CURDIR)/
+
