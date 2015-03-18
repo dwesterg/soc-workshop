@@ -1,0 +1,57 @@
+From f57da6aea30592d53b5afee439d99b5d082cd54a Mon Sep 17 00:00:00 2001
+From: Robert Baldyga <r.baldyga@samsung.com>
+Date: Thu, 15 Jan 2015 12:11:36 +0100
+Subject: [PATCH] usb: dwc2: call dwc2_is_controller_alive() under spinlock
+
+This patch fixes the following problem: data transmission in direction
+IN break unless the GSNPSID register access is done with spinlock held.
+This issue occurs at least in Exynos4412 SoC, probably in many SoC's
+from Exynos familly.
+
+The problem is described here:
+https://lkml.org/lkml/2014/12/22/185
+And there is linux mailing list discussion:
+https://lkml.org/lkml/2015/1/14/17
+
+Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+
+Conflicts:
+	drivers/usb/dwc2/core_intr.c
+---
+ drivers/usb/dwc2/core_intr.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 1240875..40c4866 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -469,13 +469,13 @@ irqreturn_t dwc2_handle_common_intr(int irq, void *dev)
+ 	u32 gintsts;
+ 	irqreturn_t retval = IRQ_NONE;
+ 
++	spin_lock(&hsotg->lock);
++
+ 	if (!dwc2_is_controller_alive(hsotg)) {
+ 		dev_warn(hsotg->dev, "Controller is dead\n");
+ 		goto out;
+ 	}
+ 
+-	spin_lock(&hsotg->lock);
+-
+ 	if (dwc2_is_device_mode(hsotg))
+ 		retval = s3c_hsotg_irq(irq, dev);
+ 
+@@ -511,8 +511,8 @@ irqreturn_t dwc2_handle_common_intr(int irq, void *dev)
+ 		}
+ 	}
+ 
+-	spin_unlock(&hsotg->lock);
+ out:
++	spin_unlock(&hsotg->lock);
+ 	return retval;
+ }
+ EXPORT_SYMBOL_GPL(dwc2_handle_common_intr);
+-- 
+2.2.1
+
