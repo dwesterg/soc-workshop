@@ -381,7 +381,7 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {desired_can0_clk_mhz} {100.0}
     set_instance_parameter_value hps_0 {desired_can1_clk_mhz} {100.0}
     set_instance_parameter_value hps_0 {desired_gpio_db_clk_hz} {32000}
-    set_instance_parameter_value hps_0 {S2FCLK_USER0CLK_Enable} {0}
+    set_instance_parameter_value hps_0 {S2FCLK_USER0CLK_Enable} {1}
     set_instance_parameter_value hps_0 {S2FCLK_USER1CLK_Enable} {1}
     set_instance_parameter_value hps_0 {S2FCLK_USER2CLK_Enable} {0}
     set_instance_parameter_value hps_0 {S2FCLK_USER1CLK_FREQ} {50.0}

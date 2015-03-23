@@ -65,47 +65,47 @@ set_instance_parameter_value fifo_2 {useWriteControl} {1}
 # HPS Connectivity
 add_connection lw_mm_bridge.m0 fifo_0.in_csr avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in_csr arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in_csr baseAddress {0x90000}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in_csr baseAddress {0x40000}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in_csr defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_0.in avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in baseAddress {0x90020}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in baseAddress {0x40020}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.in defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_0.out avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.out arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_0.out baseAddress {0x90030}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_0.out baseAddress {0x40030}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_0.out defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_1.in_csr avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in_csr arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in_csr baseAddress {0x94000}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in_csr baseAddress {0x44000}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in_csr defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_1.in avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in baseAddress {0x94020}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in baseAddress {0x44020}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.in defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_1.out avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.out arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_1.out baseAddress {0x94030}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_1.out baseAddress {0x44030}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_1.out defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_2.in_csr avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in_csr arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in_csr baseAddress {0x98000}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in_csr baseAddress {0x48000}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in_csr defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_2.in avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in baseAddress {0x98020}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in baseAddress {0x48020}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.in defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 fifo_2.out avalon
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out baseAddress {0x98030}
+set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out baseAddress {0x48030}
 set_connection_parameter_value lw_mm_bridge.m0/fifo_2.out defaultConnection {0}
 
 # Clocks and Resets

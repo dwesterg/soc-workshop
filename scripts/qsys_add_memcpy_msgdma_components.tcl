@@ -25,26 +25,26 @@ set_instance_parameter_value memcpy_msgdma {CHANNEL_WIDTH} {8}
 
 add_connection lw_mm_bridge.m0 memcpy_msgdma.csr avalon
 set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.csr arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.csr baseAddress {0x00070000}
+set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.csr baseAddress {0x00020000}
 set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.csr defaultConnection {0}
 
 add_connection lw_mm_bridge.m0 memcpy_msgdma.descriptor_slave avalon
 set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.descriptor_slave arbitrationPriority {1}
-set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.descriptor_slave baseAddress {0x00070020}
+set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.descriptor_slave baseAddress {0x00020020}
 set_connection_parameter_value lw_mm_bridge.m0/memcpy_msgdma.descriptor_slave defaultConnection {0}
 
 add_connection hps_0.f2h_irq0 memcpy_msgdma.csr_irq interrupt
 set_connection_parameter_value hps_0.f2h_irq0/memcpy_msgdma.csr_irq irqNumber {7}
 
-add_connection memcpy_msgdma.mm_read hps_0.f2h_axi_slave avalon
-set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave arbitrationPriority {1}
-set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave baseAddress {0x0000}
-set_connection_parameter_value memcpy_msgdma.mm_read/hps_0.f2h_axi_slave defaultConnection {0}
+add_connection memcpy_msgdma.mm_read axi_bridge_for_acp_128_0.s0 avalon
+set_connection_parameter_value memcpy_msgdma.mm_read/axi_bridge_for_acp_128_0.s0 arbitrationPriority {1}
+set_connection_parameter_value memcpy_msgdma.mm_read/axi_bridge_for_acp_128_0.s0 baseAddress {0x0000}
+set_connection_parameter_value memcpy_msgdma.mm_read/axi_bridge_for_acp_128_0.s0 defaultConnection {0}
 
-add_connection memcpy_msgdma.mm_write hps_0.f2h_axi_slave avalon
-set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave arbitrationPriority {1}
-set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave baseAddress {0x0000}
-set_connection_parameter_value memcpy_msgdma.mm_write/hps_0.f2h_axi_slave defaultConnection {0}
+add_connection memcpy_msgdma.mm_write axi_bridge_for_acp_128_0.s0 avalon
+set_connection_parameter_value memcpy_msgdma.mm_write/axi_bridge_for_acp_128_0.s0 arbitrationPriority {1}
+set_connection_parameter_value memcpy_msgdma.mm_write/axi_bridge_for_acp_128_0.s0 baseAddress {0x0000}
+set_connection_parameter_value memcpy_msgdma.mm_write/axi_bridge_for_acp_128_0.s0 defaultConnection {0}
 
 # Clocks and Resets
 add_connection clk_0.clk memcpy_msgdma.clock clock
