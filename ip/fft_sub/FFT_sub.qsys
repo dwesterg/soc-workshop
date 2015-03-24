@@ -261,7 +261,7 @@
    version="14.1"
    enabled="1">
   <parameter name="allowInSystemMemoryContentEditor" value="false" />
-  <parameter name="autoInitializationFileName" value="$${FILENAME}_data" />
+  <parameter name="autoInitializationFileName" value="FFT_sub_data" />
   <parameter name="blockType" value="AUTO" />
   <parameter name="copyInitFile" value="false" />
   <parameter name="dataWidth" value="64" />
