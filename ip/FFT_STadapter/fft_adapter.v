@@ -110,7 +110,9 @@ module fft_adapter #(
 	assign aso_tofft_valid = asi_in0_valid;
 
 	// need an endian conversion as well. 
-	assign aso_tofft_data = {asi_in0_data[7:0], asi_in0_data[15:8], asi_in0_data[23:16], asi_in0_data[31:24], size_register, direction_register};
+//	assign aso_tofft_data = {asi_in0_data[7:0], asi_in0_data[15:8], asi_in0_data[23:16], asi_in0_data[31:24], size_register, direction_register};
+// needed to shift the real and imaginary part for version 1.1
+assign aso_tofft_data = {asi_in0_data[23:16], asi_in0_data[31:24], asi_in0_data[7:0], asi_in0_data[15:8], size_register, direction_register};
 
 	assign aso_tofft_startofpacket = asi_in0_startofpacket;
 

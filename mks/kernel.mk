@@ -31,7 +31,7 @@ $(call get_stamp_target,$(LINUX_BRANCH).linux.extract):$(DL)/$(LINUX_BRANCH).tgz
 .PHONY: linux.patch
 linux.patch: $(foreach p,$(LINUX_PATCHES),$(call get_stamp_target,$(LINUX_BRANCH).$(notdir $p)))
 define do_patch_lnx
-$(call get_stamp_target,$(LINUX_BRANCH).$(notdir $1)): $(call get_stamp_target,$(LINUX_BRANCH).linux.extract)
+$(call get_stamp_target,$(LINUX_BRANCH).$$(notdir $1)): $(call get_stamp_target,$(LINUX_BRANCH).linux.extract)
 	patch -d $(LINUX_BRANCH) -p1 < $1 2>&1
 	$$(stamp_target)
 endef
