@@ -8,4 +8,8 @@ add_connection clk_0.clk axi_bridge_for_acp_128_0.clock clock
 add_connection clk_0.clk fft_ddr_bridge.clock clock
 add_connection clk_0.clk fft_sub.clk clock
 
+remove_instance f2sdram_only_master
+remove_instance jtag_uart
+remove_instance sysid_qsys
+
 save_system
