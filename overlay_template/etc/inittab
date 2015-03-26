@@ -25,7 +25,7 @@ null::sysinit:/bin/hostname -F /etc/hostname
 
 # Put a getty on the serial port
 ttyS0::respawn:-/bin/sh
-ttyGS0::respawn:-/bin/sh
+#ttyGS0::respawn:-/bin/sh
 #ttyS0::respawn:/sbin/getty -L -n -a root ttyS0 115200 vt100 # GENERIC_SERIAL
 #ttyS0::respawn:/sbin/getty -L -n -a root ttyGS0 115200 vt100 # GENERIC_SERIAL
 
