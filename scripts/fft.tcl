@@ -9,22 +9,22 @@ puts [pwd]
 #device_download_sof $device $sof_path
 
 
-puts [set m [lindex [ get_service_paths master ] 1]]
+puts [set m [lindex [ get_service_paths master ] 0]]
 #set a bunch of defines so we can easily change them.
-#set SGDMA_TO_FFT_CSR_BASE  0x80000
-#set SGDMA_TO_FFT_DESCRIPTOR_SLAVE_BASE  0x90000
-#set SGDMA_FROM_FFT_CSR_BASE  0xA0000
-#set SGDMA_FROM_FFT_DESCRIPTOR_SLAVE_BASE 0xB0000
-#set DATA_BASE 0xC0000
-#set RESULT_BASE 0xC2000
-#set FFT_CSR 0xD0000
-set SGDMA_TO_FFT_CSR_BASE  0x100000
-set SGDMA_TO_FFT_DESCRIPTOR_SLAVE_BASE  0x110000
-set SGDMA_FROM_FFT_CSR_BASE  0x120000
-set SGDMA_FROM_FFT_DESCRIPTOR_SLAVE_BASE 0x130000
-set DATA_BASE 0x140000
-set RESULT_BASE 0x148000
-set FFT_CSR 0x150000
+set SGDMA_TO_FFT_CSR_BASE  0x80000
+set SGDMA_TO_FFT_DESCRIPTOR_SLAVE_BASE  0x90000
+set SGDMA_FROM_FFT_CSR_BASE  0xA0000
+set SGDMA_FROM_FFT_DESCRIPTOR_SLAVE_BASE 0xB0000
+set DATA_BASE 0xC0000
+set RESULT_BASE 0xC8000
+set FFT_CSR 0xD0000
+#set SGDMA_TO_FFT_CSR_BASE  0x100000
+#set SGDMA_TO_FFT_DESCRIPTOR_SLAVE_BASE  0x110000
+#set SGDMA_FROM_FFT_CSR_BASE  0x120000
+#set SGDMA_FROM_FFT_DESCRIPTOR_SLAVE_BASE 0x130000
+#set DATA_BASE 0x140000
+#set RESULT_BASE 0x148000
+#set FFT_CSR 0x150000
 
 set DMA_DATA_BASE 0x40000
 set DMA_RESULT_BASE 0x48000
@@ -159,6 +159,9 @@ proc fft_wave {  waveform } {
 	#need to force a reset through the master incase something bad has happened before this point
 #	jtag_debug_reset_system $m
 	# set the number of samples
+	#reset the sgdma
+#	master_write_32 $m $SGDMA_TO_FFT_CSR_BASE 64
+#        master_write_32 $m $SGDMA_FROM_FFT_CSR_BASE 64
 	dashboard_set_property $dash scopeChart maximumItemCount $sample_size
 	dashboard_set_property $dash scopeChart_r maximumItemCount $sample_size
 	dashboard_set_property $dash scopeChart_i maximumItemCount $sample_size
@@ -170,16 +173,16 @@ proc fft_wave {  waveform } {
 	for {set i 0} {$i < $sample_size} {incr i} {
 	  if {$waveform==0} {
 # make small spikes  should give a sinx/x wave form. if I remember my DSP well
-	    set temp [expr (((($i%32)<16) * 0xffff) - 0x8000)] 
+	    set temp [expr (((($i%32)<16) * 0xffff) - 0x8000) & 0xffff] 
 	  }
 	  if {$waveform==1} {
-	    set temp [ expr  int((( sin(2.0*3.1415* $i/16.0)*0x7fff))) ]
+	    set temp [ expr  int((( sin(2.0*3.1415* $i/16.0)*0x7fff))) & 0xffff ]
 	  }
-	  master_write_32 $m [expr $DATA_BASE + ($i * 4)] $temp
+#	  master_write_32 $m [expr ($DATA_BASE + ($i * 4)) ] $temp
 	  
 	  if {$waveform==2} {
 	    set value [lindex $triangle_list [expr $i % 32]]
-	    set temp [ expr  ($value * 15) ]
+	    set temp [ expr  ($value * 15)& 0xffff ]
 	  }
 	  master_write_32 $m [expr $DATA_BASE + ($i * 4)] $temp
 	}

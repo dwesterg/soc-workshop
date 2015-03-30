@@ -21,6 +21,9 @@ echo -e "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
 #// JavaScript source code goes here
 echo -e "<script src=\"MyGraphTest1_2.js\" type=\"text/javascript\"></script>"
 echo -e "<script src=\"samples.js\" type=\"text/javascript\"></script>"
+echo -e "<script src=\"samplesi.js\" type=\"text/javascript\"></script>"
+echo -e "<script src=\"source.js\" type=\"text/javascript\"></script>"
+
 echo -e "</head>"
 echo -e "<body onload=\"draw()\">"
 #echo -e "<div class=\"bup-form\">"
@@ -49,7 +52,7 @@ echo -e "<p>"
 echo -e "<p>"
 echo -e "<p>"
 echo -e "</div>"
-echo -e "<canvas id=\"canvas\" width=\"1000\" height=\"250\"></canvas>"
+echo -e "<canvas id=\"canvas\" width=\"1000\" height=\"750\"></canvas>"
 echo -e "</body>"
 echo -e "</html>"
 
