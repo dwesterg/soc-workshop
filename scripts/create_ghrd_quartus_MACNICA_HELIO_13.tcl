@@ -1,7 +1,8 @@
 set devicefamily CYCLONEV
 set device 5CSXFC6C6U23C8ES
 
-set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
+#set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
+set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
 set hdlfiles "../hdl_src/ghrd_top.v,../ip/edge_detect/altera_edge_detector.v,../ip/debounce/debounce.v"
 set topname ghrd_top
 
@@ -31,6 +32,8 @@ set_global_assignment -name CRC_ERROR_OPEN_DRAIN ON
 set_global_assignment -name ACTIVE_SERIAL_CLOCK FREQ_100MHZ
 set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
 set_global_assignment -name STRATIXII_CONFIGURATION_DEVICE EPCQ256
+
+set_global_assignment -name BLOCK_RAM_TO_MLAB_CELL_CONVERSION OFF
 
 
 set_global_assignment -name TOP_LEVEL_ENTITY $topname

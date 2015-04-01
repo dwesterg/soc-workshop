@@ -1,7 +1,8 @@
 set devicefamily CYCLONEV
 set device 5CSEBA2U19C8
 
-set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
+#set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/fft128/fft_test.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
+set qipfiles "../ip/altsource_probe/hps_reset.qip,../ip/demo_driver/meminit.qip,../ip/workshop_validator/meminit.qip"
 set hdlfiles "../hdl_src/ghrd_top.v,../ip/edge_detect/altera_edge_detector.v,../ip/debounce/debounce.v"
 set topname ghrd_top
 
@@ -34,6 +35,8 @@ foreach hdlfile $hdlfilelist {
 set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT NONE -section_id eda_simulation
 set_global_assignment -name SDC_FILE ../hdl_src/soc_system_timing.sdc
+
+set_global_assignment -name BLOCK_RAM_TO_MLAB_CELL_CONVERSION OFF
 
 set_parameter -name MEM_A_WIDTH 14
 set_parameter -name MEM_BA_WIDTH 3
