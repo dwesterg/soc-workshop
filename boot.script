@@ -1,25 +1,43 @@
-echo ---Defaulting soc_workshop_revision so saved value is not used---
-env default soc_workshop_revision
+echo ---Defaulting soc_board_name so saved value is not used---
+env default soc_board_name
+
+if test ${soc_board_name} = ATLAS_SOC_GHRD; then
+echo ---Booting ATLAS SOC GHRD---
+echo ---Programming FPGA---
+fatload mmc 0:1 $fpgadata ATLAS_SOC_GHRD/output_files/ATLAS_SOC_GHRD.rbf;
+fpga load 0 $fpgadata $filesize;
+
+echo ---Setting Env variables---
+set fdtimage ATLAS_SOC_GHRD/soc_system.dtb;
+setenv bootimage zImage
+
+echo ---Booting Linux---
+run bridge_enable_handoff;
+run mmcload;
+run mmcboot;
+
+fi
+
 setenv fpga_do_config 1
-if test ${soc_workshop_revision} = MACNICA_HELIO_12; then
+if test ${soc_board_name} = MACNICA_HELIO_12; then
 setenv fpga_do_config 0
 fi
-if test ${soc_workshop_revision} = MACNICA_HELIO_13; then
+if test ${soc_board_name} = MACNICA_HELIO_13; then
 setenv fpga_do_config 0
 fi
-if test ${soc_workshop_revision} = MACNICA_HELIO_14; then
+if test ${soc_board_name} = MACNICA_HELIO_14; then
 setenv fpga_do_config 0
 fi
 
 if test ${fpga_do_config} = 1; then
 echo ---Programming FPGA---
-fatload mmc 0:1 $fpgadata ${soc_workshop_revision}/output_files/${soc_workshop_revision}.rbf;
+fatload mmc 0:1 $fpgadata ${soc_board_name}/output_files/${soc_board_name}.rbf;
 fpga load 0 $fpgadata $filesize;
 else
 echo ---FPGA Programming not supported on $soc_workshop_revision---
 fi
 
-if test ${soc_workshop_revision} = CRITICALLINK_MITYSOM_DEVKIT; then
+if test ${soc_board_name} = CRITICALLINK_MITYSOM_DEVKIT; then
 echo ---Enabling MitySOM USB and Ethernet Interfaces---
 echo ---USB---
 gpio set 0;
@@ -32,7 +50,7 @@ sleep 1
 fi
 
 echo ---Setting Env variables---
-set fdtimage ${soc_workshop_revision}/soc_system.dtb;
+set fdtimage ${soc_board_name}/soc_system.dtb;
 set rootfsimage rootfs.img;
 
 if test ${soc_workshop_use_ltsi} = 1; then

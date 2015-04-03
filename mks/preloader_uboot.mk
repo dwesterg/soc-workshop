@@ -54,17 +54,12 @@ $(foreach p,$(UBOOT_PATCHES),$(eval $(call do_patch_uboot,$1,$p,$(PRELOADER_GEN_
 $1.uboot_patch: $$(PRELOADER_FIXUP_STAMP_$1)
 
 $$(PRELOADER_FIXUP_STAMP_$1): $(foreach p,$(UBOOT_PATCHES),$(call get_stamp_target,$1.$(notdir $p)))
-	@$(ECHO) "#define CONFIG_SOC_WORKSHOP_REVISION $1" >> $1/preloader/generated/build.h
+	@$(ECHO) "#define CONFIG_SOC_BOARD_NAME $1" >> $1/preloader/generated/build.h
 	@$(ECHO) "#define CONFIG_SOCFPGA_GPIO 1" >> $1/preloader/generated/build.h
 	@$(ECHO) "#define CONFIG_CMD_GPIO 1" >> $1/preloader/generated/build.h
 	@$(ECHO) "#define CONFIG_CMD_CHIPID2MAC 1" >> $1/preloader/generated/build.h
 	$$(stamp_target)
 	
-#$$(PRELOADER_FIXUP_STAMP_$1): $$(PRELOADER_FIXUP_DEPS_$1)
-#	@$(ECHO) "#define CONFIG_SOC_WORKSHOP_REVISION $1" >> $1/preloader/generated/build.h
-#	$(foreach f,$(UBOOT_PATCHES),$(CP) $f $1/preloader/)
-#	$$(stamp_target)
-
 $$(PRELOADER_STAMP_$1): $$(PRELOADER_DEPS_$1)
 	$(MAKE) -C $$(PRELOADER_DIR_$1) 2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)	

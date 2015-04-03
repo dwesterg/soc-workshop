@@ -4,7 +4,7 @@
  #define CONFIG_BOOTARGS "console=ttyS0," __stringify(CONFIG_BAUDRATE)
  
  #define CONFIG_EXTRA_ENV_SETTINGS \
-+	"soc_workshop_revision="  __stringify(CONFIG_SOC_WORKSHOP_REVISION) "\0" \
++	"soc_board_name="  __stringify(CONFIG_SOC_BOARD_NAME) "\0" \
  	"verify=n\0" \
  	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
  	"fdtaddr=0x00000100\0" \
