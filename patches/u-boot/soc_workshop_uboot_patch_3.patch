@@ -1,0 +1,19 @@
+--- uboot-socfpga-orig/include/configs/socfpga_common.h	2015-03-31 23:22:33.534245827 -0700
++++ uboot-socfpga/include/configs/socfpga_common.h	2015-04-02 10:40:31.612831289 -0700
+@@ -171,6 +171,16 @@
+ #define CONFIG_BOOTCOMMAND "run callscript; run mmcload; run mmcboot"
+ #endif
+ 
++/* Be selective on what keys can delay or stop the autoboot process
++ *  *     To stop  use: " "
++ *   */
++#define CONFIG_AUTOBOOT_KEYED
++#define CONFIG_AUTOBOOT_PROMPT \
++        "Autobooting in %d seconds, press \" \" to stop\n", bootdelay
++#define CONFIG_AUTOBOOT_STOP_STR       " "
++#undef CONFIG_AUTOBOOT_DELAY_STR
++#define DEBUG_BOOTKEYS         0
++
+ /*
+  * arguments passed to the bootz command. The value of
+  * CONFIG_BOOTARGS goes into the environment value "bootargs".
