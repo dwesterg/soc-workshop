@@ -12,6 +12,6 @@ set_instance_parameter_value onchip_memory2_0 {memorySize} {16384.0}
 
 remove_instance f2sdram_only_master
 remove_instance jtag_uart
-remove_instance sysid_qsys
+#remove_instance sysid_qsys
 
 save_system
