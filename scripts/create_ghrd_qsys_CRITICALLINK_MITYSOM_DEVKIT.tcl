@@ -2,11 +2,6 @@ package require -exact qsys 14.0
 
 proc build_qsys {default_script {devkitname} {qsys_name "soc_system" }} {
 	
-	if { ![ info exists qsys_name ] } {
-		puts "-- Setting to default QSys name \$qsys_name = $qsys_name"
-		set qsys_name "soc_system"
-	}
-	
 	if { ![ info exists devkitname ] } {
 		set devkitname "CRITICALLINK_MITYSOM_DEVKIT"
 		puts "-- Setting to default devkit \$devkitname = $devkitname"

@@ -2,11 +2,6 @@ package require -exact qsys 14.0
 
 proc build_qsys {default_script {devkitname} {qsys_name "soc_system" }} {
 	
-	if { ![ info exists qsys_name ] } {
-		puts "-- Setting to default QSys name \$qsys_name = $qsys_name"
-		set qsys_name "soc_system"
-	}
-	
 	if { ![ info exists devkitname ] } {
 		set devkitname "ALTERA_AV_SOC"
 		puts "-- Setting to default devkit \$devkitname = $devkitname"
@@ -367,7 +362,7 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {dbg_trace_clk_div} {0}
     set_instance_parameter_value hps_0 {desired_l4_mp_clk_mhz} {100.0}
     set_instance_parameter_value hps_0 {desired_l4_sp_clk_mhz} {100.0}
-    set_instance_parameter_value hps_0 {desired_cfg_clk_mhz} {116.666666}
+	set_instance_parameter_value hps_0 {desired_cfg_clk_mhz} {100.0}
     set_instance_parameter_value hps_0 {desired_sdmmc_clk_mhz} {200.0}
     set_instance_parameter_value hps_0 {desired_nand_clk_mhz} {12.5}
     set_instance_parameter_value hps_0 {desired_qspi_clk_mhz} {350.0}
