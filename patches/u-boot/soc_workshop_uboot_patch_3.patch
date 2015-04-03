@@ -9,8 +9,8 @@
 + *   */
 +#define CONFIG_AUTOBOOT_KEYED
 +#define CONFIG_AUTOBOOT_PROMPT \
-+        "Autobooting in %d seconds, press \" \" to stop\n", bootdelay
-+#define CONFIG_AUTOBOOT_STOP_STR       " "
++        "Autobooting in %d seconds, type  \"stop\" to stop\n", bootdelay
++#define CONFIG_AUTOBOOT_STOP_STR       "stop"
 +#undef CONFIG_AUTOBOOT_DELAY_STR
 +#define DEBUG_BOOTKEYS         0
 +
