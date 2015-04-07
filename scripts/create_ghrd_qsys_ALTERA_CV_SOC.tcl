@@ -411,7 +411,7 @@ proc add_hps {} {
 	set_instance_parameter_value hps_0 {BSEL} {1}
 	set_instance_parameter_value hps_0 {CSEL_EN} {0}
 	set_instance_parameter_value hps_0 {CSEL} {0}
-	set_instance_parameter_value hps_0 {F2S_Width} {2}
+	set_instance_parameter_value hps_0 {F2S_Width} {3}
 	set_instance_parameter_value hps_0 {S2F_Width} {2}
 	set_instance_parameter_value hps_0 {LWH2F_Enable} {true}
 	set_instance_parameter_value hps_0 {F2SDRAM_Type} {Avalon-MM\ Bidirectional}
