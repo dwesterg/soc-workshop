@@ -22,7 +22,7 @@ HELP_TARGETS_$1 += $1.qsys_generate_qsys
 $1.qsys_generate_qsys.HELP := Create QSys for $1 revision
 
 .PHONY: $1.qsys_generate_qsys
-$1.qsys_generate_qsys: $$(QSYS_ADD_ALL_COMP_STAMP_$1)
+$1.qsys_generate_qsys: $(sort $$(QSYS_ADD_ALL_COMP_STAMP_$1))
 
 $(foreach t,$(QSYS_ADD_COMP_TCLS),$(eval $(call run_qsys_script,$1,$t)))
 
