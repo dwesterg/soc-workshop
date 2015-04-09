@@ -251,6 +251,12 @@ set_interface_assignment s0 embeddedsw.configuration.isMemoryDevice 0
 set_interface_assignment s0 embeddedsw.configuration.isNonVolatileStorage 0
 set_interface_assignment s0 embeddedsw.configuration.isPrintableDevice 0
 
+# Device tree parameters
+set_module_assignment embeddedsw.dts.vendor "altr"
+set_module_assignment embeddedsw.dts.group "fft_stadapter"
+set_module_assignment embeddedsw.dts.name "fft_stadapter"
+set_module_assignment embeddedsw.dts.compatible "altr,fft_stadapter"
+
 proc elaborate {} {
 	set fft_inw [ get_parameter_value FFT_IN_WIDTH ]
 	set fft_outw [ get_parameter_value FFT_OUT_WIDTH ]
