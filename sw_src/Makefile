@@ -46,7 +46,7 @@ endif
 LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 
 ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
-	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest validator_module acl_module sld_hub_csr_module
+	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest validator_module acl_module sld_hub_csr_module demo_devmem_app demo_ioctl_test_app demo_map_test_app demo_uio_test_app driver_modules
 else
 	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest
 endif
@@ -60,10 +60,16 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 #	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
+	$(MKDIR) $(INSTALL_DIR)/examples/drivers
+	$(CP) demo_devmem_app/demo_devmem $(INSTALL_DIR)/examples/drivers
+	$(CP) demo_ioctl_test_app/ioctl_test $(INSTALL_DIR)/examples/drivers
+	$(CP) demo_map_test_app/demo_map_test $(INSTALL_DIR)/examples/drivers
+	$(CP) demo_uio_test_app/demo_uio_test $(INSTALL_DIR)/examples/drivers
 ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
 	make -C sld_hub_csr_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
 	make -C validator_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
 	make -C acl OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+	make -C driver_modules OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
 endif
 
 .PHONY: mmlink
@@ -91,6 +97,26 @@ acl_module:
 sld_hub_csr_module:
 	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules
 
+.PHONY: driver_modules
+driver_modules:
+	make -C driver_modules OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules
+	
+.PHONY: demo_devmem_app	
+demo_devmem_app:
+	make -C demo_devmem_app CROSS_COMPILE=$(CROSS_COMPILE)
+
+.PHONY: demo_ioctl_test_app	
+demo_ioctl_test_app:
+	make -C demo_ioctl_test_app CROSS_COMPILE=$(CROSS_COMPILE)
+
+.PHONY: demo_map_test_app	
+demo_map_test_app:
+	make -C demo_map_test_app CROSS_COMPILE=$(CROSS_COMPILE)
+
+.PHONY: demo_uio_test_app	
+demo_uio_test_app:
+	make -C demo_uio_test_app CROSS_COMPILE=$(CROSS_COMPILE)
+
 .PHONY: clean
 clean:
 	make -C mmlink clean
@@ -98,3 +124,8 @@ clean:
 	make -C validator_devmem_app clean
 	make -C validator_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
 	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
+	make -C driver_modules OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
+	make -C demo_devmem_app clean
+	make -C demo_ioctl_test_app clean
+	make -C demo_map_test_app clean
+	make -C demo_uio_test_app clean

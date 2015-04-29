@@ -1,0 +1,15 @@
+obj-m  := demo_module_01.o
+obj-m  += demo_module_01t.o
+obj-m  += demo_module_02.o
+obj-m  += demo_module_03.o
+obj-m  += demo_module_04.o
+obj-m  += demo_module_05.o
+obj-m  += demo_module_05t.o
+obj-m  += demo_module_06.o
+obj-m  += demo_module_07.o
+obj-m  += demo_module_08.o
+obj-m  += demo_module_09.o
+obj-m  += demo_module_10.o
+obj-m  += demo_module_11.o
+obj-m  += demo_module_11t.o
+
