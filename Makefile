@@ -70,7 +70,7 @@ TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
 TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
 
 # Kernel Config
-LNX_SOURCE_PACKAGE := "https://github.com/dwesterg/linux-socfpga/tarball/$(LINUX_BRANCH)"
+LNX_SOURCE_PACKAGE := "https://github.com/altera-opensource/linux-socfpga/tarball/$(LINUX_BRANCH)"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/$(LINUX_BRANCH);sf=tgz"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
