@@ -1,7 +1,7 @@
 package require -exact qsys 14.1
 
 #Add Components
-add_instance memcpy_msgdma altera_msgdma 14.1
+add_instance memcpy_msgdma altera_msgdma 
 set_instance_parameter_value memcpy_msgdma {MODE} {0}
 set_instance_parameter_value memcpy_msgdma {DATA_WIDTH} {64}
 set_instance_parameter_value memcpy_msgdma {DATA_FIFO_DEPTH} {32}

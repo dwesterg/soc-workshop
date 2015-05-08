@@ -1,5 +1,5 @@
 #Add Components
-add_instance hps_clk_out clock_source 14.1
+add_instance hps_clk_out clock_source 
 set_instance_parameter_value hps_clk_out {clockFrequency} {50000000.0}
 set_instance_parameter_value hps_clk_out {clockFrequencyKnown} {1}
 set_instance_parameter_value hps_clk_out {resetSynchronousEdges} {NONE}
