@@ -1,4 +1,4 @@
-SRVR := sj-swip-nx2.altera.com
+SRVR := sj-ice-nx2.altera.com
 
 ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 #
