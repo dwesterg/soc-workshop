@@ -220,6 +220,7 @@ SD_FAT_$1 += ip
 SD_FAT_$1 += WS1-IntroToSoC
 SD_FAT_$1 += WS2-IntroToLinux
 SD_FAT_$1 += WS3-DevelopingDrivers
+SD_FAT_$1 += WS3-DevelopingDrivers/ws3_lab_environment.src
 
 .PHONY:$1.all
 $1.all: $$(ALL_DEPS_$1)
@@ -312,6 +313,7 @@ SD_FAT_TGZ_DEPS += patches
 SD_FAT_TGZ_DEPS += WS1-IntroToSoC
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
+SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
@@ -429,6 +431,23 @@ disable_signaltap.HELP := Disable SignalTap in project create scripts
 
 disable_signaltap:
 	sed -i '/ENABLE_SIGNALTAP/c set_global_assignment -name ENABLE_SIGNALTAP OFF' scripts/create_ghrd_quartus_*.tcl
+
+
+################################################
+# WorkShop outputs
+.PHONY: ws3_output
+ws3_output:WS3-DevelopingDrivers/ws3_lab_environment.src
+
+WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
+	$(ECHO) "#!/bin/bash" > $@
+	$(ECHO) "TOOLCHAIN_SOURCE=$(TOOLCHAIN_SOURCE)" >> $@
+	$(ECHO) "TOOLCHAIN_SOURCE_TAR=$(TOOLCHAIN_SOURCE_TAR)" >> $@
+	$(ECHO) "TOOLCHAIN_SOURCE_PACKAGE=$(TOOLCHAIN_SOURCE_PACKAGE)" >> $@
+	$(ECHO) "KBUILD_BUILD_VERSION=\"$(KBUILD_BUILD_VERSION)\"" >> $@
+	$(ECHO) "LINUX_BRANCH=$(LINUX_BRANCH)" >> $@
+	$(ECHO) "LINUX_DEFCONFIG_TARGET=$(LINUX_DEFCONFIG_TARGET)" >> $@
+	$(ECHO) "LINUX_DEFCONFIG=$(LINUX_DEFCONFIG)" >> $@
+	$(ECHO) "LNX_SOURCE_PACKAGE=$(LNX_SOURCE_PACKAGE)" >> $@
 
 ################################################
 # Help system

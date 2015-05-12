@@ -67,10 +67,11 @@ $(LINUX_MAKE_TARGET).$(LINUX_BRANCH): $(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_
 HELP_TARGETS += linux.build
 linux.build.HELP := Build linux kernel
 .PHONY: linux.build
-linux.build: $(call get_stamp_target,$(LINUX_BRANCH).linux.build) 
-$(call get_stamp_target,$(LINUX_BRANCH).linux.build): $(LNX_DEPS)
+linux.build: $(call get_stamp_target,$(LINUX_BRANCH).$(KBUILD_BUILD_VERSION).linux.build) 
+$(call get_stamp_target,$(LINUX_BRANCH).$(KBUILD_BUILD_VERSION).linux.build): $(LNX_DEPS)
 	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET) 2>&1 | tee logs/$(notdir $@).log
 	$(stamp_target)
+
 
 # update linux configuration and same defconfig
 HELP_TARGETS += linux.menuconfig
