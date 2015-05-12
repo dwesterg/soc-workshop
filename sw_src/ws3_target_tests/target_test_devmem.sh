@@ -1,3 +1,5 @@
+#!/bin/sh
+
 [ "$(./demo_devmem -a | md5sum)" == "527bb73ec24ad037c40e943158a77229  -" ] && {
 	echo "Validated the initial RAM contents."
 } || {
@@ -56,4 +58,14 @@ cat /dev/zero | ./demo_devmem -f && {
 	echo "ERROR: failed to validate the demo_devmem timer operation."
 	echo ""
 }
+
+./demo_devmem -s > /dev/null && {
+	echo "Stopped the timer."
+} || {
+	echo ""
+	echo "ERROR: failed to stop the timer."
+	echo ""
+}
+
+echo "Target test complete."
 
