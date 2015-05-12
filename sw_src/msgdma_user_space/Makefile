@@ -32,10 +32,11 @@ QSYS_HDR := hps_0.h
 QSYS_HDR_DIR := qsys_headers
 
 SOCEDS_ROOT ?= $(SOCEDS_DEST_ROOT)
-SOCAL_ROOT := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/socal
+SOCAL_ROOT_14_1 := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/socal
+SOCAL_ROOT_15_0 := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/soc_cv_av/socal
 
 C_SRC := memtest.c msgdma/sgdma_dispatcher.c
-CFLAGS := -g -O0 -Werror -Wall -lm -Imsgdma -I. -Iqsys_headers -I$(SOCAL_ROOT) -MD
+CFLAGS := -g -O0 -Werror -Wall -lm -Imsgdma -I. -Iqsys_headers -I$(SOCAL_ROOT_14_1) -I$(SOCAL_ROOT_15_0) -MD
 
 CROSS_COMPILE := arm-linux-gnueabihf-
 CC := $(CROSS_COMPILE)gcc

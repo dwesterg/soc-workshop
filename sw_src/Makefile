@@ -47,7 +47,7 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 
 ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
 	SW_SRC_INSTALL_DEPS := mmlink
-	SW_SRC_INSTALL_DEPS += msgdma_memtest
+#	SW_SRC_INSTALL_DEPS += msgdma_memtest
 	SW_SRC_INSTALL_DEPS += validator_module
 	SW_SRC_INSTALL_DEPS += acl_module
 	SW_SRC_INSTALL_DEPS += sld_hub_csr_module
@@ -58,7 +58,8 @@ ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
 	SW_SRC_INSTALL_DEPS += demo_uio_test_app
 	SW_SRC_INSTALL_DEPS += driver_modules
 else
-	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest
+	SW_SRC_INSTALL_DEPS := mmlink
+	#SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest
 endif
 
 .PHONY: all

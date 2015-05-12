@@ -61,6 +61,10 @@ QSYS_HPS_INST_NAME = hps_0
 PRELOADER_DISABLE_WATCHDOG = 1
 PRELOADER_FAT_SUPPORT = 1
 
+# Board specific preloader extra args
+PRELOADER_EXTRA_ARGS_ALTERA_CV_SOC = --set spl.boot.SDRAM_SCRUBBING true
+PRELOADER_EXTRA_ARGS_ALTERA_AV_SOC = --set spl.boot.SDRAM_SCRUBBING true
+
 #SW Config
 ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
@@ -304,6 +308,7 @@ SD_FAT_TGZ_DEPS += boot.script u-boot.scr
 SD_FAT_TGZ_DEPS += hdl_src
 SD_FAT_TGZ_DEPS += board_info
 SD_FAT_TGZ_DEPS += ip
+SD_FAT_TGZ_DEPS += patches
 SD_FAT_TGZ_DEPS += WS1-IntroToSoC
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
