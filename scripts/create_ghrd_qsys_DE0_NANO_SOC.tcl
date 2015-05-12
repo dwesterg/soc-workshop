@@ -28,7 +28,7 @@ proc build_qsys {default_script {devkitname} {qsys_name "soc_system" }} {
 }
 
 proc add_hps {} {
-    add_instance hps_0 altera_hps 14.1
+    add_instance hps_0 altera_hps
     set_instance_parameter_value hps_0 {MEM_VENDOR} {Other}
     set_instance_parameter_value hps_0 {MEM_FORMAT} {DISCRETE}
     set_instance_parameter_value hps_0 {RDIMM_CONFIG} {0000000000000000}

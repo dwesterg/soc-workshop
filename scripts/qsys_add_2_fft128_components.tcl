@@ -3,7 +3,7 @@ package require -exact qsys 14.1
 #Add Components
 add_instance fft_sub FFT_sub 1.0
 
-add_instance fft_ddr_bridge altera_address_span_extender 14.1
+add_instance fft_ddr_bridge altera_address_span_extender
 set_instance_parameter_value fft_ddr_bridge {DATA_WIDTH} {128}
 set_instance_parameter_value fft_ddr_bridge {MASTER_ADDRESS_WIDTH} {32}
 set_instance_parameter_value fft_ddr_bridge {SLAVE_ADDRESS_WIDTH} {26}

@@ -1,7 +1,7 @@
 package require -exact qsys 14.1
 
 #Add Components
-add_instance fifo_0 altera_avalon_fifo 14.1
+add_instance fifo_0 altera_avalon_fifo 
 set_instance_parameter_value fifo_0 {avalonMMAvalonMMDataWidth} {32}
 set_instance_parameter_value fifo_0 {avalonMMAvalonSTDataWidth} {32}
 set_instance_parameter_value fifo_0 {bitsPerSymbol} {16}
@@ -21,7 +21,7 @@ set_instance_parameter_value fifo_0 {useReadControl} {0}
 set_instance_parameter_value fifo_0 {useRegister} {0}
 set_instance_parameter_value fifo_0 {useWriteControl} {1}
 
-add_instance fifo_1 altera_avalon_fifo 14.1
+add_instance fifo_1 altera_avalon_fifo 
 set_instance_parameter_value fifo_1 {avalonMMAvalonMMDataWidth} {32}
 set_instance_parameter_value fifo_1 {avalonMMAvalonSTDataWidth} {32}
 set_instance_parameter_value fifo_1 {bitsPerSymbol} {16}
@@ -41,7 +41,7 @@ set_instance_parameter_value fifo_1 {useReadControl} {0}
 set_instance_parameter_value fifo_1 {useRegister} {0}
 set_instance_parameter_value fifo_1 {useWriteControl} {1}
 
-add_instance fifo_2 altera_avalon_fifo 14.1
+add_instance fifo_2 altera_avalon_fifo 
 set_instance_parameter_value fifo_2 {avalonMMAvalonMMDataWidth} {32}
 set_instance_parameter_value fifo_2 {avalonMMAvalonSTDataWidth} {32}
 set_instance_parameter_value fifo_2 {bitsPerSymbol} {16}
