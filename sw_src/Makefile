@@ -52,7 +52,6 @@ ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
 	SW_SRC_INSTALL_DEPS += acl_module
 	SW_SRC_INSTALL_DEPS += sld_hub_csr_module
 	SW_SRC_INSTALL_DEPS += ws3_lab_validator
-	SW_SRC_INSTALL_DEPS += ws3_lab_validation_check.sh
 	SW_SRC_INSTALL_DEPS += demo_devmem_app
 	SW_SRC_INSTALL_DEPS += demo_ioctl_test_app
 	SW_SRC_INSTALL_DEPS += demo_map_test_app
@@ -72,6 +71,8 @@ install: $(SW_SRC_INSTALL_DEPS)
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 #	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
 	$(MKDIR) $(INSTALL_DIR)/examples/drivers
+	$(CP) ws3_target_tests/README.TXT $(INSTALL_DIR)/examples/drivers
+	$(CP) ws3_target_tests/target_test_devmem.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validator $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validation_check.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_devmem_app/demo_devmem $(INSTALL_DIR)/examples/drivers
@@ -117,9 +118,6 @@ driver_modules:
 .PHONY: ws3_lab_validator
 ws3_lab_validator:
 	make -C ws3_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
-
-.PHONY: ws3_lab_validation_check.sh
-ws3_lab_validation_check.sh:
 
 .PHONY: demo_devmem_app	
 demo_devmem_app:
