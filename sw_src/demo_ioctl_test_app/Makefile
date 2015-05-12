@@ -20,5 +20,5 @@ clean:
 	$(RM) $(OBJ) *.objdump *.map *.d $(ELF)
 
 $(ELF): $(C_SRC)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
