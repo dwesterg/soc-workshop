@@ -71,6 +71,7 @@
 \n\
 Usage: driver_devmem [ONE-OPTION-ONLY]\n\
   -t, --print-timer\n\
+  -s, --stop-timer\n\
   -o, --dump-rom\n\
   -a, --dump-ram\n\
   -f, --fill-ram\n\
@@ -88,6 +89,9 @@ Only one of the following options may be passed in per invocation:\n\
 \n\
   -t, --print-timer\n\
 Print the timer statistics out stdout.\n\
+\n\
+  -s, --stop-timer\n\
+Stop the timer.\n\
 \n\
   -o, --dump-rom\n\
 Dump the binary ROM contents out stdout.\n\

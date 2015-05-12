@@ -46,6 +46,7 @@
 // globals declared for command line status variables
 //
 void *g_print_timer	= NULL;
+void *g_stop_timer	= NULL;
 void *g_dump_rom	= NULL;
 void *g_dump_ram	= NULL;
 void *g_fill_ram	= NULL;
@@ -58,6 +59,7 @@ void *g_help		= NULL;
 void validate_system_features(void);
 void parse_cmdline(int argc, char **argv);
 void do_print_timer(void *demo_driver_map);
+void do_stop_timer(void *demo_driver_map);
 void do_dump_rom(void *demo_driver_map);
 void do_dump_ram(void *demo_driver_map);
 void do_fill_ram(void *demo_driver_map);
@@ -135,6 +137,7 @@ int main(int argc, char **argv) {
 	// perform the operation selected by the command line arguments
 	//
 	if(g_print_timer	!= NULL) do_print_timer(demo_driver_map);
+	if(g_stop_timer		!= NULL) do_stop_timer(demo_driver_map);
 	if(g_dump_rom		!= NULL) do_dump_rom(demo_driver_map);
 	if(g_dump_ram		!= NULL) do_dump_ram(demo_driver_map);
 	if(g_fill_ram		!= NULL) do_fill_ram(demo_driver_map);
@@ -375,6 +378,7 @@ void parse_cmdline(int argc, char **argv) {
 	int action_count = 0;
 	static struct option long_options[] = {
 		{"print-timer",	no_argument,	NULL, 't'},
+		{"stop-timer",	no_argument,	NULL, 's'},
 		{"dump-rom", 	no_argument,	NULL, 'o'},
 		{"dump-ram", 	no_argument,	NULL, 'a'},
 		{"fill-ram", 	no_argument,	NULL, 'f'},
@@ -387,7 +391,7 @@ void parse_cmdline(int argc, char **argv) {
 	// parse the command line arguments
 	//
 	while(1) {
-		c = getopt_long( argc, argv, "toafdh", long_options, &option_index);
+		c = getopt_long( argc, argv, "tsoafdh", long_options, &option_index);
 	
 		if(c == -1)
 			break;
@@ -398,6 +402,9 @@ void parse_cmdline(int argc, char **argv) {
 			break;
 		case 't':
 			g_print_timer = &g_print_timer;
+			break;
+		case 's':
+			g_stop_timer = &g_stop_timer;
 			break;
 		case 'o':
 			g_dump_rom = &g_dump_rom;
@@ -442,6 +449,7 @@ void parse_cmdline(int argc, char **argv) {
 	// verify that we only collected ONE action to perform
 	//
 	if(g_print_timer	!= NULL) action_count++;
+	if(g_stop_timer		!= NULL) action_count++;
 	if(g_dump_rom		!= NULL) action_count++;
 	if(g_dump_ram		!= NULL) action_count++;
 	if(g_fill_ram		!= NULL) action_count++;
@@ -531,6 +539,22 @@ void do_print_timer(void *demo_driver_map) {
 				(timer_snaps_l[i + 1] - timer_snaps_l[i])
 		);
 	}
+}
+
+void do_stop_timer(void *demo_driver_map) {
+	volatile unsigned long *timer_base = (unsigned long *)((unsigned long)demo_driver_map + TIMER_OFST);
+
+	//
+	// if timer is running, stop it
+	//
+	if((timer_base[ALTERA_AVALON_TIMER_STATUS_REG] & ALTERA_AVALON_TIMER_STATUS_RUN_MSK) == 0) {
+		printf("Timer not currently running.\n");
+	} else {
+		printf("Stopping timer.\n");
+		timer_base[ALTERA_AVALON_TIMER_CONTROL_REG] = ALTERA_AVALON_TIMER_CONTROL_STOP_MSK;
+		timer_base[ALTERA_AVALON_TIMER_STATUS_REG] = 0;
+	}
+	
 }
 
 void do_dump_rom(void *demo_driver_map) {
