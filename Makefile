@@ -109,6 +109,8 @@ AR_REGEX += arc_build.sh
 AR_REGEX += boot.script
 AR_REGEX += buildroot.defconfig
 AR_REGEX += WS1-IntroToSoC
+AR_REGEX += WS2-IntroToLinux
+AR_REGEX += WS3-DevelopingDrivers
 
 ################################################
 .PHONY: default
@@ -297,6 +299,8 @@ SD_FAT_TGZ_DEPS += hdl_src
 SD_FAT_TGZ_DEPS += board_info
 SD_FAT_TGZ_DEPS += ip
 SD_FAT_TGZ_DEPS += WS1-IntroToSoC
+SD_FAT_TGZ_DEPS += WS2-IntroToLinux
+SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
