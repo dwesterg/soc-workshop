@@ -46,7 +46,18 @@ endif
 LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 
 ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
-	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest validator_module acl_module sld_hub_csr_module demo_devmem_app demo_ioctl_test_app demo_map_test_app demo_uio_test_app driver_modules
+	SW_SRC_INSTALL_DEPS := mmlink
+	SW_SRC_INSTALL_DEPS += msgdma_memtest
+	SW_SRC_INSTALL_DEPS += validator_module
+	SW_SRC_INSTALL_DEPS += acl_module
+	SW_SRC_INSTALL_DEPS += sld_hub_csr_module
+	SW_SRC_INSTALL_DEPS += ws3_lab_validator
+	SW_SRC_INSTALL_DEPS += ws3_lab_validation_check.sh
+	SW_SRC_INSTALL_DEPS += demo_devmem_app
+	SW_SRC_INSTALL_DEPS += demo_ioctl_test_app
+	SW_SRC_INSTALL_DEPS += demo_map_test_app
+	SW_SRC_INSTALL_DEPS += demo_uio_test_app
+	SW_SRC_INSTALL_DEPS += driver_modules
 else
 	SW_SRC_INSTALL_DEPS := mmlink msgdma_memtest
 endif
@@ -61,6 +72,8 @@ install: $(SW_SRC_INSTALL_DEPS)
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
 #	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
 	$(MKDIR) $(INSTALL_DIR)/examples/drivers
+	$(CP) ws3_lab_validator/ws3_lab_validator $(INSTALL_DIR)/examples/drivers
+	$(CP) ws3_lab_validator/ws3_lab_validation_check.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_devmem_app/demo_devmem $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_ioctl_test_app/ioctl_test $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_map_test_app/demo_map_test $(INSTALL_DIR)/examples/drivers
@@ -101,6 +114,13 @@ sld_hub_csr_module:
 driver_modules:
 	make -C driver_modules OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules
 	
+.PHONY: ws3_lab_validator
+ws3_lab_validator:
+	make -C ws3_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
+
+.PHONY: ws3_lab_validation_check.sh
+ws3_lab_validation_check.sh:
+
 .PHONY: demo_devmem_app	
 demo_devmem_app:
 	make -C demo_devmem_app CROSS_COMPILE=$(CROSS_COMPILE)
@@ -125,6 +145,7 @@ clean:
 	make -C validator_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
 	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
 	make -C driver_modules OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
+	make -C ws3_lab_validator clean
 	make -C demo_devmem_app clean
 	make -C demo_ioctl_test_app clean
 	make -C demo_map_test_app clean
