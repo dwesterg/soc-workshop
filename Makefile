@@ -210,6 +210,12 @@ ALL_DEPS_$1 += $1/hps_isw_handoff $1/$1.qpf $1/$1.qsf
 
 SD_FAT_$1 += $$(ALL_DEPS_$1)
 SD_FAT_$1 += boot.script u-boot.scr
+SD_FAT_$1 += hdl_src
+SD_FAT_$1 += board_info
+SD_FAT_$1 += ip
+SD_FAT_$1 += WS1-IntroToSoC
+SD_FAT_$1 += WS2-IntroToLinux
+SD_FAT_$1 += WS3-DevelopingDrivers
 
 .PHONY:$1.all
 $1.all: $$(ALL_DEPS_$1)
@@ -277,7 +283,7 @@ create_all_projects.HELP := Create all quartus projects
 
 .PHONY: create_all_qsys
 create_all_qsys: $(foreach r,$(REVISION_LIST),qsys_generate_qsys-$r)
-HELP_TARGETS += create_all_qsys
+HELP_TARGETS += create_all_qsys                                                                              
 create_all_qsys.HELP := Create all qsys files
 
 #.PHONY: compile_all_projects
