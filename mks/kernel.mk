@@ -59,7 +59,7 @@ linux.modules_install: linux.modules | logs
 	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install 2>&1 | tee logs/$(notdir $@).log
 
 # build                                   
-$(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,$(LINUX_BRANCH).linux.build)
+$(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET): $(call get_stamp_target,$(LINUX_BRANCH).$(KBUILD_BUILD_VERSION).linux.build)
 
 $(LINUX_MAKE_TARGET).$(LINUX_BRANCH): $(LINUX_BRANCH)/arch/$(ARCH)/boot/$(LINUX_MAKE_TARGET)
 	$(CP) $< $@
