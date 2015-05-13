@@ -221,6 +221,7 @@ SD_FAT_$1 += WS1-IntroToSoC
 SD_FAT_$1 += WS2-IntroToLinux
 SD_FAT_$1 += WS3-DevelopingDrivers
 SD_FAT_$1 += WS3-DevelopingDrivers/ws3_lab_environment.src
+SD_FAT_$1 += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 
 .PHONY:$1.all
 $1.all: $$(ALL_DEPS_$1)
@@ -314,6 +315,7 @@ SD_FAT_TGZ_DEPS += WS1-IntroToSoC
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
+SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
@@ -436,11 +438,10 @@ disable_signaltap:
 ################################################
 # WorkShop outputs
 .PHONY: ws3_output
-ws3_output:WS3-DevelopingDrivers/ws3_lab_environment.src
+ws3_output:WS3-DevelopingDrivers/ws3_lab_environment.src WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 
 WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
-	$(ECHO) "#!/bin/bash" > $@
-	$(ECHO) "TOOLCHAIN_SOURCE=$(TOOLCHAIN_SOURCE)" >> $@
+	$(ECHO) "TOOLCHAIN_SOURCE=$(TOOLCHAIN_SOURCE)" > $@
 	$(ECHO) "TOOLCHAIN_SOURCE_TAR=$(TOOLCHAIN_SOURCE_TAR)" >> $@
 	$(ECHO) "TOOLCHAIN_SOURCE_PACKAGE=$(TOOLCHAIN_SOURCE_PACKAGE)" >> $@
 	$(ECHO) "KBUILD_BUILD_VERSION=\"$(KBUILD_BUILD_VERSION)\"" >> $@
@@ -448,6 +449,9 @@ WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
 	$(ECHO) "LINUX_DEFCONFIG_TARGET=$(LINUX_DEFCONFIG_TARGET)" >> $@
 	$(ECHO) "LINUX_DEFCONFIG=$(LINUX_DEFCONFIG)" >> $@
 	$(ECHO) "LNX_SOURCE_PACKAGE=$(LNX_SOURCE_PACKAGE)" >> $@
+
+WS3-DevelopingDrivers/$(LINUX_DEFCONFIG): linux.build
+	$(CP) $(LINUX_DEFCONFIG) WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 
 ################################################
 # Help system
