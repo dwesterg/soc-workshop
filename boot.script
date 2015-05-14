@@ -50,8 +50,8 @@ sleep 1
 fi
 
 echo ---Setting Env variables---
-set fdtimage ${soc_board_name}/soc_system.dtb;
-set rootfsimage rootfs.img;
+setenv fdtimage ${soc_board_name}/soc_system.dtb;
+setenv rootfsimage rootfs.img;
 
 if test ${soc_workshop_use_ltsi} = 1; then
 setenv bootimage zImage.socfpga-3.10-ltsi
@@ -65,7 +65,7 @@ setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait
 
 echo ---Booting Linux---
 run bridge_enable_handoff;
-set chipid_addr 0xFF210000;
+setenv chipid_addr 0xFF210000;
 chipid2mac;
 run mmcload;
 run mmcboot;
