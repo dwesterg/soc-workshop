@@ -20,6 +20,17 @@ You could do this by executing:
 
 . <path-to>/setup_env.sh
 
+When done correctly the variables are configured like this:
+export ARCH=arm
+	This is set to 'arm' for our ARM achitecture processor.
+	
+export CROSS_COMPILE=<path-to>/toolchain/bin/arm-linux-gnueabihf-
+	This is set to the path into the cross compiler toolchain and the
+	prefix for the tools.
+	
+export OUT_DIR=<path-to>/socfpga-3.10-ltsi
+	This is set to the path into the linux kernel source tree.
+
 --------------------------------------------------------------------------------
 BUILD THE LAB WORK
 
@@ -29,9 +40,22 @@ directory.  The README.TXT file will explain how to go about building the kernel
 module or test application within that directory.
 
 ./lab_module/README.TXT
+	This directory contains a linux kernel module that you will build.  The
+	module installs a misc device driver to interact with the demo driver
+	hardware in the FPGA.
+	
 ./lab_module_test/README.TXT
+	This directory contains a test application that will verify the
+	functionality of the lab_module kernel module built above.
+	
 ./uio_module/README.TXT
+	This directory contains directions on how to copy a UIO driver template
+	out of the kernel source tree, modify it to work with the demo driver
+	hardware in the FPGA and build it.
+	
 ./uio_module_test/README.TXT
+	This directory contains a test application that will verify the
+	functionality of the uio_module kernel module built above.
 
 --------------------------------------------------------------------------------
 COPY THE LAB WORK TO YOUR TARGET
