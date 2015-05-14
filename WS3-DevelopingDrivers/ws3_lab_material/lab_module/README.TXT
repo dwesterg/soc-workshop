@@ -9,22 +9,15 @@ source tree installed on your development host.
 You should have the following environment variables defined ARCH, CROSS_COMPILE,
 and OUT_DIR.  Here's an example of what they may look like:
 
-#
-# ARCH should be arm for the Cortex A9
-#
 export ARCH=arm
-
-#
-# CROSS_COMPILE should point into the target cross compiler tools directory and
-# contain the prefix used by all the target tools in that directory
-#
-export CROSS_COMPILE=<path-to>/soc-workshop/toolchain/bin/arm-linux-gnueabihf-
-
-#
-# OUT_DIR should point into the linux kernel build directory, that's where the
-# .config file resides for the kernel that we're building against.
-#
-export OUT_DIR=<path-to>/soc-workshop/socfpga-3.10-ltsi
+	This is set to 'arm' for our ARM achitecture processor.
+	
+export CROSS_COMPILE=<path-to>/toolchain/bin/arm-linux-gnueabihf-
+	This is set to the path into the cross compiler toolchain and the
+	prefix for the tools.
+	
+export OUT_DIR=<path-to>/socfpga-3.10-ltsi
+	This is set to the path into the linux kernel source tree.
 
 NOTE: the <path-to> text above refers to the absolute path to the installation
       location of the relevant directory.
@@ -88,6 +81,7 @@ modules:
 modules_install:
 	\$(MAKE) -C \$(KDIR) M=\$\$PWD modules_install
 EOF
+
 --------------------------------------------------------------------------------
 EXECUTE MAKE
 

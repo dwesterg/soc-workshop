@@ -111,7 +111,8 @@ umount /mnt/fat
 --------------------------------------------------------------------------------
 EXECUTE THE LAB WORK
 
-On the target, run the module tests.
+On the target, run the module tests.  Make sure that you change directory into
+the location that you copied your modules and applications into.
 
 First insert the lab_module:
 # insmod ./lab_module.ko
@@ -145,7 +146,8 @@ VALIDATE YOUR RESULTS
 Once you've proven out your modules and test programs on the target, validate
 your results by running the lab validator program.
 
-You run this validator program on the target:
+From the same directory that you executed your test applications from, run this
+validator program on the target:
 # /examples/drivers/ws3_lab_validator
 
 If the validator runs successfully you should see this output:
@@ -159,8 +161,8 @@ validation_archive.tar.gz.sign
 COPY YOUR VALIDATION OFF YOUR TARGET
 
 Copy the two validation files from your target back to your development host.
-This can be done a number of ways, but two methods described above to copy to
-the target may be reversed to copy from the target.
+This can be done a number of ways, but the two methods described above to copy
+to the target may be reversed to copy from the target.
 
 Here is an example of how to do this with 'scp':
 
