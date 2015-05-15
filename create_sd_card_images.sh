@@ -3,6 +3,7 @@
 PROGRAM_NAME="$(basename ${0})"
 THE_SD_FAT_TAR_GZ=
 DEV_BOARD_TYPE=
+COMPRESS=
 
 ###############################################################################
 #
@@ -16,7 +17,8 @@ case $i in
 		echo ""
 		echo "USAGE: ${PROGRAM_NAME} \\"
 		echo "	--sd_fat=<path-to-sd_fat.*.tar.gz> \\"
-		echo "	--board=<dev-board-type>"
+		echo "	--board=<dev-board-type> \\"
+		echo "	--compress"
 		echo ""
 		echo "Valid board types are:"
 		echo "	ALTERA_AV_SOC"
@@ -25,6 +27,8 @@ case $i in
 		echo "	CRITICALLINK_MITYSOM_DEVKIT"
 		echo "	DE0_NANO_SOC"
 		echo "	MACNICA_HELIO_14"
+		echo ""
+		echo "Using the --compress option causes the image file to be compressed with gzip."
 		echo ""
 		echo "Must be run as root user, or 'sudo'."
 		echo ""
@@ -98,6 +102,10 @@ case $i in
 			exit 1
 		}
 		DEV_BOARD_TYPE="${i#*=}"
+		shift
+	;;
+	--compress)
+		COMPRESS="1"
 		shift
 	;;
 	*)
@@ -174,20 +182,23 @@ MY_SD_CARD_IMAGE="${THE_SD_FAT_TAR_GZ#*.}"
 MY_SD_CARD_IMAGE="${MY_SD_CARD_IMAGE%%.*}"
 MY_SD_CARD_IMAGE="sd_card.${DEV_BOARD_TYPE}.${MY_SD_CARD_IMAGE}.image"
 
+echo "Begining SD card image creation for output image:"
+echo "'${MY_SD_CARD_IMAGE}'"
+
 ###############################################################################
 #
 # Echo what we're doing from here on...
 #
 ###############################################################################
 echo "Creating SD card image file filled with 0xFF pattern."
-dd if=/dev/zero bs=1M count=${MY_SD_CARD_IMAGE_1M_BLOCKS} 2> /dev/null | tr '\000' '\377' > ${MY_SD_CARD_IMAGE} || { 
+dd if=/dev/zero bs=1M count=${MY_SD_CARD_IMAGE_1M_BLOCKS} 2> /dev/null | tr '\000' '\377' > ${MY_SD_CARD_IMAGE} || {
 	echo "ERROR"
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Attaching SD card image file to loop device."
-MY_LOOP_DEV=$(losetup --show -f ${MY_SD_CARD_IMAGE}) || { 
+MY_LOOP_DEV=$(losetup --show -f ${MY_SD_CARD_IMAGE}) || {
 	echo "ERROR"
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
@@ -223,14 +234,14 @@ w
 EOF
 
 echo "Detaching SD card image file from loop device."
-losetup -d ${MY_LOOP_DEV} || { 
+losetup -d ${MY_LOOP_DEV} || {
 	echo "ERROR"
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Attaching SD card image file to loop device with partition scan."
-MY_LOOP_DEV=$(losetup --show -f --partscan ${MY_SD_CARD_IMAGE}) || { 
+MY_LOOP_DEV=$(losetup --show -f --partscan ${MY_SD_CARD_IMAGE}) || {
 	echo "ERROR"
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
@@ -261,7 +272,7 @@ echo "Verify loop partition 3 exists."
 }
 
 echo "Initializing FAT volume in partition 1 of SD card image file."
-mkfs -t vfat -F 32 ${MY_LOOP_DEV}p1 > /dev/null || { 
+mkfs -t vfat -F 32 ${MY_LOOP_DEV}p1 > /dev/null || {
 	echo "ERROR"
 	losetup -d ${MY_LOOP_DEV}
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
@@ -269,7 +280,7 @@ mkfs -t vfat -F 32 ${MY_LOOP_DEV}p1 > /dev/null || {
 }
 
 echo "Mounting FAT partition of SD card image file."
-mount ${MY_LOOP_DEV}p1 ${MY_SD_FAT_MNT} || { 
+mount ${MY_LOOP_DEV}p1 ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	losetup -d ${MY_LOOP_DEV}
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
@@ -277,7 +288,7 @@ mount ${MY_LOOP_DEV}p1 ${MY_SD_FAT_MNT} || {
 }
 
 echo "Extracting sd_fat.tar.gz."
-tar -C ${MY_TMP_TAR} -xf ${THE_SD_FAT_TAR_GZ} || { 
+tar -C ${MY_TMP_TAR} -xf ${THE_SD_FAT_TAR_GZ} || {
 	echo "ERROR"
 	umount ${MY_SD_FAT_MNT}
 	losetup -d ${MY_LOOP_DEV}
@@ -286,7 +297,7 @@ tar -C ${MY_TMP_TAR} -xf ${THE_SD_FAT_TAR_GZ} || {
 }
 
 echo "Copying into FAT partition."
-cp -R ${MY_TMP_TAR}/* ${MY_SD_FAT_MNT} || { 
+cp -R ${MY_TMP_TAR}/* ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	umount ${MY_SD_FAT_MNT}
 	losetup -d ${MY_LOOP_DEV}
@@ -302,7 +313,7 @@ echo "Copying preloader image into partition 3 of SD card image file."
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
-dd if="${MY_SD_FAT_MNT}/${DEV_BOARD_TYPE}/preloader-mkpimage.bin" of=${MY_LOOP_DEV}p3 2> /dev/null || { 
+dd if="${MY_SD_FAT_MNT}/${DEV_BOARD_TYPE}/preloader-mkpimage.bin" of=${MY_LOOP_DEV}p3 2> /dev/null || {
 	echo "ERROR"
 	umount ${MY_SD_FAT_MNT}
 	losetup -d ${MY_LOOP_DEV}
@@ -311,7 +322,7 @@ dd if="${MY_SD_FAT_MNT}/${DEV_BOARD_TYPE}/preloader-mkpimage.bin" of=${MY_LOOP_D
 }
 
 echo "Unmount the FAT partition."
-umount ${MY_SD_FAT_MNT} || { 
+umount ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	losetup -d ${MY_LOOP_DEV}
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
@@ -319,7 +330,7 @@ umount ${MY_SD_FAT_MNT} || {
 }
 
 echo "Initializing ext3 volume in partition 2 of SD card image file."
-mkfs -t ext3 ${MY_LOOP_DEV}p2 > /dev/null 2>&1 || { 
+mkfs -t ext3 ${MY_LOOP_DEV}p2 > /dev/null 2>&1 || {
 	echo "ERROR"
 	losetup -d ${MY_LOOP_DEV}
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
@@ -334,9 +345,20 @@ losetup -d ${MY_LOOP_DEV} || {
 }
 
 echo "Removing temporary working directories."
-rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR} || { 
+rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR} || {
 	echo "ERROR"
 	exit 1
+}
+
+[ "${COMPRESS}" == "1" ] && {
+	echo "Compressing SD card image file."
+	gzip -f "${MY_SD_CARD_IMAGE}" > /dev/null 2>&1 || {
+		echo "ERROR"
+		exit 1
+	}
+	echo "Compressed SD card image created."
+	echo "'${MY_SD_CARD_IMAGE}.gz' has been created."
+	exit 0
 }
 
 echo "SD card image created."
