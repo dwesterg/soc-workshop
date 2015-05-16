@@ -233,6 +233,8 @@ a2
 w
 EOF
 
+sync
+
 echo "Detaching SD card image file from loop device."
 losetup -d ${MY_LOOP_DEV} || {
 	echo "ERROR"
@@ -240,9 +242,17 @@ losetup -d ${MY_LOOP_DEV} || {
 	exit 1
 }
 
-echo "Attaching SD card image file to loop device with partition scan."
-MY_LOOP_DEV=$(losetup --show -f --partscan ${MY_SD_CARD_IMAGE}) || {
+echo "Attaching SD card image file to loop device."
+MY_LOOP_DEV=$(losetup --show -f ${MY_SD_CARD_IMAGE}) || {
 	echo "ERROR"
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	exit 1
+}
+
+echo "Probe partitions."
+partprobe "${MY_LOOP_DEV}" || {
+	echo "ERROR"
+	losetup -d ${MY_LOOP_DEV}
 	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
