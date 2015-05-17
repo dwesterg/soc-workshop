@@ -28,10 +28,8 @@ CREATE KBUILD FILE
 Create a file named 'Kbuild' with this one line in it:
 obj-m  := lab_module.o
 
-You could run this sequence of commands to create this in a bash shell:
-cat <<EOF > Kbuild
-obj-m  := lab_module.o
-EOF
+You could run this command to create this in a bash shell:
+echo -e "obj-m  := lab_module.o" > Kbuild
 
 --------------------------------------------------------------------------------
 CREATE MAKEFILE
@@ -59,28 +57,26 @@ modules_install:
 	$(MAKE) -C $(KDIR) M=$$PWD modules_install
 
 You could run this sequence of commands to create this in a bash shell:
-cat <<EOF > Makefile
-ifndef OUT_DIR
-    \$(error OUT_DIR is undefined, bad environment, you point OUT_DIR to the linux kernel build output directory)
-endif
-
-KDIR ?= \$(OUT_DIR)
-
-default:
-	\$(MAKE) -C \$(KDIR) M=\$\$PWD
-
-clean:
-	\$(MAKE) -C \$(KDIR) M=\$\$PWD clean
-
-help:
-	\$(MAKE) -C \$(KDIR) M=\$\$PWD help
-
-modules:
-	\$(MAKE) -C \$(KDIR) M=\$\$PWD modules
-
-modules_install:
-	\$(MAKE) -C \$(KDIR) M=\$\$PWD modules_install
-EOF
+echo -e "ifndef OUT_DIR" > Makefile
+echo -e "    \$(error OUT_DIR is undefined, bad environment, you point OUT_DIR to the linux kernel build output directory)" >> Makefile
+echo -e "endif" >> Makefile
+echo -e "" >> Makefile
+echo -e "KDIR ?= \$(OUT_DIR)" >> Makefile
+echo -e "" >> Makefile
+echo -e "default:" >> Makefile
+echo -e "\t\$(MAKE) -C \$(KDIR) M=\$\$PWD" >> Makefile
+echo -e "" >> Makefile
+echo -e "clean:" >> Makefile
+echo -e "\t\$(MAKE) -C \$(KDIR) M=\$\$PWD clean" >> Makefile
+echo -e "" >> Makefile
+echo -e "help:" >> Makefile
+echo -e "\t\$(MAKE) -C \$(KDIR) M=\$\$PWD help" >> Makefile
+echo -e "" >> Makefile
+echo -e "modules:" >> Makefile
+echo -e "\t\$(MAKE) -C \$(KDIR) M=\$\$PWD modules" >> Makefile
+echo -e "" >> Makefile
+echo -e "modules_install:" >> Makefile
+echo -e "\t\$(MAKE) -C \$(KDIR) M=\$\$PWD modules_install" >> Makefile
 
 --------------------------------------------------------------------------------
 EXECUTE MAKE

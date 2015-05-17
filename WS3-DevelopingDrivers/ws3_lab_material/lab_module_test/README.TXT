@@ -28,22 +28,22 @@ BUILD THE TEST APPLICATION
 Now to build the lab_module_test application you should invoke this command:
 
 ${CROSS_COMPILE:?}gcc \
-        -march=armv7-a \
-        -mfloat-abi=hard \
-        -mfpu=vfp3 \
-        -mthumb-interwork \
-        -mthumb \
-        -O2 \
-        -g \
-        -feliminate-unused-debug-types  \
-        -std=gnu99 \
-        -W \
-        -Wall \
-        -Werror \
-        -Wc++-compat \
-        -Wwrite-strings \
-        -Wstrict-prototypes \
-        -pedantic \
+	-march=armv7-a \
+	-mfloat-abi=hard \
+	-mfpu=vfp3 \
+	-mthumb-interwork \
+	-mthumb \
+	-O2 \
+	-g \
+	-feliminate-unused-debug-types  \
+	-std=gnu99 \
+	-W \
+	-Wall \
+	-Werror \
+	-Wc++-compat \
+	-Wwrite-strings \
+	-Wstrict-prototypes \
+	-pedantic \
 	-o lab_module_test \
 	lab_module_test.c
 

@@ -28,22 +28,22 @@ BUILD THE TEST APPLICATION
 Now to build the uio_module_test application you should invoke this command:
 
 ${CROSS_COMPILE:?}gcc \
-        -march=armv7-a \
-        -mfloat-abi=hard \
-        -mfpu=vfp3 \
-        -mthumb-interwork \
-        -mthumb \
-        -O2 \
-        -g \
-        -feliminate-unused-debug-types  \
-        -std=gnu99 \
-        -W \
-        -Wall \
-        -Werror \
-        -Wc++-compat \
-        -Wwrite-strings \
-        -Wstrict-prototypes \
-        -pedantic \
+	-march=armv7-a \
+	-mfloat-abi=hard \
+	-mfpu=vfp3 \
+	-mthumb-interwork \
+	-mthumb \
+	-O2 \
+	-g \
+	-feliminate-unused-debug-types  \
+	-std=gnu99 \
+	-W \
+	-Wall \
+	-Werror \
+	-Wc++-compat \
+	-Wwrite-strings \
+	-Wstrict-prototypes \
+	-pedantic \
 	-o uio_module_test \
 	uio_module_test.c
 
