@@ -1,4 +1,5 @@
 SRVR := sj-ice-nx2.altera.com
+ARC_RESOURCES = acds/15.0,soceds/15.0,git
 
 ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 #
@@ -10,7 +11,7 @@ define arc_build_project
 
 .PHONY: arc_build-$1
 arc_build-$1:
-	arc submit -i --watch acds/15.0,soceds/15.0,git os=linux64 ncpus=1 iwd=$(CURDIR) -- arc vnc make -j1 $1.all
+	arc submit -i --watch $(ARC_RESOURCES) os=linux64 ncpus=1 iwd=$(CURDIR) -- arc vnc make -j1 $1.all
 
 endef
 

@@ -116,6 +116,9 @@ AR_REGEX += buildroot.defconfig
 AR_REGEX += WS1-IntroToSoC
 AR_REGEX += WS2-IntroToLinux
 AR_REGEX += WS3-DevelopingDrivers
+AR_REGEX += CREATE_ALL_SD_CARD_COMPRESSED_IMAGES.sh
+AR_REGEX += create_pre_only_sd_card_images.sh
+AR_REGEX += create_sd_card_images.sh
 
 ################################################
 .PHONY: default
