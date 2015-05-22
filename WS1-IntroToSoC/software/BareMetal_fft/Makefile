@@ -2,7 +2,6 @@
 # Copyright Altera 2013,2014
 # All Rights Reserved.
 #
-SOPCINFO := ../../soc_system.sopcinfo
 QSYS_HDR := hps_0.h
 QSYS_HDR_DIR := qsys_headers
 
@@ -38,7 +37,7 @@ BIN = $(basename $(firstword $(C_SRC))).bin
 IMG = $(basename $(firstword $(C_SRC)))-mkimage.bin
 
 .PHONY: all
-all: $(BIN) $(ELF) $(IMG) $(SPL) $(QSYS_HDR_DIR)/$(QSYS_HDR)
+all: $(BIN) $(ELF) $(IMG) $(SPL) 
 
 .PHONY: clean
 clean:
@@ -73,6 +72,3 @@ $(IMG): $(BIN)
 #fatload mmc_spi 0 0x180000 fft-mkimage.bin
 #fatload mmc_spi 0 0x200000 fft.axf
 #bootm 0x180000
-$(QSYS_HDR_DIR)/$(QSYS_HDR): $(SOPCINFO)
-	mkdir -p $(QSYS_HDR_DIR)
-	sopc-create-header-files $< --output-dir $(QSYS_HDR_DIR)
