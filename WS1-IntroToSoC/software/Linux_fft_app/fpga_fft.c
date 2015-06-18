@@ -66,6 +66,12 @@
 // main creates 2 files. the input value and the real part of the fft.
 // these are used in the web browser app.
 
+void const *g_preparser_strings[] = {
+        "FILE=" __FILE__,
+        "DATE=" __DATE__,
+        "TIME=" __TIME__
+};
+
 int main(int argc, char **argv)
 {
 	int i;
