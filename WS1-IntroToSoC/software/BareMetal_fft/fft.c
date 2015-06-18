@@ -26,10 +26,10 @@
  */
 #include "hps_0.h"
 // bring in the view from the processor
-#include "hps.h"
-//bring in the view from the dmas
+#include "socal/hps.h"
+// bring in the view from the dmas
 #include "soc_system.h"
-//#include "socal.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -44,8 +44,7 @@
 #include "csr_regs.h"
 #include <math.h>
 #include "string.h"
-//#include "socal/socal.h"
-#include "socal.h"
+#include "socal/socal.h"
 #include <stdint.h>
 
 // defines for all the differing address spaces
@@ -57,12 +56,10 @@
 //this is the onchip ram base address from the processors point of view
 #define DATA_BASE (FFT_SUB_DATA_BASE + ALT_LWFPGASLVS_OFST)
 #define RESULT_BASE (FFT_SUB_DATA_BASE + ALT_LWFPGASLVS_OFST + 0x8000)
-//(FFT_SUB_DATA_BASE + ALT_LWFPGASLVS_OFST +(FFT_SUB_DATA_SPAN/2))
 
 // this is the onchip ram base from the DMA's point of view
 #define  DMA_DATA_BASE  FFT_SUB_SGDMA_FROM_FFT_FFT_SUB_DATA_BASE
 #define  DMA_RESULT_BASE  (FFT_SUB_SGDMA_FROM_FFT_FFT_SUB_DATA_BASE + 0x8000)
-//(FFT_SUB_SGDMA_FROM_FFT_FFT_SUB_DATA_BASE + (FFT_SUB_SGDMA_FROM_FFT_FFT_SUB_DATA_SPAN/2))
 
 // the FFT csr register from the point of view of the processor
 #define FFT_CSR_BASE (ALT_LWFPGASLVS_OFST + FFT_SUB_FFT_STADAPTER_0_BASE)
@@ -74,8 +71,12 @@
 // this is the physical address of lw bridge.
 // ALT_LWFPGASLVS_OFST  ->this is the physical address of lw bridge.  defined int socal/socal.h
 
+void const *g_preparser_strings[] = {
+        "FILE=" __FILE__,
+        "DATE=" __DATE__,
+        "TIME=" __TIME__
+};
 
-// the program was designed to take a parameter but will default to 0
 int fft_main(int  waveform) {
     int i;
 	unsigned int real, image, wave;
@@ -83,7 +84,6 @@ int fft_main(int  waveform) {
 	sgdma_standard_descriptor descriptor_to, descriptor_from;
 
 	printf("\r\n\r\nHello from SoC FPGA to everyone!\r\n");
-	printf("Compiled %s %s\r\n",__DATE__, __TIME__);
 	printf ("This program was called with \"%d\".\r\n",waveform);
 	//  just parsing the input parameters
 
@@ -98,7 +98,6 @@ int fft_main(int  waveform) {
 
 
 	//  load the right wave form into memory and make a copy in a file for display purposes.
-
 	for (i=0;i<DATA_LENGTH;i++)
 	{
 		if (waveform==0)
@@ -112,7 +111,6 @@ int fft_main(int  waveform) {
 		// real portion in the lower 16 of the 32 bit word.  The lower 16 is the image part which is zero for this example
 		//wave = wave<<16;
 		alt_write_word((volatile uint32_t)(DATA_BASE + 4*i),wave);
-//		printf("signal %i %i\r\n",i, (int)alt_read_word((volatile uint32_t)(DATA_BASE + 4*i)));
 	}
 
 	// zero out the results area  ( notice it is twice a large because the results has 2 32 numbers

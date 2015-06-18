@@ -35,7 +35,6 @@ int main(void)
 {
     printf("Hello World!\r\n");
     fft_main(0);
- //   fft_main(1);
 
     printf("all done\r\n");
     return 0;

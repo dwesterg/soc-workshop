@@ -32,7 +32,20 @@ QSYS_HDR := hps_0.h
 QSYS_HDR_DIR := qsys_headers
 
 SOCEDS_ROOT ?= $(SOCEDS_DEST_ROOT)
-SOCAL_ROOT := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/socal
+
+# look for SoC EDS 15.0 directory structure
+ifneq (,$(wildcard $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/soc_cv_av/socal))
+SOCAL_ROOT := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/soc_cv_av
+endif
+
+# look for SoC EDS 14.0 directory structure
+ifneq (,$(wildcard $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include/socal))
+SOCAL_ROOT := $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib/include
+endif
+
+ifndef SOCAL_ROOT
+$(error SOCAL_ROOT is undefined)
+endif
 
 C_SRC := fpga_fft.c msgdma/sgdma_dispatcher.c
 CFLAGS := -g -O0 -Werror -Wall -lm -Imsgdma -I. -Iqsys_headers -I$(SOCAL_ROOT) -MD
