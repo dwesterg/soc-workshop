@@ -1,0 +1,584 @@
+#------------------------------------------------------------------------------
+# NOTE: run these demonstrations from an SSH shell into the target while
+#       observing relevant output in the printk console.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# NOTE: the presentation materials refer to the insmod utility, however, the
+#       instructions below use modprobe instead of insmod, this is because the
+#       demonstration modules for this workshop are installed in the default
+#       kernel module location and depmod has been run so the kernel can locate
+#       the modules in /lib/modules/3.10.31-ltsi/modules.dep.  The demonstration
+#       modules are installed in /lib/modules/3.10.31-ltsi/extra.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# NOTE: in some projector environments it may be very difficult to see the
+#       colored output provided by the 'ls' command.  You can create an alias
+#       for the 'ls' command that forces the coloring to be off.
+#------------------------------------------------------------------------------
+alias ls='ls --color=never'
+
+#------------------------------------------------------------------------------
+# The example applications are installed in the directory /examples/drivers on
+# the target.  So after you boot your target, you should change into that
+# directory.
+#------------------------------------------------------------------------------
+cd /examples/drivers
+
+#------------------------------------------------------------------------------
+# demo_devmem
+#------------------------------------------------------------------------------
+./demo_devmem -h
+./demo_devmem -t
+./demo_devmem -o | hexdump -Cv
+./demo_devmem -a | hexdump -Cv
+dd if=/dev/zero | ./demo_devmem -f
+./demo_devmem -a | hexdump -Cv
+./demo_devmem -d
+./demo_devmem -a | hexdump -Cv
+
+#------------------------------------------------------------------------------
+# demo_module_01.ko
+#------------------------------------------------------------------------------
+cat /proc/sys/kernel/tainted
+# should be 0 = untainted
+
+lsmod
+# should be "Not tainted"
+
+cat /proc/modules
+# this is what lsmod formats for you
+
+modprobe demo_module_01
+# insert our module
+
+cat /proc/sys/kernel/tainted
+# should be 4096 = GPL, out of tree
+
+lsmod
+# should be "Tainted: G"
+
+modprobe demo_module_01t
+# insert our tainted module
+
+cat /proc/sys/kernel/tainted
+# should be 4097 = proprietary, oot
+
+lsmod
+# should be "Tainted: P"
+
+cat /proc/modules
+# our modules appear (PO) and (O)
+
+find /sys -name "*demo*"
+# find our modules in sysfs
+
+ls /sys/module/demo_module_01
+# see what the directory contains
+
+cat /sys/module/demo_module_01/taint
+# should be "O" = GPL, out of tree
+
+cat /sys/module/demo_module_01t/taint
+# should be "PO" = propprietary, oot
+
+rmmod demo_module_01t
+rmmod demo_module_01
+# remove our modules
+
+lsmod
+# still tainted
+
+cat /proc/sys/kernel/tainted
+# still tainted
+
+ls /sys/module/
+# these are all the modules, in tree
+
+tail /var/log/messages
+# the printk messages from console
+
+#------------------------------------------------------------------------------
+# demo_module_02.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_02
+# insert the module without parameters
+
+rmmod demo_module_02
+# remove the module
+
+modprobe demo_module_02  \
+param_byte=0x12          \
+param_short=0x3456       \
+param_ushort=0x789A      \
+param_int=0x3CDEF012     \
+param_uint=0x3456789A    \
+param_long=0x3CDEF012    \
+param_ulong=0x3456789A   \
+param_bool=n             \
+param_charp=hello-tim    \
+param_int_array=5000,-6000,7000
+# insert the module with parameters
+
+ls /sys/module/demo_module_02/
+# notice the parameters directory
+
+ls /sys/module/demo_module_02/parameters/
+# notice the parameter files
+
+cat /sys/module/demo_module_02/parameters/param_bool
+cat /sys/module/demo_module_02/parameters/param_byte | hexdump -C
+cat /sys/module/demo_module_02/parameters/param_charp
+cat /sys/module/demo_module_02/parameters/param_int
+cat /sys/module/demo_module_02/parameters/param_int_array
+cat /sys/module/demo_module_02/parameters/param_long
+printf "0x%08X\n" $(cat /sys/module/demo_module_02/parameters/param_long)
+
+rmmod demo_module_02
+# remove the module
+
+#------------------------------------------------------------------------------
+# demo_module_03.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_03
+# insert the module
+
+find /sys -name "*demo*"
+# find sysfs entries
+
+ls -l /sys/module/demo_module_03/drivers/
+# this is a link to the driver entry
+
+ls /sys/module/demo_module_03
+# this looks like the module we saw before
+
+ls /sys/bus/platform/drivers/demo_driver_3
+# this is a platform driver entry
+
+# this links to the device entry
+ls -l /sys/bus/platform/drivers/demo_driver_3/ff230000.driver
+
+# we can unbind the device
+echo "ff230000.driver" > /sys/bus/platform/drivers/demo_driver_3/unbind
+ls /sys/bus/platform/drivers/demo_driver_3
+# and we see the result
+
+# we can bind the device
+echo "ff230000.driver" > /sys/bus/platform/drivers/demo_driver_3/bind
+ls /sys/bus/platform/drivers/demo_driver_3
+# and we see the result
+
+rmmod demo_module_03
+# remove the device
+
+#------------------------------------------------------------------------------
+# demo_module_04.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_03
+# insert the first module, notice probe
+
+modprobe demo_module_04
+# insert the second module, no probe
+
+rmmod demo_module_03
+# remove the first module
+
+rmmod demo_module_04
+# remove the module
+
+modprobe demo_module_04
+# insert the module notice probe printk
+
+rmmod demo_module_04
+# remove the module
+
+ls /proc/device-tree/
+ls /proc/device-tree/sopc@0/
+ls /proc/device-tree/sopc@0/bridge@0xc0000000/
+ls /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/compatible
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/name
+
+# reg = [0:7] bridge address, [8:11] span
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/reg
+
+# ranges = [0:7] bridge address, [8:11] processor address, [12:15] span
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/ranges
+
+# interrupts = [0:3] type, [4:7] number, [8:11] flags
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/interrupts
+printf "%d\n" <number>
+# convert the hex interrupt number to decimal
+
+expr <number> + 32
+# add 32 to the interrupt number for actual GIC IRQ
+
+# this is a phandle
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/interrupt-parent
+# list all the phandles, sorted
+find /proc/device-tree -name "linux,phandle" | sort
+
+# list all the phandle values, sorted
+# then you can locate the interrupt-parrent phandle
+find /proc/device-tree -name "linux,phandle" | sort | xargs hexdump -C
+
+# verify the phandle
+ls /proc/device-tree/sopc@0/intc@0xfffed000/
+hexdump -C /proc/device-tree/sopc@0/intc@0xfffed000/linux,phandle
+
+# this is a phandle
+hexdump -C /proc/device-tree/sopc@0/bridge@0xc0000000/driver@0x100030000/clocks
+
+# verify the phandle
+ls /proc/device-tree/clocks/clk_0/
+hexdump -C /proc/device-tree/clocks/clk_0/linux,phandle
+
+# verify the clock frequency
+hexdump -C /proc/device-tree/clocks/clk_0/clock-frequency
+printf "%d\n" <frequency>
+
+#------------------------------------------------------------------------------
+# demo_module_05.ko
+#
+# NOTE: the target timer peripheral should not be in clean state, you should run
+#       'demo_devmem -s' to stop the timer peripheral in this case, or reboot
+#       the target.
+#------------------------------------------------------------------------------
+./demo_devmem -s
+modprobe demo_module_05
+# insert module
+
+cat /proc/interrupts | grep "demo"
+# observe IRQ occurring
+
+cat /proc/interrupts | grep "demo"
+# observe IRQ occurring
+
+cat /proc/interrupts | grep "demo"
+# observe IRQ occurring
+
+cat /proc/iomem | grep "demo"
+# observe reserved memory
+
+# demo_module_05t.ko is a test module that we force to reserve the same
+# resources that demo_module_05.ko has already reserved.  We can see which of
+# those actions fail and which of those actions succeed.
+modprobe demo_module_05t base=0xff230000 irq=80
+# observe printk
+# request_mem_region failed
+# ioremap succeeded
+# request_irq failed
+
+rmmod demo_module_05
+# remove module
+
+#------------------------------------------------------------------------------
+# demo_module_06.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_06
+# insert the module
+
+find /sys -name "*demo*"
+# find all sysfs entries
+
+ls /sys/bus/platform/drivers/demo_driver_6
+# view the sysfs files
+
+# dump the sysfs files
+cat /sys/bus/platform/drivers/demo_driver_6/interval
+cat /sys/bus/platform/drivers/demo_driver_6/irq_delays
+
+# run this about 5 times, once per second to verify the 10 IRQ per second speed
+cat /proc/interrupts | grep "demo"
+
+# change the IRQ speed to 100 per second
+echo "100" > /sys/bus/platform/drivers/demo_driver_6/interval
+
+# run this about 5 times, once per second to verify the 100 IRQ per second speed
+cat /proc/interrupts | grep "demo"
+
+# dump the sysfs files
+cat /sys/bus/platform/drivers/demo_driver_6/irq_delays
+cat /sys/bus/platform/drivers/demo_driver_6/interval
+
+# change the IRQ speed back to 10 per second
+echo "10" > /sys/bus/platform/drivers/demo_driver_6/interval
+
+# run this about 5 times, once per second to verify the 10 IRQ per second speed
+cat /proc/interrupts | grep "demo"
+
+cat /sys/bus/platform/drivers/demo_driver_6/interval
+cat /sys/bus/platform/drivers/demo_driver_6/irq_delays
+rmmod demo_module_06
+
+#------------------------------------------------------------------------------
+# demo_module_07.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_07
+# insert module
+
+ls /dev | grep "demo"
+# observe devfs entries
+
+dd if=/dev/demo_rom | hexdump -C
+# read from rom
+
+dd if=/dev/zero of=/dev/demo_rom
+# write to rom
+
+dd if=/dev/demo_ram | hexdump -C
+# read from ram
+
+dd if=/dev/zero of=/dev/demo_ram
+# write to ram
+
+dd if=/dev/demo_ram | hexdump -C
+# verify write
+
+dd if=/dev/demo_ram bs=64 count=1 | hexdump -Cv
+# dump first 64 ram bytes
+
+dd if=/dev/demo_rom bs=64 count=1 | hexdump -C
+# dump first 64 rom bytes
+
+# demonstrate llseek by copying 4 bytes from offset 56 in rom to offset 16 in ram
+dd if=/dev/demo_rom of=/dev/demo_ram bs=1 count=4 skip=56 seek=16
+dd if=/dev/demo_ram bs=64 count=1 | hexdump -Cv
+# verify the operation
+
+./demo_map_test -h
+# run demo_map_test
+
+./demo_map_test -o | hexdump -C
+# dump rom
+
+./demo_map_test -a | hexdump -C
+# dump ram
+
+dd if=/dev/urandom | ./demo_map_test -f
+# fill ram
+
+./demo_map_test -a | hexdump -C
+# verify ram
+
+./demo_map_test -t
+# dump the timer registers
+
+for I in 1 2 3 4 ; do
+dd if=/dev/demo_map bs=4 count=1 | hexdump -C
+done
+# demonstrate demo_map read the result is the irq count returned at the next
+# IRQ event
+
+# demonstrate ioctl
+cat /sys/bus/platform/drivers/demo_driver_7/interval
+./ioctl_test -g
+echo "100" > /sys/bus/platform/drivers/demo_driver_7/interval
+./ioctl_test -g
+cat /sys/bus/platform/drivers/demo_driver_7/irq_delays
+./ioctl_test -x
+./ioctl_test -n
+rmmod demo_module_07
+
+#------------------------------------------------------------------------------
+# demo_module_08.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_08
+# insert module
+
+find /dev -name "uio*"
+# find the device node
+
+find /sys/ -name "uio*"
+# find sysfs entries
+
+ls /sys/class/uio/uio0
+# display uio contents
+
+ls /sys/class/uio/uio0/maps/
+# display maps entry
+
+ls /sys/class/uio/uio0/maps/map0/
+# display map0 entry
+
+cat /sys/class/uio/uio0/maps/map0/*
+# dump the map0 entries
+
+# run this block as one copy/paste operation
+exec 7<>/dev/uio0
+# open /dev/uio0 for rd/wr
+for I in 1 2 3 4 5
+do
+dd bs=4 count=1 0<&7 | hexdump -Cv
+# read an IRQ event
+done
+dd if=/dev/zero bs=4 count=1 >&7
+# disable IRQs
+dd bs=4 count=1 0<&7 | hexdump -Cv
+# read an IRQ event
+
+# the last command of the previous block should stall forever, ^-C and run this
+# block next
+dd if=/dev/zero bs=4 count=1 | tr '\000' '\377' >&7
+# enable IRQs
+for I in 1 2 3 4 5
+do
+dd bs=4 count=1 0<&7 | hexdump -Cv
+# read an IRQ event
+done
+
+# finally run this command
+exec 7<>/dev/null
+# close /dev/uio0
+
+./demo_uio_test -h
+# run demo_uio_test
+
+./demo_uio_test -t
+# exercise timer regs
+
+./demo_uio_test -o | hexdump -C
+# dump rom
+
+./demo_uio_test -a | hexdump -C
+# dump ram
+
+dd if=/dev/urandom | ./demo_uio_test -f
+# fill ram
+
+./demo_uio_test -a | hexdump -C
+# dump ram to verify
+
+ls /sys/class/uio/uio0/
+# observe the event entry
+
+cat /sys/class/uio/uio0/event
+# dump the event entry
+
+dd if=/dev/uio0 bs=4 count=1 | hexdump -Cv
+# read another IRQ
+
+printf "%d\n" <hex number>
+# convert the hex number to dec
+
+cat /sys/class/uio/uio0/event
+# verify event count matches
+
+rmmod demo_module_08
+# remove module
+
+#------------------------------------------------------------------------------
+# demo_module_09.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_09
+
+# create a couple random files
+dd if=/dev/urandom of=random_co.bin bs=1M count=1
+dd if=/dev/urandom of=random_st.bin bs=1M count=1
+
+# write to coherent DMA device and read from coherent DMA device
+dd if=random_co.bin of=/dev/demo_dma_co bs=1024
+dd if=/dev/demo_dma_co of=random_co_data.bin bs=1024
+
+# write to streaming DMA device and read from streaming DMA device
+dd if=random_st.bin of=/dev/demo_dma_st bs=1024
+dd if=/dev/demo_dma_st of=random_st_data.bin bs=1024
+
+# write to coherent DMA device and read from streaming DMA device
+dd if=random_co.bin of=/dev/demo_dma_co bs=1024
+dd if=/dev/demo_dma_st of=random_co2st_data.bin bs=1024
+
+# write to streaming DMA device and read from coherent DMA device
+dd if=random_st.bin of=/dev/demo_dma_st bs=1024
+dd if=/dev/demo_dma_co of=random_st2co_data.bin bs=1024
+
+# compare all the files
+md5sum *.bin
+rmmod demo_module_09
+
+#------------------------------------------------------------------------------
+# demo_module_10.ko
+#------------------------------------------------------------------------------
+modprobe demo_module_10
+# insert the module
+
+find /dev -name "*demo*"
+# observe the device nodes
+
+find /sys -name "*demo*"
+# observe the sysfs files
+
+ls /sys/bus/platform/drivers/demo_driver_10
+# notice the 3 devices bound
+
+# create 3 random data files
+dd if=/dev/urandom of=random0.bin bs=256K count=1
+dd if=/dev/urandom of=random1.bin bs=256K count=1
+dd if=/dev/urandom of=random2.bin bs=256K count=1
+
+# start 3 separate processes to write the random files to a different fifo
+dd if=random0.bin of=/dev/demo_fifo_0 bs=1024 &
+dd if=random1.bin of=/dev/demo_fifo_1 bs=1024 &
+dd if=random2.bin of=/dev/demo_fifo_2 bs=1024 &
+
+# read back the first 1K of data from each fifo
+dd if=/dev/demo_fifo_0 of=random0_out.bin bs=1024 count=1
+dd if=/dev/demo_fifo_1 of=random1_out.bin bs=1024 count=1
+dd if=/dev/demo_fifo_2 of=random2_out.bin bs=1024 count=1
+
+# read back the remaining data from all the fifos
+dd if=/dev/demo_fifo_0 of=random0_out.bin bs=1024 count=255 conv=notrunc seek=1 &
+dd if=/dev/demo_fifo_1 of=random1_out.bin bs=1024 count=255 conv=notrunc seek=1 &
+dd if=/dev/demo_fifo_2 of=random2_out.bin bs=1024 count=255 conv=notrunc seek=1 &
+
+wait
+# wait for background processes
+
+md5sum *.bin
+# validate the in/out data files
+
+rmmod demo_module_10
+# remove the module
+
+#------------------------------------------------------------------------------
+# demo_module_11.ko
+#------------------------------------------------------------------------------
+insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11t.ko
+# observe module insert fails
+
+insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11.ko
+# insert module
+
+insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11t.ko
+# insert module
+
+find /sys -name "*demo*"
+# observe entries created
+
+ls /sys/bus/platform/drivers/demo_driver_11t
+# observe sysfs files
+
+# exercise the sysfs entries
+cat /sys/bus/platform/drivers/demo_driver_11t/target
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/decrement
+cat /sys/bus/platform/drivers/demo_driver_11t/decrement
+cat /sys/bus/platform/drivers/demo_driver_11t/complement
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/increment
+cat /sys/bus/platform/drivers/demo_driver_11t/decrement
+cat /sys/bus/platform/drivers/demo_driver_11t/complement
+rmmod demo_module_11
+# observe remove module fails
+
+rmmod demo_module_11t
+# remove module
+
+rmmod demo_module_11
+# remove module
+
