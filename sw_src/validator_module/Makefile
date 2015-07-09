@@ -21,7 +21,8 @@ default:
 	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR)
 
 clean:
-	rm -Rf validator_module.ko validator_module.mod.c validator_module.mod.o validator_module.o modules.order Module.symvers	
+	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR) clean
+
 help:
 	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR) help
 

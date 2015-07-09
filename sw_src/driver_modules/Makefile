@@ -21,7 +21,7 @@ default:
 	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR)
 
 clean:
-	$(MAKE) -C $(KDIR) M=$$PWD clean
+	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR) clean
 
 help:
 	$(MAKE) -C $(KDIR) $(LINUX_VARIABLES) M=$(CURDIR) help
