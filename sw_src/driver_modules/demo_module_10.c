@@ -523,7 +523,7 @@ static int platform_remove(struct platform_device *pdev)
 
 static struct of_device_id demo_driver_dt_ids[] = {
 	{
-	 .compatible = "ALTR,fifo-14.1"},
+	 .compatible = "ALTR,fifo-1.0"},
 	{ /* end of table */ }
 };
 
