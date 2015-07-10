@@ -26,7 +26,3 @@ target_test_devmem.sh
 	This script runs demo_devmem and verifies various outputs to determine
 	if the hardware environment is operating properly.
 
-driver_demo_init.sh
-	This script copies all the necessary driver modules and demo
-	applications to /root/driver_demo_material so the demostration content
-	is readily accessible during the workshop.

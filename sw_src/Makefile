@@ -78,7 +78,6 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(MKDIR) $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/README.TXT $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/target_test_devmem.sh $(INSTALL_DIR)/examples/drivers
-	$(CP) ws3_target_tests/driver_demo_init.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validator $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validation_check.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_devmem_app/demo_devmem $(INSTALL_DIR)/examples/drivers
