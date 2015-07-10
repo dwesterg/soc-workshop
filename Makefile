@@ -226,6 +226,7 @@ SD_FAT_$1 += WS2-IntroToLinux
 SD_FAT_$1 += WS3-DevelopingDrivers
 SD_FAT_$1 += WS3-DevelopingDrivers/ws3_lab_environment.src
 SD_FAT_$1 += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+SD_FAT_$1 += WS3-DevelopingDrivers/example_drivers.tgz
 
 .PHONY:$1.all
 $1.all: $$(ALL_DEPS_$1)
@@ -320,6 +321,7 @@ SD_FAT_TGZ_DEPS += WS2-IntroToLinux
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/example_drivers.tgz
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
@@ -441,8 +443,13 @@ disable_signaltap:
 
 ################################################
 # WorkShop outputs
+
+WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
+WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/example_drivers.tgz
+
 .PHONY: ws3_output
-ws3_output:WS3-DevelopingDrivers/ws3_lab_environment.src WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+ws3_output: $(WS3_OUTPUT_DEPS)
 
 WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
 	$(ECHO) "TOOLCHAIN_SOURCE=$(TOOLCHAIN_SOURCE)" > $@
@@ -456,6 +463,50 @@ WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
 
 WS3-DevelopingDrivers/$(LINUX_DEFCONFIG): linux.build
 	$(CP) $(LINUX_DEFCONFIG) WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+
+WS3_DRIVER_SRC_FILES += demo_devmem_app/demo_devmem.c
+WS3_DRIVER_SRC_FILES += demo_devmem_app/demo_devmem.h
+WS3_DRIVER_SRC_FILES += demo_devmem_app/Makefile
+WS3_DRIVER_SRC_FILES += demo_devmem_app/my_altera_avalon_timer_regs.h
+WS3_DRIVER_SRC_FILES += demo_devmem_app/my_altera_msgdma_csr_regs.h
+WS3_DRIVER_SRC_FILES += demo_devmem_app/my_altera_msgdma_descriptor_regs.h
+WS3_DRIVER_SRC_FILES += demo_ioctl_test_app/ioctl_test.c
+WS3_DRIVER_SRC_FILES += demo_ioctl_test_app/ioctl_test.h
+WS3_DRIVER_SRC_FILES += demo_ioctl_test_app/Makefile
+WS3_DRIVER_SRC_FILES += demo_map_test_app/demo_map_test.c
+WS3_DRIVER_SRC_FILES += demo_map_test_app/demo_map_test.h
+WS3_DRIVER_SRC_FILES += demo_map_test_app/Makefile
+WS3_DRIVER_SRC_FILES += demo_map_test_app/my_altera_avalon_timer_regs.h
+WS3_DRIVER_SRC_FILES += demo_uio_test_app/demo_uio_test.c
+WS3_DRIVER_SRC_FILES += demo_uio_test_app/demo_uio_test.h
+WS3_DRIVER_SRC_FILES += demo_uio_test_app/Makefile
+WS3_DRIVER_SRC_FILES += demo_uio_test_app/my_altera_avalon_timer_regs.h
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_01.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_01t.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_02.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_03.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_04.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_05.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_05t.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_06.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_07.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_08.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_09.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_10.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_11.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_11.h
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module_11t.c
+WS3_DRIVER_SRC_FILES += driver_modules/demo_module.h
+WS3_DRIVER_SRC_FILES += driver_modules/Kbuild
+WS3_DRIVER_SRC_FILES += driver_modules/Makefile
+WS3_DRIVER_SRC_FILES += driver_modules/my_altera_avalon_fifo_regs.h
+WS3_DRIVER_SRC_FILES += driver_modules/my_altera_avalon_timer_regs.h
+WS3_DRIVER_SRC_FILES += driver_modules/my_altera_msgdma_csr_regs.h
+WS3_DRIVER_SRC_FILES += driver_modules/my_altera_msgdma_descriptor_regs.h
+
+WS3-DevelopingDrivers/example_drivers.tgz: linux.build
+	$(RM) $@
+	$(TAR) -czf $@ -C sw_src $(WS3_DRIVER_SRC_FILES)
 
 ################################################
 # Help system
