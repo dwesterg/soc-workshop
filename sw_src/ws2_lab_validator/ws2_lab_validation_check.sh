@@ -177,10 +177,32 @@ strings ws2_lab_validator | grep "TIME=" || {
 	echo 1
 }
 
+#Cleanup 
+cd .. || {
+	echo ""
+	echo "ERROR: while changing directory out of 'ws2_validation_archive'"
+	echo ""
+	echo 1
+}
+
+cp ws2_validation_archive/ws2_validation_info.txt . || {
+	echo ""
+	echo "ERROR: while copying validation information"
+	echo ""
+	echo 1
+}
+
+rm -r ws2_validation_archive || {
+	echo ""
+	echo "ERROR: while removing ws2_validation_archive directory"
+	echo ""
+	echo 1
+}
+
 # echo successfully
 echo ""
 echo "--------------------------------------------------------------------------------"
-echo "  Validation successful.  Verify strings."
+echo "  Validation successful.  Verify kernel build info and strings."
 echo "--------------------------------------------------------------------------------"
 echo ""
 

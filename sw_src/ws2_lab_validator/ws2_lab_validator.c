@@ -19,7 +19,11 @@
 #define PIPE_READ_FD		(0)
 #define PIPE_WRITE_FD		(1)
 
-
+void const *g_preparser_strings[] = {
+        "FILE=" __FILE__,
+        "DATE=" __DATE__,
+        "TIME=" __TIME__
+};
 
 int main(int argc, char * argv[])
 {
@@ -554,23 +558,54 @@ int main(int argc, char * argv[])
 	if (int_result == -1)
 		error_at_line(1, errno, __FILE__, __LINE__, "failed to unlink file");
 
-    
-    
-/*
-      if (umount(FAT_TMP_MOUNT) == -1)
-      {
-	fclose(fout_ptr);
-	error(1, 0, "Failed to unmount FAT file system");
-      }
-    
-
-     if (rmdir(FAT_TMP_MOUNT) == -1)
+	
+	/* Copy WS files to FAT file system. */ 
+        /* Mount FAT file system.  Mount it independent of any user mounts. */
+    if (stat(FAT_TMP_MOUNT, &st) == -1) 
     {
-      error(1, 0, "Failed to remove temporary mount directory");
+      if (mkdir(FAT_TMP_MOUNT, 0700) == -1)
+      {
+	error(1, 0, "Failed to create temporary mount directory");
+	}
     }
-*/
     
-   
+    if (mount(FAT_DEV_NAME, FAT_TMP_MOUNT, "vfat", 0, "") == -1)
+    {
+      error(1, 0, "Failed to mount FAT file system");
+    }
+
+    int_result = snprintf(command_string, MAX_COMMAND_LENGTH, "%s %s %s > /dev/null 2>&1", "cp", "ws2_validation_archive.tar.gz*", FAT_TMP_MOUNT);
+    if (int_result >= MAX_COMMAND_LENGTH)
+      error_at_line(1, 0, __FILE__, __LINE__, "command string truncated");
+
+    int_result = system(command_string);
+    if (int_result == -1)
+      error_at_line(1, 0, __FILE__, __LINE__, "unable to run command");
+
+    if(WIFEXITED(int_result)) {
+      if(WEXITSTATUS(int_result) != 0)
+	error_at_line(1, 0, __FILE__, __LINE__, "command returned nonzero exit status");
+
+      } else {
+	error_at_line(1, 0, __FILE__, __LINE__, "command exited abnormally");
+      }
+		
+
+
+     
+     if (umount(FAT_TMP_MOUNT) == -1)
+     {
+       error(1, 0, "Failed to unmount FAT file system");
+     }
+
+     
+     if (rmdir(FAT_TMP_MOUNT) == -1)
+     {
+      error(1, 0, "Failed to remove temporary mount directory");
+     }
+    
+	printf("Validation Complete\n");
+	printf("Please forward these validation files to prove that you completed the lab work:\n%s\n%s\n", "validation_archive.tar.gz", "validation_archive.tar.gz.sign");   
 
 }
 
