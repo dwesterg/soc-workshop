@@ -76,9 +76,10 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(MKDIR) $(INSTALL_DIR)/examples/fft
 	$(CP) ws1_lab_validator/ws1_lab_validator $(INSTALL_DIR)/examples/fft
 	$(CP) ws1_lab_validator/ws1_lab_validation_check.sh $(INSTALL_DIR)/examples/fft
+	$(MKDIR) $(INSTALL_DIR)/examples/workshop_2
+	$(CP) ws2_lab_validator/ws2_lab_validator $(INSTALL_DIR)/examples/workshop_2
+	$(CP) ws2_lab_validator/ws2_lab_validation_check.sh $(INSTALL_DIR)/examples/workshop_2
 	$(MKDIR) $(INSTALL_DIR)/examples/drivers
-	$(CP) ws2_lab_validator/ws2_lab_validator $(INSTALL_DIR)/examples/drivers
-	$(CP) ws2_lab_validator/ws2_lab_validation_check.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/README.TXT $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/target_test_devmem.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validator $(INSTALL_DIR)/examples/drivers
@@ -128,7 +129,7 @@ ws1_lab_validator:
 	make -C ws1_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
 
 .PHONY: ws2_lab_validator
-ws3_lab_validator:
+ws2_lab_validator:
 	make -C ws2_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
 
 .PHONY: ws3_lab_validator
