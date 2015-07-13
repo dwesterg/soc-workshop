@@ -119,6 +119,8 @@ AR_REGEX += WS3-DevelopingDrivers
 AR_REGEX += CREATE_ALL_SD_CARD_COMPRESSED_IMAGES.sh
 AR_REGEX += create_pre_only_sd_card_images.sh
 AR_REGEX += create_sd_card_images.sh
+AR_REGEX += PREFIX_SD_CARD_IMAGES.sh
+AR_REGEX += create_sd_card_images_sudo.sh
 
 ################################################
 .PHONY: default
