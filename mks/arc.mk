@@ -1,5 +1,5 @@
 SRVR := sj-ice-nx2.altera.com
-ARC_RESOURCES = acds/15.0.1,soceds/15.0.1,git
+ARC_RESOURCES ?= acds/15.0.1,soceds/15.0.1,git
 
 ARC_BUILD_INTERMEDIATE_TARGETS := $(foreach r,$(REVISION_LIST),arc_build-$r)
 #
