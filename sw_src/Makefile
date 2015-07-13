@@ -52,6 +52,7 @@ ifeq ("$(LINUX_BRANCH)","socfpga-3.10-ltsi")
 	SW_SRC_INSTALL_DEPS += acl_module
 	SW_SRC_INSTALL_DEPS += sld_hub_csr_module
 	SW_SRC_INSTALL_DEPS += ws1_lab_validator
+	SW_SRC_INSTALL_DEPS += ws2_lab_validator
 	SW_SRC_INSTALL_DEPS += ws3_lab_validator
 	SW_SRC_INSTALL_DEPS += demo_devmem_app
 	SW_SRC_INSTALL_DEPS += demo_ioctl_test_app
@@ -76,6 +77,8 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(CP) ws1_lab_validator/ws1_lab_validator $(INSTALL_DIR)/examples/fft
 	$(CP) ws1_lab_validator/ws1_lab_validation_check.sh $(INSTALL_DIR)/examples/fft
 	$(MKDIR) $(INSTALL_DIR)/examples/drivers
+	$(CP) ws2_lab_validator/ws2_lab_validator $(INSTALL_DIR)/examples/drivers
+	$(CP) ws2_lab_validator/ws2_lab_validation_check.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/README.TXT $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_target_tests/target_test_devmem.sh $(INSTALL_DIR)/examples/drivers
 	$(CP) ws3_lab_validator/ws3_lab_validator $(INSTALL_DIR)/examples/drivers
@@ -124,6 +127,10 @@ driver_modules:
 ws1_lab_validator:
 	make -C ws1_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
 
+.PHONY: ws2_lab_validator
+ws3_lab_validator:
+	make -C ws2_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
+
 .PHONY: ws3_lab_validator
 ws3_lab_validator:
 	make -C ws3_lab_validator CROSS_COMPILE=$(CROSS_COMPILE)
@@ -153,6 +160,7 @@ clean:
 	make -C sld_hub_csr_module OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
 	make -C driver_modules OUT_DIR=$(CURDIR)/../$(LINUX_BRANCH) clean
 	make -C ws1_lab_validator clean
+	make -C ws2_lab_validator clean
 	make -C ws3_lab_validator clean
 	make -C demo_devmem_app clean
 	make -C demo_ioctl_test_app clean
