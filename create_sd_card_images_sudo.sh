@@ -127,8 +127,8 @@ MY_SD_CARD_IMAGE_1M_BLOCKS="512"
 # These are variables used by the script
 #
 ###############################################################################
-MY_SD_FAT_MNT="$(sudo mktemp --tmpdir=. --directory TMP_SD_FAT_MNT.XXXX)"
-MY_TMP_TAR="$(sudo mktemp --tmpdir=. --directory TMP_TAR.XXXX)"
+MY_SD_FAT_MNT="$(mktemp --tmpdir=. --directory TMP_SD_FAT_MNT.XXXX)"
+MY_TMP_TAR="$(mktemp --tmpdir=. --directory TMP_TAR.XXXX)"
 
 ###############################################################################
 #
@@ -138,25 +138,25 @@ MY_TMP_TAR="$(sudo mktemp --tmpdir=. --directory TMP_TAR.XXXX)"
 
 [ -f "${THE_SD_FAT_TAR_GZ:?must specify --sd_fat argument, see --help for details}" ] || {
 	echo "ERROR: could not locate file '${THE_SD_FAT_TAR_GZ}'"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 [ -n "${DEV_BOARD_TYPE}" ] || {
 	echo "ERROR: valid --board argument required, see --help for details"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 [ -d "${MY_SD_FAT_MNT}" ] || {
 	echo "ERROR: could not locate temp directory '${MY_SD_FAT_MNT}'"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 [ -d "${MY_TMP_TAR}" ] || {
 	echo "ERROR: could not locate temp directory '${MY_TMP_TAR}'"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -186,14 +186,14 @@ echo "'${MY_SD_CARD_IMAGE}'"
 echo "Creating SD card image file filled with 0xFF pattern."
 sudo dd if=/dev/zero bs=1M count=${MY_SD_CARD_IMAGE_1M_BLOCKS} 2> /dev/null | tr '\000' '\377' > ${MY_SD_CARD_IMAGE} || {
 	echo "ERROR"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Attaching SD card image file to loop device."
 MY_LOOP_DEV=$(sudo losetup --show -f ${MY_SD_CARD_IMAGE}) || {
 	echo "ERROR"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -231,14 +231,14 @@ sync
 echo "Detaching SD card image file from loop device."
 sudo losetup -d ${MY_LOOP_DEV} || {
 	echo "ERROR"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Attaching SD card image file to loop device."
 MY_LOOP_DEV=$(sudo losetup --show -f ${MY_SD_CARD_IMAGE}) || {
 	echo "ERROR"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -246,7 +246,7 @@ echo "Probe partitions."
 sudo partprobe "${MY_LOOP_DEV}" || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -254,7 +254,7 @@ echo "Verify loop partition 1 exists."
 [ -b "${MY_LOOP_DEV}p1" ] || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -262,7 +262,7 @@ echo "Verify loop partition 2 exists."
 [ -b "${MY_LOOP_DEV}p2" ] || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -270,7 +270,7 @@ echo "Verify loop partition 3 exists."
 [ -b "${MY_LOOP_DEV}p3" ] || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -278,7 +278,7 @@ echo "Initializing FAT volume in partition 1 of SD card image file."
 sudo mkfs -t vfat -F 32 ${MY_LOOP_DEV}p1 > /dev/null || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -286,16 +286,16 @@ echo "Mounting FAT partition of SD card image file."
 sudo mount ${MY_LOOP_DEV}p1 ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Extracting sd_fat.tar.gz."
-sudo tar -C ${MY_TMP_TAR} -xf ${THE_SD_FAT_TAR_GZ} || {
+tar -C ${MY_TMP_TAR} -xf ${THE_SD_FAT_TAR_GZ} || {
 	echo "ERROR"
 	sudo umount ${MY_SD_FAT_MNT}
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -304,7 +304,7 @@ sudo cp -R ${MY_TMP_TAR}/* ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	sudo umount ${MY_SD_FAT_MNT}
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -313,14 +313,14 @@ echo "Copying preloader image into partition 3 of SD card image file."
 	echo "ERROR: could not locate preloader image file"
 	sudo sudo umount ${MY_SD_FAT_MNT}
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 sudo dd if="${MY_SD_FAT_MNT}/${DEV_BOARD_TYPE}/preloader-mkpimage.bin" of=${MY_LOOP_DEV}p3 2> /dev/null || {
 	echo "ERROR"
 	sudo umount ${MY_SD_FAT_MNT}
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -328,7 +328,7 @@ echo "Unmount the FAT partition."
 sudo umount ${MY_SD_FAT_MNT} || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
@@ -336,26 +336,26 @@ echo "Initializing ext3 volume in partition 2 of SD card image file."
 sudo mkfs -t ext3 ${MY_LOOP_DEV}p2 > /dev/null 2>&1 || {
 	echo "ERROR"
 	sudo losetup -d ${MY_LOOP_DEV}
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Detaching SD card image file from loop device."
 sudo losetup -d ${MY_LOOP_DEV} || { 
 	echo "ERROR"
-	sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
+	rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR}
 	exit 1
 }
 
 echo "Removing temporary working directories."
-sudo rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR} || {
+rm -Rf ${MY_SD_FAT_MNT} ${MY_TMP_TAR} || {
 	echo "ERROR"
 	exit 1
 }
 
 [ "${COMPRESS}" == "1" ] && {
 	echo "Compressing SD card image file."
-	sudo gzip -f "${MY_SD_CARD_IMAGE}" > /dev/null 2>&1 || {
+	gzip -f "${MY_SD_CARD_IMAGE}" > /dev/null 2>&1 || {
 		echo "ERROR"
 		exit 1
 	}
