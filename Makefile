@@ -30,7 +30,8 @@ PROJECT_ASSIGN_SCRIPTS = $(filter scripts/create_ghrd_quartus_%.tcl,$(TCL_SOURCE
 QSYS_ADD_COMP_TCLS := $(sort $(wildcard scripts/qsys_add_*.tcl))
 
 #UBOOT_PATCHES = patches/soc_workshop_uboot_patch.patch patches/soc_workshop_uboot_patch_2.patch
-LINUX_BRANCH ?= socfpga-3.10-ltsi
+#LINUX_BRANCH ?= socfpga-3.10-ltsi
+LINUX_BRANCH ?= socfpga-4.1-ltsi
 UBOOT_PATCHES = $(sort $(wildcard patches/u-boot/*.patch))
 LINUX_PATCHES = $(sort $(wildcard patches/$(LINUX_BRANCH)/*.patch))
 DTS_COMMON = board_info/hps_common_board_info.xml
@@ -70,9 +71,12 @@ PRELOADER_EXTRA_ARGS_CRITICALLINK_MITYSOM_DEVKIT = --set spl.boot.SDRAM_SCRUBBIN
 ARCH := arm
 CROSS_COMPILE := arm-linux-gnueabihf-
 TOOLCHAIN_DIR := $(CURDIR)/toolchain
-TOOLCHAIN_SOURCE := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
-TOOLCHAIN_SOURCE_TAR := gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar
-TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/14.09/components/toolchain/binaries/$(TOOLCHAIN_SOURCE)"
+
+
+TOOLCHAIN_SOURCE := gcc-linaro-5.2-2015.11-2-x86_64_arm-linux-gnueabihf.tar.xz
+TOOLCHAIN_SOURCE_TAR := gcc-linaro-5.2-2015.11-2-x86_64_arm-linux-gnueabihf.tar
+TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/arm-linux-gnueabihf/$(TOOLCHAIN_SOURCE)"
+
 
 # Kernel Config
 LNX_SOURCE_PACKAGE := "https://github.com/altera-opensource/linux-socfpga/tarball/$(LINUX_BRANCH)"
@@ -92,7 +96,9 @@ BUILDROOT_DEFCONFIG := $(wildcard buildroot.defconfig)
 BUSYBOX_CONFIG_FILE := $(wildcard $(CURDIR)/buildroot_busybox.config)
 # NB: IF Buildroot is updated, the busybox-menuconfig stuff needs to be changed with an updated path.
 #BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz"
-BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.11.tar.gz"
+#BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2014.11.tar.gz"
+#BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2015.11.tar.gz"
+BR_SOURCE_PACKAGE := "http://buildroot.uclibc.org/downloads/buildroot-2016.02.tar.gz"
 
 # AR_FILTER_OUT := downloads
 
