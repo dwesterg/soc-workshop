@@ -72,6 +72,20 @@ $(call get_stamp_target,$(LINUX_BRANCH).$(KBUILD_BUILD_VERSION).linux.build): $(
 	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $(LINUX_MAKE_TARGET) 2>&1 | tee logs/$(notdir $@).log
 	$(stamp_target)
 
+HELP_TARGETS += linux.clean
+linux.clean.HELP := Clean linux kernel
+linux.clean: $(LNX_DEPS)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) clean
+	$(RM) zImage*
+	$(stamp_target)
+
+HELP_TARGETS += linux.dtbs
+linux.dtbs.HELP := Make dtbs in kernel source
+linux.dtbs: $(LNX_DEPS)
+	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) dtbs
+	$(RM) zImage*
+	$(stamp_target)
+
 
 # update linux configuration and same defconfig
 HELP_TARGETS += linux.menuconfig

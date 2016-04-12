@@ -51,13 +51,12 @@ fi
 
 echo ---Setting Env variables---
 setenv fdtimage ${soc_board_name}/soc_system.dtb;
-setenv rootfsimage rootfs.img;
 
 setenv bootimage zImage.socfpga-4.1-ltsi
 
 setenv mmcroot /dev/ram;
-setenv mmcload '${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fpgadata} ${rootfsimage}';
-setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} ${fpgadata} ${fdtaddr}';
+setenv mmcload '${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage}';
+setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} - ${fdtaddr}';
 
 echo ---Booting Linux---
 run bridge_enable_handoff;

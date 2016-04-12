@@ -88,7 +88,7 @@ LINUX_DEFCONFIG := $(wildcard linux.defconfig.$(LINUX_BRANCH))
 LINUX_MAKE_TARGET := zImage
 KBUILD_BUILD_VERSION=$(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 #LNX_DEPS = linux.patches linux.dodefconfig toolchain.extract  buildroot.build
-LNX_DEPS = linux.patch linux.dodefconfig toolchain.extract | logs
+LNX_DEPS = linux.patch linux.dodefconfig toolchain.extract rootfs.cpio.gz | logs
 
 # Buildroot Config
 BUILDROOT_DEFCONFIG_TARGET = br_custom_defconfig
