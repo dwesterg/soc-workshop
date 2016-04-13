@@ -28,16 +28,16 @@
 	echo "ERROR"
 	exit 1	
 }
-./create_sd_card_images.sh --compress --sd_fat=$1 --board=CRITICALLINK_MITYSOM_DEVKIT || {
-	echo "ERROR"
-	exit 1	
-}
+# ./create_sd_card_images.sh --compress --sd_fat=$1 --board=CRITICALLINK_MITYSOM_DEVKIT || {
+# 	echo "ERROR"
+# 	exit 1	
+# }
 ./create_sd_card_images.sh --compress --sd_fat=$1 --board=DE0_NANO_SOC || {
 	echo "ERROR"
 	exit 1	
 }
-./create_sd_card_images.sh --compress --sd_fat=$1 --board=MACNICA_HELIO_14 || {
-	echo "ERROR"
-	exit 1	
-}
+# ./create_sd_card_images.sh --compress --sd_fat=$1 --board=MACNICA_HELIO_14 || {
+# 	echo "ERROR"
+# 	exit 1	
+# }
 
