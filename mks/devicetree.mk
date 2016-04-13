@@ -15,17 +15,17 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/overlay
 
 define build_dts_revisions
 
-$(LINUX_BRANCH)/arch/arm/boot/dts/$1.dts: devicetrees/$1.dts
-	$(CP) $< $@
+$(LINUX_BRANCH)/arch/arm/boot/dts/$1.dts: devicetrees/$1.dts linux.dodefconfig
+	$(CP) $$< $$@
 
 $(LINUX_BRANCH)/arch/arm/boot/dts/$1.dtb: $(LINUX_BRANCH)/arch/arm/boot/dts/$1.dts
 	$(MAKE) -C $(LINUX_BRANCH) $(LINUX_VARIABLES) $1.dtb
 	
 $1/soc_system.dtb: $(LINUX_BRANCH)/arch/arm/boot/dts/$1.dtb
-	$(CP) $< $@
+	$(CP) $$< $$@
 	
 $1/soc_system.dts: $1/soc_system.dtb
-	$(DTC) -I dtb -O dts -o $@ $<
+	$(DTC) -I dtb -O dts -o $$@ $$<
 
 endef # build_dts_revisions
 
