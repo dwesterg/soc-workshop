@@ -112,6 +112,7 @@ AR_REGEX += hdl_src
 AR_REGEX += sw_src
 AR_REGEX += utils
 AR_REGEX += overlay_template
+AR_REGEX += devicetrees
 AR_REGEX += downloads
 AR_REGEX += *.defconfig.*
 AR_REGEX += *.config
