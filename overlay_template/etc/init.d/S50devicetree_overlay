@@ -9,7 +9,7 @@ start() {
 	mkdir /config
 	mount -t configfs configfs /config
 	mkdir /config/device-tree/overlays/socwks
-	echo socfpga_cyclone5_socwks_fpga_overlay.dtb > /config/device-tree/overlays/socws/path
+	echo socfpga_cyclone5_socwks_fpga_overlay.dtb > /config/device-tree/overlays/socwks/path
 }
 stop() {
 	echo "********************************************************************"
