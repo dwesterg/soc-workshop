@@ -18,6 +18,7 @@ test -f /etc/udhcpd.conf || exit 0
 case "$1" in
 	start)
 		echo -n "Setting up network / storage gadget"
+		depmod
 		modprobe g_multi file=/dev/mmcblk0p1 cdrom=0 stall=0 removable=1 nofua=1 iSerialNumber=${SERIALNUMBER} iManufacturer=${MANUFACTURER} iProduct=${PRODUCT} host_addr=${DEV_ADDR}
 		sleep 1
 		echo -n "Starting DHCP server: "
