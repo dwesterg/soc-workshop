@@ -13,6 +13,7 @@ HEAD := head
 MKDIR := mkdir -p
 MV := mv
 RM := rm -Rf
+RM_nodirs := rm
 SED := sed
 TAR := tar
 TOUCH := touch

@@ -403,6 +403,15 @@ tgz_scrub_clean:
 	$(MAKE) -s scrub_clean
 	$(TAR) -xzf $(AR_FILE)
 
+HELP_TARGETS += clean_all_sw
+clean_all_sw,HELP := Clean sw build stuff (not uboot), dont touch quartus outputs
+.PHONY: clean_all_sw
+clean_all_sw:
+	$(RM) overlay/ buildroot/ zImage* rootfs.* sd_card.* sd_fat_* $(LINUX_BRANCH)/ toolchain/
+	$(MAKE) -C sw_src clean
+	echo $(RM_nodirs) stamp/overlay.* stamp/$(LINUX_BRANCH).* stamp/toolchain.* stamp/buildroot.*
+
+
 ################################################
 
 
