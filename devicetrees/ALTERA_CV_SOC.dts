@@ -45,15 +45,20 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
-	base_fpga_region: base-fpga-region {
-		compatible = "fpga-region";
-		fpga-mgr = <&fpga_mgr0>;
-		fpga-bridges = <&fpga_bridge0>, <&fpga_bridge1>;
-
-		#address-cells = <0x1>;
-		#size-cells = <0x1>;
-		ranges = <0 0xff200000 0x100000>,
-			 <1 0xc0000000 0x20000000>;
+	soc {
+	
+		base_fpga_region: base-fpga-region {
+			compatible = "fpga-region";
+			fpga-mgr = <&fpga_mgr0>;
+			fpga-bridges = <&fpga_bridge0>, <&fpga_bridge1>,
+					<&fpga_bridge2>, <&fpga_bridge3>;
+	
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			ranges = <0 0xff200000 0x100000>,
+				 <1 0xc0000000 0x20000000>;
+		};
+		
 	};
 
 };
