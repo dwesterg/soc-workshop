@@ -11,7 +11,7 @@ endif
 endif
 
 define run_qsys_script
-$(call get_stamp_target,$1.$(notdir $2)): $$(QSYS_GEN_STAMP_$1)
+$(call get_stamp_target_hw,$1.$(notdir $2)): $$(QSYS_GEN_STAMP_$1)
 	qsys-script --system-file=$$(QSYS_FILE_$1) --script=$2  2>&1 | tee logs/$$(notdir $$@).log
 	$$(stamp_target)
 endef
