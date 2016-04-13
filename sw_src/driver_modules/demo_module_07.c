@@ -1039,7 +1039,7 @@ interval_store(struct device_driver *driver, const char *buf, size_t count)
 	return count;
 }
 
-DRIVER_ATTR(interval, (S_IWUGO | S_IRUGO), interval_show, interval_store);
+DRIVER_ATTR(interval, (S_IWUSR|S_IWGRP|S_IRUGO), interval_show, interval_store);
 
 static ssize_t irq_delays_show(struct device_driver *driver, char *buf)
 {

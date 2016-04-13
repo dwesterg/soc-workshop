@@ -556,10 +556,10 @@ static ssize_t entropy_state_store(struct device_driver *driver,
 
 	result = kstrtoul(buf, 0, &value);
 	if(result != 0) {
-		if(strnicmp(buf, "start", strlen("start")) == 0) {
+		if(strncasecmp(buf, "start", strlen("start")) == 0) {
 			value = 1;
 		} else {
-			if(strnicmp(buf, "stop", strlen("stop")) == 0) {
+			if(strncasecmp(buf, "stop", strlen("stop")) == 0) {
 				value = 0;
 			} else {
 				up(&g_driver_mutex);
@@ -604,7 +604,7 @@ static ssize_t entropy_state_store(struct device_driver *driver,
 	return(count);
 }
 
-DRIVER_ATTR(entropy_state, (S_IRUGO|S_IWUGO), entropy_state_show, 
+DRIVER_ATTR(entropy_state, (S_IRUGO|S_IWUSR|S_IWGRP), entropy_state_show, 
 		entropy_state_store);
 
 static ssize_t transaction_counter_show(struct device_driver *driver,
@@ -670,7 +670,7 @@ static ssize_t transaction_counter_store(struct device_driver *driver,
 
 	result = kstrtoul(buf, 0, &value);
 	if(result != 0) {
-		if(strnicmp(buf, "reset", strlen("reset")) == 0) {
+		if(strncasecmp(buf, "reset", strlen("reset")) == 0) {
 			value = 1;
 		} else {
 			up(&g_driver_mutex);
@@ -714,7 +714,7 @@ static ssize_t transaction_counter_store(struct device_driver *driver,
 	return(count);
 }
 
-DRIVER_ATTR(transaction_counter, (S_IRUGO|S_IWUGO), transaction_counter_show, 
+DRIVER_ATTR(transaction_counter, (S_IRUGO|S_IWUSR|S_IWGRP), transaction_counter_show, 
 		transaction_counter_store);
 
 static struct driver_attribute *driver_attribute_array[2] = {

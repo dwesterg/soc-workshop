@@ -47,7 +47,8 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 
 #	SW_SRC_INSTALL_DEPS := mmlink
 #	SW_SRC_INSTALL_DEPS += msgdma_memtest
-#	SW_SRC_INSTALL_DEPS += validator_module
+	SW_SRC_INSTALL_DEPS += validator_module
+	SW_SRC_INSTALL_DEPS += validator_devmem
 	SW_SRC_INSTALL_DEPS += acl_module
 #	SW_SRC_INSTALL_DEPS += sld_hub_csr_module
 	SW_SRC_INSTALL_DEPS += ws1_lab_validator
@@ -57,7 +58,7 @@ LINUX_VARIABLES += INSTALL_MOD_PATH=$(CURDIR)/../overlay
 	SW_SRC_INSTALL_DEPS += demo_ioctl_test_app
 	SW_SRC_INSTALL_DEPS += demo_map_test_app
 	SW_SRC_INSTALL_DEPS += demo_uio_test_app
-#	SW_SRC_INSTALL_DEPS += driver_modules
+	SW_SRC_INSTALL_DEPS += driver_modules
 
 .PHONY: all
 all: install
@@ -67,7 +68,7 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(MKDIR) $(INSTALL_DIR)/usr/bin
 #	$(CP) mmlink/mmlink $(INSTALL_DIR)/usr/bin
 #	$(CP) msgdma_user_space/memtest $(INSTALL_DIR)/examples
-#	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
+	$(CP) validator_devmem_app/validator_devmem $(INSTALL_DIR)/examples/validator
 	$(MKDIR) $(INSTALL_DIR)/examples/fft
 	$(CP) ws1_lab_validator/ws1_lab_validator $(INSTALL_DIR)/examples/fft
 	$(CP) ws1_lab_validator/ws1_lab_validation_check.sh $(INSTALL_DIR)/examples/fft
@@ -84,9 +85,9 @@ install: $(SW_SRC_INSTALL_DEPS)
 	$(CP) demo_map_test_app/demo_map_test $(INSTALL_DIR)/examples/drivers
 	$(CP) demo_uio_test_app/demo_uio_test $(INSTALL_DIR)/examples/drivers
 #	make -C sld_hub_csr_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
-#	make -C validator_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+	make -C validator_module OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
 	make -C acl OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
-#	make -C driver_modules OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
+	make -C driver_modules OUT_DIR=../../$(LINUX_BRANCH) $(LINUX_VARIABLES) modules_install
 
 .PHONY: mmlink
 mmlink: 

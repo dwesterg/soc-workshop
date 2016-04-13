@@ -44,7 +44,7 @@ static ssize_t target_store(struct device_driver *driver, const char *buf,
 	return count;
 }
 
-DRIVER_ATTR(target, (S_IWUGO | S_IRUGO), target_show, target_store);
+DRIVER_ATTR(target, (S_IWUSR|S_IWGRP|S_IRUGO), target_show, target_store);
 
 static ssize_t increment_show(struct device_driver *driver, char *buf)
 {
