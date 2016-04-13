@@ -11,7 +11,7 @@ endif
 
 ################################################################################
 # buildroot
-BR_DEPS = buildroot.dodefconfig overlay.make_install toolchain.extract
+BR_DEPS = buildroot.dodefconfig overlay.make_install toolchain.extract overlay/lib/firmware/socfpga_cyclone5_socwks_fpga_overlay.dtb
 
 #Download buildroot source
 .PHONY:	buildroot.get

@@ -19,6 +19,7 @@ TOUCH := touch
 WHICH := which
 XZ := xz
 MKIMAGE := mkimage
+DTC := dtc
 
 # Preloader 
 

@@ -1,0 +1,95 @@
+From ce28c1e735cab6ff94d1ed9a5a8c6a72688ce116 Mon Sep 17 00:00:00 2001
+From: Dalon Westergreen <dwesterg@gmail.com>
+Date: Tue, 12 Apr 2016 20:19:01 -0700
+Subject: [PATCH 3/3] clean up bridges and base region
+
+---
+ arch/arm/boot/dts/socfpga.dtsi               | 28 +++++++++++++++-------------
+ arch/arm/boot/dts/socfpga_cyclone5_socdk.dts | 11 +++++++++++
+ 2 files changed, 26 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
+index 24b0289..0d5f6ca 100644
+--- a/arch/arm/boot/dts/socfpga.dtsi
++++ b/arch/arm/boot/dts/socfpga.dtsi
+@@ -92,16 +92,6 @@
+ 			};
+ 		};
+ 
+-		base_fpga_region {
+-			compatible = "fpga-region";
+-			fpga-mgr = <&fpgamgr0>;
+-			fpga-bridges = <&fpga_bridge0>, <&fpga_bridge1>;
+-
+-			#address-cells = <0x1>;
+-			#size-cells = <0x1>;
+-			ranges = <0 0xff200000 0x100000>;
+-		};
+-
+ 		can0: can@ffc00000 {
+ 			compatible = "bosch,d_can";
+ 			reg = <0xffc00000 0x1000>;
+@@ -493,7 +483,7 @@
+ 				};
+ 			};
+ 
+-		fpga_bridge0: fpga_bridge@ff400000 {
++		fpga_bridge0: fpga-bridge@ff400000 {
+ 			compatible = "altr,socfpga-lwhps2fpga-bridge";
+ 			reg = <0xff400000 0x100000>;
+ 			resets = <&rst LWHPS2FPGA_RESET>;
+@@ -501,7 +491,7 @@
+ 			clocks = <&l4_main_clk>;
+ 		};
+ 
+-		fpga_bridge1: fpga_bridge@ff500000 {
++		fpga_bridge1: fpga-bridge@ff500000 {
+ 			compatible = "altr,socfpga-hps2fpga-bridge";
+ 			reg = <0xff500000 0x10000>;
+ 			resets = <&rst HPS2FPGA_RESET>;
+@@ -509,7 +499,19 @@
+ 			clocks = <&l4_main_clk>;
+ 		};
+ 
+-		fpgamgr0: fpgamgr@ff706000 {
++		fpga_bridge2: fpga-bridge@ff600000 {
++			compatible = "altr,socfpga-fpga2hps-bridge";
++			reg = <0xff600000 0x100000>;
++			resets = <&rst FPGA2HPS_RESET>;
++			reset-names = "fpga2hps";
++			clocks = <&l4_main_clk>;
++		};
++
++		fpga_bridge3: fpga2sdram-bridge {
++			compatible = "altr,socfpga-fpga2sdram-bridge";
++		};		
++		
++		fpga_mgr0: fpga-mgr@ff706000 {
+ 			compatible = "altr,socfpga-fpga-mgr";
+ 			reg = <0xff706000 0x1000
+ 			       0xffb90000 0x1000>;
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+index 7f7fa4f..6f83e1d 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+@@ -45,6 +45,17 @@
+ 		regulator-max-microvolt = <3300000>;
+ 	};
+ 
++	base_fpga_region: base-fpga-region {
++		compatible = "fpga-region";
++		fpga-mgr = <&fpga_mgr>;
++		fpga-bridges = <&fpga_bridge0>, <&fpga_bridge1>;
++
++		#address-cells = <0x1>;
++		#size-cells = <0x1>;
++		ranges = <0 0xff200000 0x100000>,
++			 <1 0xc0000000 0x20000000>;
++	};
++
+ 	leds {
+ 		compatible = "gpio-leds";
+ 		hps0 {
+-- 
+2.5.5
+
