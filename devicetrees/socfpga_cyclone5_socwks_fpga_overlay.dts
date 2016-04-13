@@ -18,7 +18,7 @@
 / {
 	
 	fragment@0 {
-		target-path = "/soc/base_fpga_region";
+		target-path = "/soc/base-fpga-region";
 		
 		#address-cells = <2>;
 		#size-cells = <1>;
