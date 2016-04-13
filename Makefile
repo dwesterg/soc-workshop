@@ -318,6 +318,7 @@ compile_all_projects.HELP := Compile all quartus projects
 SD_FAT_TGZ := sd_fat.$(KBUILD_BUILD_VERSION).tar.gz
 
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(ALL_DEPS_$r))
+SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),$(DEVICE_TREE_SOURCE_$r) $(DEVICE_TREE_BLOB_$r))
 SD_FAT_TGZ_DEPS += zImage.$(LINUX_BRANCH)
 SD_FAT_TGZ_DEPS += rootfs.img
 SD_FAT_TGZ_DEPS += boot.script u-boot.scr
