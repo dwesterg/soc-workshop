@@ -154,8 +154,8 @@ PRELOADER_STAMP_$1 := $(call get_stamp_target_hw,$1.preloader)
 
 UBOOT_STAMP_$1 := $(call get_stamp_target_hw,$1.uboot)
 
-DTS_STAMP_$1 := $(call get_stamp_target_hw,$1.dts)
-DTB_STAMP_$1 := $(call get_stamp_target_hw,$1.dtb)
+DTS_STAMP_$1 := $(call get_stamp_target,$1.dts)
+DTB_STAMP_$1 := $(call get_stamp_target,$1.dtb)
 
 QSYS_STAMP_$1 := $(call get_stamp_target_hw,$1.qsys_compile)
 QSYS_GEN_STAMP_$1 := $(call get_stamp_target_hw,$1.qsys_gen)
@@ -220,12 +220,12 @@ AR_FILES += $1/preloader-mkpimage.bin
 #AR_FILES += $1/boot.script $1/u-boot.scr
 
 ALL_DEPS_$1 += $$(QUARTUS_RBF_$1) $$(QUARTUS_SOF_$1) $$(QUARTUS_JDI_$1)
-ALL_DEPS_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
 ALL_DEPS_$1 += $1/u-boot.img $1/preloader-mkpimage.bin
 ALL_DEPS_$1 += $$(QUARTUS_JDI_$1) $$(QSYS_SOPCINFO_$1) $$(QSYS_FILE_$1)
 ALL_DEPS_$1 += $1/hps_isw_handoff $1/$1.qpf $1/$1.qsf
 
 SD_FAT_$1 += $$(ALL_DEPS_$1)
+SD_FAT_$1 += $$(DEVICE_TREE_SOURCE_$1) $$(DEVICE_TREE_BLOB_$1)
 SD_FAT_$1 += boot.script u-boot.scr
 SD_FAT_$1 += hdl_src
 SD_FAT_$1 += board_info
