@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+
+
+start() {
+	echo "********************************************************************"
+	echo "Applying SoC Workshop Devicetree overlay"
+	echo "********************************************************************"
+	mkdir /config
+	mount -t configfs configfs /config
+	mkdir /config/device-tree/overlays/socwks
+	echo socfpga_cyclone5_socwks_fpga_overlay.dtb > /config/device-tree/overlays/socws/path
+}
+stop() {
+	echo "********************************************************************"
+	echo "Removing SoC Workshop Devicetree overlay"
+	echo "********************************************************************"
+	rmdir /config/device-tree/overlays/socwks
+}
+restart() {
+        stop
+        start
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        restart
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
