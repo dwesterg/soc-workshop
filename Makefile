@@ -142,28 +142,28 @@ all: sd-fat
 # DEPS
                                                                           
 define create_deps
-CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target,$1.create_project)
+CREATE_PROJECT_STAMP_$1 := $(call get_stamp_target_hw,$1.create_project)
 
 CREATE_PROJECT_DEPS_$1 := scripts/create_ghrd_quartus_$1.tcl | logs
 
-QUARTUS_STAMP_$1 := $(call get_stamp_target,$1.quartus)
+QUARTUS_STAMP_$1 := $(call get_stamp_target_hw,$1.quartus)
 
-PRELOADER_GEN_STAMP_$1 := $(call get_stamp_target,$1.preloader_gen)
-PRELOADER_FIXUP_STAMP_$1 := $(call get_stamp_target,$1.preloader_fixup)
-PRELOADER_STAMP_$1 := $(call get_stamp_target,$1.preloader)
+PRELOADER_GEN_STAMP_$1 := $(call get_stamp_target_hw,$1.preloader_gen)
+PRELOADER_FIXUP_STAMP_$1 := $(call get_stamp_target_hw,$1.preloader_fixup)
+PRELOADER_STAMP_$1 := $(call get_stamp_target_hw,$1.preloader)
 
-UBOOT_STAMP_$1 := $(call get_stamp_target,$1.uboot)
+UBOOT_STAMP_$1 := $(call get_stamp_target_hw,$1.uboot)
 
-DTS_STAMP_$1 := $(call get_stamp_target,$1.dts)
-DTB_STAMP_$1 := $(call get_stamp_target,$1.dtb)
+DTS_STAMP_$1 := $(call get_stamp_target_hw,$1.dts)
+DTB_STAMP_$1 := $(call get_stamp_target_hw,$1.dtb)
 
-QSYS_STAMP_$1 := $(call get_stamp_target,$1.qsys_compile)
-QSYS_GEN_STAMP_$1 := $(call get_stamp_target,$1.qsys_gen)
-QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target,$1.qsys_add_all_comp)
-#QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$t))
-QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target,$1.$(notdir $t)))
+QSYS_STAMP_$1 := $(call get_stamp_target_hw,$1.qsys_compile)
+QSYS_GEN_STAMP_$1 := $(call get_stamp_target_hw,$1.qsys_gen)
+QSYS_ADD_ALL_COMP_STAMP_$1 := $(call get_stamp_target_hw,$1.qsys_add_all_comp)
+#QSYS_ADD_COMP_STAMP_$1 := $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target_hw,$1.$t))
+QSYS_RUN_ADD_COMPS_$1 = $(foreach t,$(QSYS_ADD_COMP_TCLS),$(call get_stamp_target_hw,$1.$(notdir $t)))
 
-QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target,$1.quartus_pin_assignments)
+QSYS_PIN_ASSIGNMENTS_STAMP_$1 := $$(call get_stamp_target_hw,$1.quartus_pin_assignments)
 
 QUARTUS_DEPS_$1 += $$(QUARTUS_PROJECT_STAMP_$1) $(QUARTUS_HDL_SOURCE) $(QUARTUS_MISC_SOURCE)
 QUARTUS_DEPS_$1 += $$(CREATE_PROJECT_STAMP_$1)
@@ -306,10 +306,10 @@ create_all_qsys: $(foreach r,$(REVISION_LIST),qsys_generate_qsys-$r)
 HELP_TARGETS += create_all_qsys                                                                              
 create_all_qsys.HELP := Create all qsys files
 
-#.PHONY: compile_all_projects
-#compile_all_projects: $(foreach r,$(REVISION_LIST),quartus_compile-$r)  
-#HELP_TARGETS += compile_all_projects
-#compile_all_projects.HELP := Compile all quartus projects
+.PHONY: compile_all_projects
+compile_all_projects: $(foreach r,$(REVISION_LIST),$r.all)  
+HELP_TARGETS += compile_all_projects
+compile_all_projects.HELP := Compile all quartus projects
 
 ################################################
 
@@ -409,7 +409,7 @@ clean_all_sw,HELP := Clean sw build stuff (not uboot), dont touch quartus output
 clean_all_sw:
 	$(RM) overlay/ buildroot/ zImage* rootfs.* sd_card.* sd_fat_* $(LINUX_BRANCH)/ toolchain/
 	$(MAKE) -C sw_src clean
-	echo $(RM_nodirs) stamp/overlay.* stamp/$(LINUX_BRANCH).* stamp/toolchain.* stamp/buildroot.*
+	echo $(RM) stamp/
 
 
 ################################################

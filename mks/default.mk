@@ -75,6 +75,14 @@ define get_stamp_target
 $(get_stamp_dir)$(if $1,/$1.stamp,$(error ERROR: Arg 1 missing to $0 function))
 endef
 
+define get_stamp_dir_hw
+stamp_hw
+endef
+
+define get_stamp_target_hw
+$(get_stamp_dir_hw)$(if $1,/$1.stamp,$(error ERROR: Arg 1 missing to $0 function))
+endef
+
 define stamp_target
 @$(MKDIR) $(@D)
 @$(TOUCH) $@
