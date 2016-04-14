@@ -39,10 +39,10 @@
 // demo driver hardware
 //
 #define DEMO_DRIVER_PHYS_BASE	(0xFF230000)
-#define DEMO_DRIVER_SYSFS_ENTRY_DIR "/sys/bus/platform/devices/soc:base-fpga-region:driver@0x000030000"
-#define DEMO_DRIVER_PROCFS_ENTRY_DIR "/proc/device-tree/soc/base-fpga-region/driver@0x000030000"
+#define DEMO_DRIVER_SYSFS_ENTRY_DIR "/sys/bus/platform/devices/soc:base-fpga-region/ff230000.driver"
+#define DEMO_DRIVER_PROCFS_ENTRY_DIR "/proc/device-tree/soc/base-fpga-region/driver@0x100030000"
 #define DEMO_DRIVER_FREQ	(50000000)
-#define DEMO_DRIVER_CLOCKS_ENTRY "/proc/device-tree/soc/base-fpga-region/driver@0x000030000/clocks"
+#define DEMO_DRIVER_CLOCKS_ENTRY "/proc/device-tree/soc/base-fpga-region/driver@0x100030000/clocks"
 #define H2F_USER1_CLOCK_PHANDLE_ENTRY "/proc/device-tree/soc/base-fpga-region/clk_0/linux,phandle"
 //
 // expected values for the physical base addresses of the memcpy_msgdma core
@@ -50,10 +50,10 @@
 #define MEMCPY_MSGDMA_CSR_PHYS_BASE (0xFF220000)
 #define MEMCPY_MSGDMA_DESC_PHYS_BASE (0xFF220020)
 #define MEMCPY_MSGDMA_DESC_PHYS_OFST (MEMCPY_MSGDMA_DESC_PHYS_BASE - MEMCPY_MSGDMA_CSR_PHYS_BASE)
-#define MEMCPY_MSGDMA_REG_NAMES_ENTRY "/proc/device-tree/soc/base-fpga-region/msgdma@0x000020000/reg-names"
+#define MEMCPY_MSGDMA_REG_NAMES_ENTRY "/proc/device-tree/soc/base-fpga-region/msgdma@0x100020000/reg-names"
 #define MEMCPY_MSGDMA_REG_NAMES_VALUE { 0x63, 0x73, 0x72, 0x00, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x6f, 0x72, 0x5f, 0x73, 0x6c, 0x61, 0x76, 0x65, 0x00 }
-#define MEMCPY_MSGDMA_REG_ENTRY "/proc/device-tree/soc/base-fpga-region/msgdma@0x000020000/reg"
-#define MEMCPY_MSGDMA_REG_VALUE { 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x20, 0x00, 0x00, 0x00, 0x10 }
+#define MEMCPY_MSGDMA_REG_ENTRY "/proc/device-tree/soc/base-fpga-region/msgdma@0x100020000/reg"
+#define MEMCPY_MSGDMA_REG_VALUE { 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x20, 0x00, 0x00, 0x00, 0x10 }
 
 //
 // demo driver hardware map
