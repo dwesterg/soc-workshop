@@ -422,7 +422,7 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {F2S_Width} {3}
     set_instance_parameter_value hps_0 {S2F_Width} {2}
     set_instance_parameter_value hps_0 {LWH2F_Enable} {true}
-    set_instance_parameter_value hps_0 {F2SDRAM_Type} {Avalon-MM\ Write-Only}
+	set_instance_parameter_value hps_0 {F2SDRAM_Type} {Avalon-MM\ Bidirectional}
     set_instance_parameter_value hps_0 {F2SDRAM_Width} {256}
     set_instance_parameter_value hps_0 {BONDING_OUT_ENABLED} {0}
     set_instance_parameter_value hps_0 {S2FCLK_COLDRST_Enable} {0}
@@ -504,5 +504,6 @@ proc add_hps {} {
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C0_CLK} {100}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C1_CLK} {100}
     set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C2_CLK} {100}
-    set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C3_CLK} {100}}
+    set_instance_parameter_value hps_0 {FPGA_PERIPHERAL_OUTPUT_CLOCK_FREQ_I2C3_CLK} {100}
+}
 
