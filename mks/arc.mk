@@ -31,3 +31,4 @@ $(foreach r,$(REVISION_LIST),$(eval $(call arc_build_sync_project,$r)))
 .PHONY: arc_build_sync
 arc_build_sync:
 	$(MAKE) $(ARC_SYNC_TARGETS)
+	rsync -e 'ssh -q' -avzP --delete $(SRVR):$(CURDIR)/stamp_hw/ $(CURDIR)/stamp_hw/
