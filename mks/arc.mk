@@ -17,7 +17,17 @@ endef
 
 $(foreach r,$(REVISION_LIST),$(eval $(call arc_build_project,$r)))
 
+ARC_SYNC_TARGETS := $(foreach r,$(REVISION_LIST),arc_sync-$r)
+
+define arc_build_sync_project
+.PHONY: arc_sync-$1
+arc_sync-$1:
+	rsync -e 'ssh -q' -avzP --delete --include=preloader/uboot-socfpga/u-boot.img --exclude=db --exclude=incremental_db --exclude=preloader/uboot-socfpga/* $$(SRVR):$$(CURDIR)/$1/ $$(CURDIR)/$1/
+
+endef
+
+$(foreach r,$(REVISION_LIST),$(eval $(call arc_build_sync_project,$r)))
+
 .PHONY: arc_build_sync
 arc_build_sync:
-	rsync -e 'ssh -q' -avzP --delete --include=*/preloader/uboot-socfpga/u-boot.img --exclude=*/db --exclude=*/incremental_db --exclude=*/preloader/uboot-socfpga/* $(SRVR):$(CURDIR)/ $(CURDIR)/
-
+	$(MAKE) $(ARC_SYNC_TARGETS)
