@@ -49,10 +49,10 @@
 			fpga-bridges = <&fpga_bridge0>, <&fpga_bridge1>,
 					<&fpga_bridge2>, <&fpga_bridge3>;
 	
-			#address-cells = <0x1>;
+			#address-cells = <0x2>;
 			#size-cells = <0x1>;
-			ranges = <0 0xff200000 0x100000>,
-				 <1 0xc0000000 0x20000000>;
+			ranges = <0x00000000 0x00000000 0xc0000000 0x20000000>,
+				<0x00000001 0x00000000 0xff200000 0x00200000>;
 		};
 		
 	};

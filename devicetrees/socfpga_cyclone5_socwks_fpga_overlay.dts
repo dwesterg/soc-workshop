@@ -38,83 +38,83 @@
 				clock-frequency = <50000000>;
 			}; 			
 			
-			sysid_qsys: sysid@0x000001000 {
+			sysid_qsys: sysid@0x100001000 {
 				compatible = "altr,sysid-16.0", "altr,sysid-1.0";
-				reg = <0x00000000 0x00001000 0x00000008>;
+				reg = <0x00000001 0x00001000 0x00000008>;
 				clocks = <&clk_0>;
 				id = <2899645442>;	/* embeddedsw.dts.params.id type NUMBER */
 				timestamp = <1460474164>;	/* embeddedsw.dts.params.timestamp type NUMBER */
 			};
 			
-			validator_subsys_0: validator@0x000010000 {
+			validator_subsys_0: validator@0x100010000 {
 				compatible = "demo,validator-1.0", "demo,validator-1.0";
-				reg = <0x00000000 0x00010000 0x00000400>;
+				reg = <0x00000001 0x00010000 0x00000400>;
 				clocks = <&clk_0>;
 			};
 			
-			demo_driver_subsys_0: driver@0x000030000 {
+			demo_driver_subsys_0: driver@0x100030000 {
 				compatible = "demo,driver-1.0", "demo,driver-1.0";
-				reg = <0x00000000 0x00030000 0x00001000>;
+				reg = <0x00000001 0x00030000 0x00001000>;
 				interrupts = <0 48 4>;
 				clocks = <&clk_0>;
 			}; 
 			
-			fft_sub_sgdma_from_fft: msgdma@0x0000a0000 {
+			fft_sub_sgdma_from_fft: msgdma@0x1000a0000 {
 				compatible = "altr,msgdma-16.0", "altr,msgdma-1.0";
-				reg = <0x00000000 0x000a0000 0x00000020>,
-					<0x00000000 0x000b0000 0x00000010>;
+				reg = <0x00000001 0x000a0000 0x00000020>,
+					<0x00000001 0x000b0000 0x00000010>;
 				reg-names = "csr", "descriptor_slave";
 				interrupts = <0 43 4>;
 				clocks = <&fft_sub_clk_0>;
 			};
 
-			fft_sub_sgdma_to_fft: msgdma@0x000080000 {
+			fft_sub_sgdma_to_fft: msgdma@0x100080000 {
 				compatible = "altr,msgdma-16.0", "altr,msgdma-1.0";
-				reg = <0x00000000 0x00080000 0x00000020>,
-					<0x00000000 0x00090000 0x00000010>;
+				reg = <0x00000001 0x00080000 0x00000020>,
+					<0x00000001 0x00090000 0x00000010>;
 				reg-names = "csr", "descriptor_slave";
 				interrupts = <0 44 4>;
 				clocks = <&fft_sub_clk_0>;
 			}; 
 
-			fft_sub_FFT_STadapter_0: fft_stadapter@0x0000d0000 {
+			fft_sub_FFT_STadapter_0: fft_stadapter@0x1000d0000 {
 				compatible = "altr,fft_stadapter-1.1", "altr,fft_stadapter";
-				reg = <0x00000000 0x000d0000 0x00000010>;
+				reg = <0x00000001 0x000d0000 0x00000010>;
 				clocks = <&fft_sub_clk_0>;
 			}; 			
 			
-			memcpy_msgdma: msgdma@0x000020000 {
+			memcpy_msgdma: msgdma@0x100020000 {
 				compatible = "demo,memcpy_msgdma";	/* appended from boardinfo */
-				reg = <0x00000000 0x00020000 0x00000020>,
-					<0x00000000 0x00020020 0x00000010>;
+				reg = <0x00000001 0x00020000 0x00000020>,
+					<0x00000001 0x00020020 0x00000010>;
 				reg-names = "csr", "descriptor_slave";
 				interrupts = <0 47 4>;
 				clocks = <&clk_0>;
 			}; 	
 			
-			fifo_0: fifo@0x000040020 {
+			fifo_0: fifo@0x100040020 {
 				compatible = "ALTR,fifo-16.0", "ALTR,fifo-1.0";
-				reg = <0x00000000 0x00040020 0x00000004>,
-					<0x00000000 0x00040030 0x00000004>,
-					<0x00000000 0x00040000 0x00000020>;
+				reg = <0x00000001 0x00040020 0x00000004>,
+					<0x00000001 0x00040030 0x00000004>,
+					<0x00000001 0x00040000 0x00000020>;
 				reg-names = "in", "out", "in_csr";
 				clocks = <&clk_0>;
 			}; 
 
-			fifo_1: fifo@0x000044020 {
+			fifo_1: fifo@0x100044020 {
 				compatible = "ALTR,fifo-16.0", "ALTR,fifo-1.0";
-				reg = <0x00000000 0x00044020 0x00000004>,
-					<0x00000000 0x00044030 0x00000004>,
-					<0x00000000 0x00044000 0x00000020>;
+				reg = <0x00000001 0x00044020 0x00000004>,
+					<0x00000001 0x00044030 0x00000004>,
+					<0x00000001 0x00044000 0x00000020>;
 				reg-names = "in", "out", "in_csr";
 				clocks = <&clk_0>;
 			}; 
 
-			fifo_2: fifo@0x000048020 {
+			fifo_2: fifo@0x100048020 {
 				compatible = "ALTR,fifo-16.0", "ALTR,fifo-1.0";
-				reg = <0x00000000 0x00048020 0x00000004>,
-					<0x00000000 0x00048030 0x00000004>,
-					<0x00000000 0x00048000 0x00000020>;
+				reg = <0x00000001 0x00048020 0x00000004>,
+					<0x00000001 0x00048030 0x00000004>,
+					<0x00000001 0x00048000 0x00000020>;
 				reg-names = "in", "out", "in_csr";
 				clocks = <&clk_0>;
 			}; 			
