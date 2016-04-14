@@ -35,7 +35,7 @@
 //
 // sysfs path to our device and other properties
 //
-#define DEMO_DRIVER_DEV_SYSFS_ENTRY_DIR "/sys/devices/platform/soc/soc\:base-fpga-region/ff230000.driver"
+#define DEMO_DRIVER_DEV_SYSFS_ENTRY_DIR "/sys/devices/platform/soc/soc:base-fpga-region/ff230000.driver"
 #define UIO_NAME "demo_uio"
 #define UIO_VERSION "1.0"
 #define UIO_MAP_NAME "demo_uio_driver_hw_region"
