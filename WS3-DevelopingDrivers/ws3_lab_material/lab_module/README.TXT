@@ -25,11 +25,13 @@ NOTE: the <path-to> text above refers to the absolute path to the installation
 --------------------------------------------------------------------------------
 CREATE KBUILD FILE
 
-Create a file named 'Kbuild' with this one line in it:
+Create a file named 'Kbuild' with these two lines in it:
+ccflags-y := "-Wno-date-time"
 obj-m  := lab_module.o
 
-You could run this command to create this in a bash shell:
-echo -e "obj-m  := lab_module.o" > Kbuild
+You could run these commands to create this in a bash shell:
+echo -e "ccflags-y := \"-Wno-date-time\"" > Kbuild
+echo -e "obj-m  := lab_module.o" >> Kbuild
 
 --------------------------------------------------------------------------------
 CREATE MAKEFILE
