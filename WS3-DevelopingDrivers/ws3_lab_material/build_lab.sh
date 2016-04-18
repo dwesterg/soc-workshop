@@ -36,6 +36,7 @@ BUILD_DIR="lab_module"
 pushd "${BUILD_DIR}" > /dev/null
 
 cat <<EOF > Kbuild
+ccflags-y := "-Wno-date-time"
 obj-m  := lab_module.o
 EOF
 
