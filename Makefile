@@ -232,6 +232,8 @@ SD_FAT_$1 += board_info
 SD_FAT_$1 += ip
 SD_FAT_$1 += WS1-IntroToSoC
 SD_FAT_$1 += WS2-IntroToLinux
+SD_FAT_$1 += WS2-IntroToLinux/rootfs.cpio.gz
+SD_FAT_$1 += WS2-IntroToLinux/devicetrees/$1.dts
 SD_FAT_$1 += WS3-DevelopingDrivers
 SD_FAT_$1 += WS3-DevelopingDrivers/ws3_lab_environment.src
 SD_FAT_$1 += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
@@ -332,6 +334,8 @@ SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/example_drivers.tgz
+SD_FAT_TGZ_DEPS += WS2-IntroToLinux/rootfs.cpio.gz
+SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),WS2-IntroToLinux/devicetrees/$r.dts)
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
 	@$(RM) $@
@@ -462,6 +466,19 @@ disable_signaltap:
 
 ################################################
 # WorkShop outputs
+
+WS2_OUTPUT_DEPS += WS2-IntroToLinux/rootfs.cpio.gz
+WS2_OUTPUT_DEPS += $(foreach r,$(REVISION_LIST),WS2-IntroToLinux/devicetrees/$r.dts)
+
+WS2-IntroToLinux/devicetrees/%.dts: devicetrees/%.dts
+	$(MKDIR) WS2-IntroToLinux/devicetrees
+	$(CP) $< $@
+
+WS2-IntroToLinux/rootfs.cpio.gz: rootfs.cpio.gz
+	$(CP) $< $@
+
+.PHONE: ws2_output
+ws2_output: $(WS2_OUTPUT_DEPS)
 
 WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
