@@ -52,12 +52,14 @@
 				#clock-cells = <0>;
 							   
 				clk_0: clk_0 {
+					#clock-cells = <0>;
 					compatible = "fixed-clock";	
 					clock-frequency = <50000000>;
 					clock-output-names = "clk_0-clk";
 				};
 				
 				fft_sub_clk_0: fft_sub_clk_0 {
+					#clock-cells = <0>;
 					compatible = "fixed-clock";
 					clock-frequency = <50000000>;
 					clock-output-names = "fft_sub_clk_0-clk";
