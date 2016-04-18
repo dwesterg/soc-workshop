@@ -39,7 +39,7 @@ $(foreach p,$(LINUX_PATCHES),$(eval $(call do_patch_lnx,$p)))
 
 # apply defconfig
 .PHONY: linux.dodefconfig
-linux.dodefconfig: $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET)
+linux.dodefconfig: $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET) toolchain.extract
 
 $(LINUX_BRANCH)/arch/$(ARCH)/configs/$(LINUX_DEFCONFIG_TARGET): linux.extract linux.patch $(LINUX_DEFCONFIG)
 ifneq ("$(LINUX_DEFCONFIG)","")

@@ -26,17 +26,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 			
-			external-fpga-config;
-					
-			clk_0: clk_0 {
-				compatible = "fixed-clock";	
-				clock-frequency = <50000000>;
-			};
-			
-			fft_sub_clk_0: fft_sub_clk_0 {
-				compatible = "fixed-clock";
-				clock-frequency = <50000000>;
-			}; 			
+			external-fpga-config;			
 			
 			sysid_qsys: sysid@0x100001000 {
 				compatible = "altr,sysid-16.0", "altr,sysid-1.0";
