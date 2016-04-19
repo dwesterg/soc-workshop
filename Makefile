@@ -79,7 +79,10 @@ TOOLCHAIN_SOURCE_PACKAGE := "http://releases.linaro.org/components/toolchain/bin
 
 
 # Kernel Config
-LNX_SOURCE_PACKAGE := "https://github.com/altera-opensource/linux-socfpga/tarball/$(LINUX_BRANCH)"
+# This corresponds to socfpga-4.1-ltsi
+REPO_HASH := "c816eac2b585ced0418ae9d11565825b9489e0c6"
+LNX_SOURCE_PACKAGE := "https://github.com/altera-opensource/linux-socfpga/tarball/$(REPO_HASH)"
+#LNX_SOURCE_PACKAGE := "https://github.com/altera-opensource/linux-socfpga/tarball/$(LINUX_BRANCH)"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/$(LINUX_BRANCH);sf=tgz"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.10-ltsi;sf=tgz"
 #LNX_SOURCE_PACKAGE := "http://rocketboards.org/gitweb/?p=linux-socfpga.git;a=snapshot;h=refs/heads/socfpga-3.17;sf=tgz"
@@ -248,7 +251,7 @@ $1.all.HELP := Build Quartus / preloader / uboot / devicetree / boot scripts for
 HELP_TARGETS += sd_fat_$1.tar.gz
 sd_fat_$1.tar.gz.HELP := Tar of SDCard's FAT filesystem contents for $1
 
-sd_fat_$1.tar.gz: $$(SD_FAT_$1) rootfs.img zImage.$(LINUX_BRANCH)
+sd_fat_$1.tar.gz: $$(SD_FAT_$1) zImage.$(LINUX_BRANCH)
 	$(RM) $@
 	$(TAR) -czf $$@ $$^ zImage.*
 
@@ -334,7 +337,10 @@ SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/example_drivers.tgz
+SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/patches.tgz
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux/rootfs.cpio.gz
+SD_FAT_TGZ_DEPS += WS2-IntroToLinux/patches.tgz
+SD_FAT_TGZ_DEPS += WS2-IntroToLinux/ws2_lab_environment.src
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),WS2-IntroToLinux/devicetrees/$r.dts)
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
@@ -469,6 +475,8 @@ disable_signaltap:
 
 WS2_OUTPUT_DEPS += WS2-IntroToLinux/rootfs.cpio.gz
 WS2_OUTPUT_DEPS += $(foreach r,$(REVISION_LIST),WS2-IntroToLinux/devicetrees/$r.dts)
+WS2_OUTPUT_DEPS += WS2-IntroToLinux/ws2_lab_environment.src
+WS2_OUTPUT_DEPS += WS2-IntroToLinux/patches.tgz
 
 WS2-IntroToLinux/devicetrees/%.dts: devicetrees/%.dts
 	$(MKDIR) WS2-IntroToLinux/devicetrees
@@ -477,12 +485,26 @@ WS2-IntroToLinux/devicetrees/%.dts: devicetrees/%.dts
 WS2-IntroToLinux/rootfs.cpio.gz: rootfs.cpio.gz
 	$(CP) $< $@
 
+WS2-IntroToLinux/ws2_lab_environment.src: linux.build
+	$(ECHO) "TOOLCHAIN_SOURCE=$(TOOLCHAIN_SOURCE)" > $@
+	$(ECHO) "TOOLCHAIN_SOURCE_TAR=$(TOOLCHAIN_SOURCE_TAR)" >> $@
+	$(ECHO) "TOOLCHAIN_SOURCE_PACKAGE=$(TOOLCHAIN_SOURCE_PACKAGE)" >> $@
+	$(ECHO) "KBUILD_BUILD_VERSION=\"$(KBUILD_BUILD_VERSION)\"" >> $@
+	$(ECHO) "LINUX_BRANCH=$(LINUX_BRANCH)" >> $@
+	$(ECHO) "LINUX_DEFCONFIG_TARGET=$(LINUX_DEFCONFIG_TARGET)" >> $@
+	$(ECHO) "LINUX_DEFCONFIG=$(LINUX_DEFCONFIG)" >> $@
+	$(ECHO) "LNX_SOURCE_PACKAGE=$(LNX_SOURCE_PACKAGE)" >> $@
+
+WS2-IntroToLinux/patches.tgz: patches/$(LINUX_BRANCH)/*.patch
+	$(TAR) -czvf $@ $<
+
 .PHONE: ws2_output
 ws2_output: $(WS2_OUTPUT_DEPS)
 
 WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/ws3_lab_environment.src
 WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
 WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/example_drivers.tgz
+WS3_OUTPUT_DEPS += WS3-DevelopingDrivers/patches.tgz
 
 .PHONY: ws3_output
 ws3_output: $(WS3_OUTPUT_DEPS)
@@ -499,6 +521,9 @@ WS3-DevelopingDrivers/ws3_lab_environment.src: linux.build
 
 WS3-DevelopingDrivers/$(LINUX_DEFCONFIG): linux.build
 	$(CP) $(LINUX_DEFCONFIG) WS3-DevelopingDrivers/$(LINUX_DEFCONFIG)
+
+WS3-DevelopingDrivers/patches.tgz: patches/$(LINUX_BRANCH)/*.patch
+	$(TAR) -czvf $@ $<
 
 WS3_DRIVER_SRC_FILES += demo_devmem_app/demo_devmem.c
 WS3_DRIVER_SRC_FILES += demo_devmem_app/demo_devmem.h
