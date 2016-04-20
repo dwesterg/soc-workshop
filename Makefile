@@ -341,6 +341,7 @@ SD_FAT_TGZ_DEPS += WS3-DevelopingDrivers/patches.tgz
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux/rootfs.cpio.gz
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux/patches.tgz
 SD_FAT_TGZ_DEPS += WS2-IntroToLinux/ws2_lab_environment.src
+SD_FAT_TGZ_DEPS += WS2-IntroToLinux/$(LINUX_DEFCONFIG)
 SD_FAT_TGZ_DEPS += $(foreach r,$(REVISION_LIST),WS2-IntroToLinux/devicetrees/$r.dts)
 
 $(SD_FAT_TGZ): $(SD_FAT_TGZ_DEPS)
@@ -497,6 +498,9 @@ WS2-IntroToLinux/ws2_lab_environment.src: linux.build
 
 WS2-IntroToLinux/patches.tgz: patches/$(LINUX_BRANCH)/*.patch
 	$(TAR) -czvf $@ $<
+
+WS2-IntroToLinux/$(LINUX_DEFCONFIG): linux.build
+	$(CP) $(LINUX_DEFCONFIG) $@
 
 .PHONE: ws2_output
 ws2_output: $(WS2_OUTPUT_DEPS)
