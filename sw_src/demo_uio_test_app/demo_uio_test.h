@@ -41,7 +41,7 @@
 #define UIO_MAP_NAME "demo_uio_driver_hw_region"
 #define UIO_MAP_ADDR "0xff230000"
 #define UIO_MAP_OFFSET "0x0"
-#define UIO_MAP_SIZE "0x1000"
+#define UIO_MAP_SIZE "0x00001000"
 
 //
 // buffer allocation size constants
