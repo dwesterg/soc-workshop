@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <sys/mount.h>
 
-#define EXPECTED_KERNEL_VERSION "3.10.31-ltsi"
+#define EXPECTED_KERNEL_VERSION "4.1.17-ltsi"
 #define VALIDATOR_INFO_FILE "ws2_validation_info.txt"
 #define FAT_TMP_MOUNT "/tmp/ws2_tmpdir"
 #define FAT_DEV_NAME "/dev/mmcblk0p1"
