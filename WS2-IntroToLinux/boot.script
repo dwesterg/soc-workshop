@@ -9,10 +9,9 @@ run bridge_enable_handoff;
 
 echo -- Setting Env Variables --
 setenv fdtimage soc_system.dtb;
-setenv rootfsimage rootfs.img;
 setenv mmcroot /dev/ram;
-setenv mmcload 'mmc rescan;${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage};${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage}; ${mmcloadcmd} mmc 0:${mmcloadpart} ${fpgadata} ${rootfsimage}';
-setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} ${fpgadata} ${fdtaddr}';
+setenv mmcload 'mmc rescan;${mmcloadcmd} mmc 0:${mmcloadpart} ${loadaddr} ${bootimage};${mmcloadcmd} mmc 0:${mmcloadpart} ${fdtaddr} ${fdtimage};
+setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} - ${fdtaddr}';
 
 run mmcload;
 run mmcboot;
