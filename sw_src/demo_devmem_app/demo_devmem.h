@@ -43,7 +43,7 @@
 #define DEMO_DRIVER_PROCFS_ENTRY_DIR "/proc/device-tree/soc/base-fpga-region/driver@0x100030000"
 #define DEMO_DRIVER_FREQ	(50000000)
 #define DEMO_DRIVER_CLOCKS_ENTRY "/proc/device-tree/soc/base-fpga-region/driver@0x100030000/clocks"
-#define H2F_USER1_CLOCK_PHANDLE_ENTRY "/proc/device-tree/soc/base-fpga-region/clk_0/linux,phandle"
+#define H2F_USER1_CLOCK_PHANDLE_ENTRY "/proc/device-tree/soc/clkmgr@ffd04000/clocks/clk_0/linux,phandle"
 //
 // expected values for the physical base addresses of the memcpy_msgdma core
 //
