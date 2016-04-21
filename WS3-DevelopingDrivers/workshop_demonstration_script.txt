@@ -258,7 +258,7 @@ cat /proc/iomem | grep "demo"
 # demo_module_05t.ko is a test module that we force to reserve the same
 # resources that demo_module_05.ko has already reserved.  We can see which of
 # those actions fail and which of those actions succeed.
-modprobe demo_module_05t base=0xff230000 irq=80
+modprobe demo_module_05t base=0xff230000 irq=42
 # observe printk
 # request_mem_region failed
 # ioremap succeeded
@@ -538,13 +538,13 @@ rmmod demo_module_10
 #------------------------------------------------------------------------------
 # demo_module_11.ko
 #------------------------------------------------------------------------------
-insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11t.ko
+insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11t.ko
 # observe module insert fails
 
-insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11.ko
+insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11.ko
 # insert module
 
-insmod /lib/modules/3.10.31-ltsi/extra/demo_module_11t.ko
+insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11t.ko
 # insert module
 
 find /sys -name "*demo*"
