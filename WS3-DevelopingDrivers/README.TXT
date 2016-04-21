@@ -33,7 +33,7 @@ directory:
 my_lab_directory/
 ├── download		: toolchain and kernel packages are downloaded here
 ├── setup_env.src	: setup script created by installation script for you
-├── socfpga-3.10-ltsi	: kernel is extracted and configured in this directory
+├── socfpga-4.1-ltsi	: kernel is extracted and configured in this directory
 ├── toolchain		: toolchain is extracted into this directory
 └── ws3_lab_material	: the lab materials that you will work with
 
