@@ -1,0 +1,634 @@
+#!/usr/bin/expect -f
+
+#spawn screen /dev/ttyUSB0 115200,cs8,-ixon,-ixoff,-istrip
+#spawn screen /dev/ttyACM0 115200,cs8,-ixon,-ixoff,-istrip
+
+proc waitForExpectedString { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for string:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		"${inString}"
+	}
+}
+
+proc waitForExpectedRE { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for RE:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		-re "${inString}"
+	}
+}
+
+set timeout 2
+
+if {[catch {system test -e /dev/ttyUSB0}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 does not exist\n"
+	send_user "This may indicate that the USB SERIAL cable is not connected to the target.\n"
+	send_user "\n"
+	exit 1
+}
+
+if {[catch {system test -e /dev/ttyACM0}]} {
+	send_user "\n"
+	send_user "/dev/ttyACM0 does not exist\n"
+	send_user "This may indicate that the USB OTG cable is not connected to the target.\n"
+	send_user "\n"
+	exit 1
+}
+
+if {[catch {system stty -F /dev/ttyUSB0 > /dev/null}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 is not ready\n"
+	send_user "If you have recently rebooted the target this may take a few seconds to resolve.\n"
+	send_user "Or you may have another terminal session already connected to this tty.\n"
+	send_user "\n"
+	exit 1
+}
+
+if {[catch {system stty -F /dev/ttyACM0 > /dev/null}]} {
+	send_user "\n"
+	send_user "/dev/ttyACM0 is not ready\n"
+	send_user "If you have recently rebooted the target this may take a few seconds to resolve.\n"
+	send_user "Or you may have another terminal session already connected to this tty.\n"
+	send_user "\n"
+	exit 1
+}
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget mass storage Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /etc/init.d/S70usbgadget | grep \"mmc\"\n"}
+}
+
+waitForExpectedString "\t\tmodprobe g_multi file=/dev/mmcblk0p1 cdrom=0 stall=0 removable=1 nofua=1 iSerialNumber=\${SERIALNUMBER} iManufacturer=\${MANUFACTURER} iProduct=\${PRODUCT} host_addr=\${DEV_ADDR}\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/devices/platform/soc/ffb40000.usb/gadget/lun0/file\n"}
+}
+
+waitForExpectedString "/dev/mmcblk0p1\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "blkid /dev/mmcblk0p1\n"}
+}
+
+set UUID ""
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	-re "/dev/mmcblk0p1: UUID=\"\(\\S+\)\"" {
+		if {[string length $expect_out(1,string)]} {
+			set UUID "$expect_out(1,string)"
+		} else {
+			send_user "\n\nFound NO UUID\n\n"
+			exit 1
+		}
+	}
+}
+
+send_user "\n\nFound UUID '${UUID}' on target for /dev/mmcblk0p1.\n\n"
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n\nOpening host communication...\n\n"
+
+spawn /bin/sh
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "lsblk -l -o NAME,UUID | grep \"${UUID}\"\n"}
+}
+
+set LOCAL_DEV ""
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	-re "\(\\S+\)\\s+${UUID}" {
+		if {[string length $expect_out(1,string)]} {
+			set LOCAL_DEV "$expect_out(1,string)"
+		} else {
+			send_user "\n\nFound NO local device with UUID '${LOCAL_DEV}'\n\n"
+			exit 1
+		}
+	}
+}
+
+send_user "\nFound local device '${LOCAL_DEV}' with UUID '${UUID}'\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "lsblk -o NAME,FSTYPE,SIZE /dev/${LOCAL_DEV}\n"}
+}
+
+waitForExpectedRE "${LOCAL_DEV}\\s+vfat\\s+256M\\r"
+
+send_user "\nLocal device appears to be correct type and size.\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "ls -l /sys/block/ | grep \"${LOCAL_DEV}\"\n"}
+}
+
+waitForExpectedRE ".*\\s+${LOCAL_DEV} -> \\S+/${LOCAL_DEV}\\r"
+
+send_user "\nLocal device appears in /sys/block/.\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "ls -l /sys/class/block/ | grep \"${LOCAL_DEV}\"\n"}
+}
+
+waitForExpectedRE ".*\\s+${LOCAL_DEV} -> \\S+/${LOCAL_DEV}\\r"
+
+send_user "\nLocal device appears in /sys/class/block/.\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "echo \$(ls /dev/${LOCAL_DEV})\n"}
+}
+
+waitForExpectedString "/dev/${LOCAL_DEV}\r"
+
+send_user "\nLocal device appears in /dev.\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "cat /proc/partitions | grep \"${LOCAL_DEV}\"\n"}
+}
+
+waitForExpectedRE ".*\\s+${LOCAL_DEV}\\r"
+
+send_user "\nLocal device appears in /proc/partitions.\n\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed host communication...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget mass storage Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget networking Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /etc/init.d/S70usbgadget | grep \"ifconfig\"\n"}
+}
+
+waitForExpectedString "\t\t/sbin/ifconfig usb0 hw ether \${DEV_ADDR}\r"
+waitForExpectedString "\t\t/sbin/ifconfig usb0 192.168.7.1 netmask 255.255.255.0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /etc/init.d/S70usbgadget | grep \"start-stop-daemon\"\n"}
+}
+
+waitForExpectedString "\t\tstart-stop-daemon -S -x /usr/sbin/udhcpd -S /etc/udhcpd.conf\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "ifconfig usb0\n"}
+}
+
+waitForExpectedString "usb0      Link encap:Ethernet  HWaddr 00:07:ED:01:02:03  \r"
+waitForExpectedString "          inet addr:192.168.7.1  Bcast:192.168.7.255  Mask:255.255.255.0\r"
+waitForExpectedString "          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n\nOpening host communication...\n\n"
+
+spawn /bin/sh
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "ls -l /sys/class/net/ | grep \"usb\"\n"}
+}
+
+set LOCAL_IF ""
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	-re ".*\\s+\(\\S+\) -> \\S+" {
+		if {[string length $expect_out(1,string)]} {
+			set LOCAL_IF "$expect_out(1,string)"
+		} else {
+			send_user "\n\nFound NO local inteface for USB\n\n"
+			exit 1
+		}
+	}
+}
+
+send_user "\n\nFound local interface '${LOCAL_IF}' for USB\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "ifconfig ${LOCAL_IF}\n"}
+}
+
+waitForExpectedRE "${LOCAL_IF}:\\s+flags=\\S+"
+waitForExpectedString "        inet 192.168.7.9  netmask 255.255.255.0  broadcast 192.168.7.255\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "ping -c 4 192.168.7.1\n"}
+}
+
+waitForExpectedString "PING 192.168.7.1 (192.168.7.1) 56(84) bytes of data.\r"
+waitForExpectedRE "64 bytes from 192.168.7.1: icmp_seq=1 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.1: icmp_seq=2 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.1: icmp_seq=3 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.1: icmp_seq=4 ttl=64 time=\[0-9\\.\]* ms\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed host communication...\n\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "ping -c 4 192.168.7.9\n"}
+}
+
+waitForExpectedString "PING 192.168.7.9 (192.168.7.9) 56(84) bytes of data.\r"
+waitForExpectedRE "64 bytes from 192.168.7.9: icmp_seq=1 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.9: icmp_seq=2 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.9: icmp_seq=3 ttl=64 time=\[0-9\\.\]* ms\\r"
+waitForExpectedRE "64 bytes from 192.168.7.9: icmp_seq=4 ttl=64 time=\[0-9\\.\]* ms\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget networking Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget serial Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /root\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+cat <<EOF > start_getty_for_acm.sh
+#!/bin/sh
+
+# this script will continuously start a getty session and bind it to the USB
+# gadget serial interface device providing the ACM connection to the host.  The
+# local device for the USB gadget serial interface is /dev/ttyGS0.
+
+while \[ true \]
+do
+        getty -L -n -l /bin/sh 115200 /dev/ttyGS0 vt100
+done
+EOF
+"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"EOF\r"
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "chmod +x start_getty_for_acm.sh\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./start_getty_for_acm.sh &\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n\nOpening target communication via ttyACM0...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyACM0
+
+spawn -open [open /dev/ttyACM0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /root\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\cat start_getty_for_acm.sh\n"}
+}
+
+waitForExpectedString "#!/bin/sh\r"
+waitForExpectedString "\n"
+waitForExpectedString "# this script will continuously start a getty session and bind it to the USB\r"
+waitForExpectedString "# gadget serial interface device providing the ACM connection to the host.  The\r"
+waitForExpectedString "# local device for the USB gadget serial interface is /dev/ttyGS0.\r"
+waitForExpectedString "\n"
+waitForExpectedRE "while \\\[ true \\\]\\r"
+waitForExpectedString "do\r"
+waitForExpectedString "        getty -L -n -l /bin/sh 115200 /dev/ttyGS0 vt100\r"
+waitForExpectedString "done\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication via ttyACM0...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| USB gadget serial Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| ssh Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening target communication via ssh...\n\n"
+
+spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@192.168.7.1
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"password: " {send "password\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /root\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\cat start_getty_for_acm.sh\n"}
+}
+
+waitForExpectedString "#!/bin/sh\r"
+waitForExpectedString "\n"
+waitForExpectedString "# this script will continuously start a getty session and bind it to the USB\r"
+waitForExpectedString "# gadget serial interface device providing the ACM connection to the host.  The\r"
+waitForExpectedString "# local device for the USB gadget serial interface is /dev/ttyGS0.\r"
+waitForExpectedString "\n"
+waitForExpectedRE "while \\\[ true \\\]\\r"
+waitForExpectedString "do\r"
+waitForExpectedString "        getty -L -n -l /bin/sh 115200 /dev/ttyGS0 vt100\r"
+waitForExpectedString "done\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "exit\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	eof	{send_user "ssh session closed as expected\n"}
+}
+
+send_user "\n\nClosed target communication via ssh...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| ssh Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+spawn /bin/sh
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@192.168.7.1:/root/start_getty_for_acm.sh .\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"password: " {send "password\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "md5sum start_getty_for_acm.sh\n"}
+}
+
+waitForExpectedString "3420b4d442f6b9ea8bc2f2765e40d67f  start_getty_for_acm.sh\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "rm start_getty_for_acm.sh\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| scp Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| scp Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| eth0 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /sys -name \"eth0\"\n"}
+}
+
+waitForExpectedString "/sys/devices/platform/soc/ff702000.ethernet/net/eth0\r"
+waitForExpectedString "/sys/class/net/eth0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "ifconfig eth0\n"}
+}
+
+waitForExpectedRE "eth0\\s+Link encap:Ethernet\\s+HWaddr 00:07:ED:\[0-9A-F\]{2}:\[0-9A-F\]{2}:\[0-9A-F\]{2}\\s*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| eth0 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| www Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening host communication...\n\n"
+
+spawn /bin/sh
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "wget 192.168.7.1\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "md5sum index.html\n"}
+}
+
+waitForExpectedString "82f444a7ecaaf0c2b456bac7a4d5fbd1  index.html\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "rm index.html\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "\n"}
+}
+
+close
+wait
+
+send_user "\n\nClosed host communication...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| www Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+exit 1
+

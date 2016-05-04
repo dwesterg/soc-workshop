@@ -1,0 +1,226 @@
+#!/usr/bin/expect -f
+
+#spawn screen /dev/ttyUSB0 115200,cs8,-ixon,-ixoff,-istrip
+#spawn screen /dev/ttyACM0 115200,cs8,-ixon,-ixoff,-istrip
+
+proc waitForExpectedString { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for string:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		"${inString}"
+	}
+}
+
+proc waitForExpectedRE { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for RE:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		-re "${inString}"
+	}
+}
+
+if {[catch {system test -e /dev/ttyUSB0}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 does not exist\n"
+	send_user "This may indicate that the USB SERIAL cable is not connected to the target.\n"
+	send_user "\n"
+	exit 1
+}
+
+if {[catch {system stty -F /dev/ttyUSB0 > /dev/null}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 is not ready\n"
+	send_user "If you have recently rebooted the target this may take a few seconds to resolve.\n"
+	send_user "Or you may have another terminal session already connected to this tty.\n"
+	send_user "\n"
+	exit 1
+}
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| system-console Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n\nOpening host communication...\n\n"
+
+spawn /bin/sh
+
+set timeout 20
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "jtagconfig\n"}
+}
+
+waitForExpectedString "DE-SoC"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "system-console -cli\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"% " {send "source fft.tcl\n"}
+}
+
+set timeout 2
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"% " {send "fft_wave 0\n"}
+}
+
+waitForExpectedString "No busy SGDMAs as expected...\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"% " {send "fft_wave 1\n"}
+}
+
+waitForExpectedString "No busy SGDMAs as expected...\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"% " {send "fft_wave 2\n"}
+}
+
+waitForExpectedString "No busy SGDMAs as expected...\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"% " {send "\003"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "md5sum *.bin\n"}
+}
+
+waitForExpectedString "f82d6f9f9dbb64139fb3aebd63b5088e  post_data_0.bin\r"
+waitForExpectedString "6fd93a5bdedd7c54c42ce7bbaf52f819  post_data_1.bin\r"
+waitForExpectedString "db201862353e693d5547830b4130195b  post_data_2.bin\r"
+waitForExpectedString "b64c71d74bb96f083e4f4f9b2ff90702  post_result_0.bin\r"
+waitForExpectedString "5b01554601484704bae64ef95f26cf4a  post_result_1.bin\r"
+waitForExpectedString "8aaf017bdb0f3a4a9c73ed35fa9daf09  post_result_2.bin\r"
+waitForExpectedString "f82d6f9f9dbb64139fb3aebd63b5088e  pre_data_0.bin\r"
+waitForExpectedString "6fd93a5bdedd7c54c42ce7bbaf52f819  pre_data_1.bin\r"
+waitForExpectedString "db201862353e693d5547830b4130195b  pre_data_2.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_0.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_1.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_2.bin\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fft.sh post_data_0.bin post_data_1.bin post_data_2.bin post_result_0.bin post_result_1.bin post_result_2.bin pre_data_0.bin pre_data_1.bin pre_data_2.bin pre_result_0.bin pre_result_1.bin pre_result_2.bin root@192.168.7.1:/root/\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"password: " {send "password\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ " {send "rm *.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"$ "
+}
+
+close
+wait
+
+send_user "\n\nClosed host communication...\n\n"
+
+send_user "\n\nOpening target communication...\n\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /root\n"}
+}
+
+set timeout 20
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "sh fft.sh\n"}
+}
+
+waitForExpectedString "f82d6f9f9dbb64139fb3aebd63b5088e  post_data_0.bin\r"
+waitForExpectedString "6fd93a5bdedd7c54c42ce7bbaf52f819  post_data_1.bin\r"
+waitForExpectedString "db201862353e693d5547830b4130195b  post_data_2.bin\r"
+waitForExpectedString "b64c71d74bb96f083e4f4f9b2ff90702  post_result_0.bin\r"
+waitForExpectedString "5b01554601484704bae64ef95f26cf4a  post_result_1.bin\r"
+waitForExpectedString "8aaf017bdb0f3a4a9c73ed35fa9daf09  post_result_2.bin\r"
+waitForExpectedString "f82d6f9f9dbb64139fb3aebd63b5088e  pre_data_0.bin\r"
+waitForExpectedString "6fd93a5bdedd7c54c42ce7bbaf52f819  pre_data_1.bin\r"
+waitForExpectedString "db201862353e693d5547830b4130195b  pre_data_2.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_0.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_1.bin\r"
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  pre_result_2.bin\r"
+waitForExpectedString "39654b6178b01f60ade08c2b88f5ba2e  post_data_0.hex\r"
+waitForExpectedString "c9b73cf5e4e96062eb158e82244e7882  post_data_1.hex\r"
+waitForExpectedString "801b03f11f903a1831b4dfc41f403512  post_data_2.hex\r"
+waitForExpectedString "a32a5c1bc8ed66c16bbd3ef438059a11  post_result_0.hex\r"
+waitForExpectedString "873d55e69665343a26c2c0884048c7bc  post_result_1.hex\r"
+waitForExpectedString "7cae95ae2810886e405c95a0f37b7f56  post_result_2.hex\r"
+waitForExpectedString "39654b6178b01f60ade08c2b88f5ba2e  pre_data_0.hex\r"
+waitForExpectedString "c9b73cf5e4e96062eb158e82244e7882  pre_data_1.hex\r"
+waitForExpectedString "801b03f11f903a1831b4dfc41f403512  pre_data_2.hex\r"
+waitForExpectedString "b9488ab456a77450518a29fdc3432da9  pre_result_0.hex\r"
+waitForExpectedString "b9488ab456a77450518a29fdc3432da9  pre_result_1.hex\r"
+waitForExpectedString "b9488ab456a77450518a29fdc3432da9  pre_result_2.hex\r"
+waitForExpectedString "fill FFT input buffer\r"
+waitForExpectedString "clear FFT result buffer\r"
+waitForExpectedString "read FFT result buffer\r"
+waitForExpectedString "fill FFT input buffer\r"
+waitForExpectedString "clear FFT result buffer\r"
+waitForExpectedString "read FFT result buffer\r"
+waitForExpectedString "fill FFT input buffer\r"
+waitForExpectedString "clear FFT result buffer\r"
+waitForExpectedString "read FFT result buffer\r"
+waitForExpectedString "a32a5c1bc8ed66c16bbd3ef438059a11  post_result_0.hex.out\r"
+waitForExpectedString "873d55e69665343a26c2c0884048c7bc  post_result_1.hex.out\r"
+waitForExpectedString "7cae95ae2810886e405c95a0f37b7f56  post_result_2.hex.out\r"
+waitForExpectedString "FFT target test complete...\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# "
+}
+
+close
+wait
+
+send_user "\n\nClosed target communication...\n\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| system-console Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+exit 1
+

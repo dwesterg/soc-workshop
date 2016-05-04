@@ -1,0 +1,33 @@
+target_tests
+├── drivers_target_test.exp
+├── fft.sh
+├── fft_target_test.exp
+├── fft.tcl
+├── general_target_test.exp
+└── reboot_target.exp
+
+This directory contains a number of target test 'expect' scripts.  These are run
+on the host machine that is connected to the target with the USB serial cable,
+USB OTG cable and USB Blaster II JTAG cable.
+
+reboot_target.exp
+	This script will connect to the target over the USB serial interface and
+	issue the 'reboot' command, and then wait for the target to reach the
+	linux login prompt.
+
+general_target_test.exp
+	This script will connect to the target over the USB serial interface and
+	the USB OTG interface an test various aspect of the target and host
+	environment.
+
+fft_target_test.exp
+	This script will connect to the target over the USB Blaster II interface
+	and the USB serial interface to test the FFT peripherals in the FPGA
+	which are used by the WS1 lab material.  This test uses the fft.tcl and
+	fft.sh scripts during it's execution.
+
+drivers_target_test.exp
+	This script will connect to the target over the USB OTG interface using
+	the emulated network interface with an SSH connection.  It then tests
+	the functionality required by the WS3 demonstration script.
+

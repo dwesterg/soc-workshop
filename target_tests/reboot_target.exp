@@ -1,0 +1,82 @@
+#!/usr/bin/expect -f
+
+#spawn screen /dev/ttyUSB0 115200,cs8,-ixon,-ixoff,-istrip
+#spawn screen /dev/ttyACM0 115200,cs8,-ixon,-ixoff,-istrip
+
+proc waitForExpectedString { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for string:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		"${inString}"
+	}
+}
+
+proc waitForExpectedRE { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for RE:\n"
+			send_user "${inString}\n"
+			exit 1
+		}
+		-re "${inString}"
+	}
+}
+
+if {[catch {system test -e /dev/ttyUSB0}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 does not exist\n"
+	send_user "This may indicate that the USB SERIAL cable is not connected to the target.\n"
+	send_user "\n"
+	exit 1
+}
+
+if {[catch {system stty -F /dev/ttyUSB0 > /dev/null}]} {
+	send_user "\n"
+	send_user "/dev/ttyUSB0 is not ready\n"
+	send_user "If you have recently rebooted the target this may take a few seconds to resolve.\n"
+	send_user "Or you may have another terminal session already connected to this tty.\n"
+	send_user "\n"
+	exit 1
+}
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target reboot.\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+stty 115200 cs8 -parenb -cstopb raw < /dev/ttyUSB0
+
+spawn -open [open /dev/ttyUSB0 w+]
+
+send "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "reboot\n"}
+}
+
+set timeout 30
+
+waitForExpectedString "reboot: Restarting system"
+waitForExpectedString "U-Boot SPL"
+waitForExpectedString "U-Boot"
+waitForExpectedString "Starting kernel ..."
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# "
+}
+
+close
+wait
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target has reboot.\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+exit 1
+

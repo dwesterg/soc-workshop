@@ -1,0 +1,1625 @@
+#!/usr/bin/expect -f
+
+proc waitForExpectedString { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for string:\n"
+			send_user "$inString\n"
+			exit 1
+		}
+		"$inString"
+	}
+}
+
+proc waitForExpectedRE { inString } {
+	expect {
+		timeout {
+			send_user "TIMEOUT ERROR\n"
+			send_user "Waiting for RE:\n"
+			send_user "$inString\n"
+			exit 1
+		}
+		-re "$inString"
+	}
+}
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@192.168.7.1
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"root@192.168.7.1's password:" {send "password\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /examples/drivers\n"}
+}
+
+set timeout 2
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_devmem Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -h\n"}
+}
+
+waitForExpectedString "\n"
+waitForExpectedString "Only one of the following options may be passed in per invocation:\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "Print the timer statistics out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -s, --stop-timer\r"
+waitForExpectedString "Stop the timer.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "Dump the binary ROM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "Dump the binary RAM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "Write stdin to the RAM contents.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -d, --dma-rom-ram\r"
+waitForExpectedString "dma the ROM contents to the RAM contents.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "Display this help message.\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedRE "Usage: driver_devmem \\\[ONE-OPTION-ONLY\\\]\\r"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "  -s, --stop-timer\r"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "  -d, --dma-rom-ram\r"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -s\n"}
+}
+
+waitForExpectedRE "\[Stopping timer.|Timer not currently running.\]\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -t\n"}
+}
+
+waitForExpectedString "Timer not currently running, initializing and starting timer.\r"
+waitForExpectedRE "  status = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE " control = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "period_l = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "period_h = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "  snap_l = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "  snap_h = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "timer snapshot\\\[0\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "timer snapshot\\\[1\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "timer snapshot\\\[2\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "timer snapshot\\\[3\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "difference between snapshots \\\[0\\\] and \\\[1\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "difference between snapshots \\\[1\\\] and \\\[2\\\] = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "difference between snapshots \\\[2\\\] and \\\[3\\\] = 0x\[0-9A-F\]{8}\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -o | md5sum\n"}
+}
+
+waitForExpectedString "240fac46892f9f075200bdca43e4ce1a  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -a | md5sum\n"}
+}
+
+waitForExpectedString "527bb73ec24ad037c40e943158a77229  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -a > ram_data.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero | ./demo_devmem -f\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -a | md5sum\n"}
+}
+
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -d\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -a | md5sum\n"}
+}
+
+waitForExpectedString "240fac46892f9f075200bdca43e4ce1a  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat ram_data.bin | ./demo_devmem -f\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -a | md5sum\n"}
+}
+
+waitForExpectedString "527bb73ec24ad037c40e943158a77229  -\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_devmem Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_01 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/sys/kernel/tainted\n"}
+}
+
+waitForExpectedString "0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod\n"}
+}
+
+waitForExpectedRE "Module\\s*Size\\s*Used by\\s*Not tainted\\s*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_01\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/sys/kernel/tainted\n"}
+}
+
+waitForExpectedString "4096\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod\n"}
+}
+
+waitForExpectedRE "Module\\s*Size\\s*Used by\\s*Tainted: G\\s*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_01t\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/sys/kernel/tainted\n"}
+}
+
+waitForExpectedString "4097\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod\n"}
+}
+
+waitForExpectedRE "Module\\s*Size\\s*Used by\\s*Tainted: P\\s*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/modules\n"}
+}
+
+waitForExpectedRE "demo_module_01t.*\\(PO\\)\\r"
+waitForExpectedRE "demo_module_01.*\\(O\\)\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /sys -name \"*demo*\"\n"}
+}
+
+waitForExpectedString "/sys/module/demo_module_01\r"
+waitForExpectedString "/sys/module/demo_module_01t\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_01/taint\n"}
+}
+
+waitForExpectedString "O\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_01t/taint\n"}
+}
+
+waitForExpectedString "PO\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_01t\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_01\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_01 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_02 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "
+modprobe demo_module_02  \
+param_byte=0x12          \
+param_short=0x3456       \
+param_ushort=0x789A      \
+param_int=0x3CDEF012     \
+param_uint=0x3456789A    \
+param_long=0x3CDEF012    \
+param_ulong=0x3456789A   \
+param_bool=n             \
+param_charp=hello-tim    \
+param_int_array=5000,-6000,7000
+\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_byte | hexdump -C\n"}
+}
+
+waitForExpectedString "00000000  31 38 0a                                          |18.|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_short\n"}
+}
+
+waitForExpectedString "13398\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_ushort\n"}
+}
+
+waitForExpectedString "30874\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_int\n"}
+}
+
+waitForExpectedString "1021243410\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_uint\n"}
+}
+
+waitForExpectedString "878082202\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_long\n"}
+}
+
+waitForExpectedString "1021243410\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_ulong\n"}
+}
+
+waitForExpectedString "878082202\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_bool\n"}
+}
+
+waitForExpectedString "N\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_charp\n"}
+}
+
+waitForExpectedString "hello-tim\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/module/demo_module_02/parameters/param_int_array\n"}
+}
+
+waitForExpectedString "5000,-6000,7000\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_02\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_02 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_03 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_03\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_3/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "yes\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"ff230000.driver\" > /sys/bus/platform/drivers/demo_driver_3/unbind\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_3/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "no\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"ff230000.driver\" > /sys/bus/platform/drivers/demo_driver_3/bind\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_3/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "yes\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_03\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_03 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_04 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_03\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_04\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_3/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "yes\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_4/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "no\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+waitForExpectedString "demo_module_04"
+waitForExpectedString "demo_module_03"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod \"demo_module_04\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod \"demo_module_03\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_04\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "test -e /sys/bus/platform/drivers/demo_driver_4/ff230000.driver && { echo yes; } || { echo no; }\n"}
+}
+
+waitForExpectedString "yes\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod \"demo_module_04\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/driver@0x100030000/compatible\n"}
+}
+
+waitForExpectedString "00000000  64 65 6d 6f 2c 64 72 69  76 65 72 2d 31 2e 30 00  |demo,driver-1.0.|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/driver@0x100030000/name\n"}
+}
+
+waitForExpectedString "00000000  64 72 69 76 65 72 00                              |driver.|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/driver@0x100030000/reg\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 01 00 03 00 00  00 00 10 00              |............|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/ranges\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 00 00 00 00 00  c0 00 00 00 20 00 00 00  |............ ...|\r"
+
+waitForExpectedString "00000010  00 00 00 01 00 00 00 00  ff 20 00 00 00 20 00 00  |......... ... ..|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/driver@0x100030000/interrupts\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 00 00 00 00 30  00 00 00 04              |.......0....|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/base-fpga-region/driver@0x100030000/clocks\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 43                                       |...C|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/clkmgr@ffd04000/clocks/clk_0/linux,phandle\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 43                                       |...C|\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "hexdump -C /proc/device-tree/soc/clkmgr@ffd04000/clocks/clk_0/clock-frequency\n"}
+}
+
+waitForExpectedString "00000000  02 fa f0 80                                       |....|\r"
+
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_04 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_05 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_devmem -s\n"}
+}
+
+waitForExpectedRE "\[Stopping timer.|Timer not currently running.\]\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_05\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/interrupts | grep \"demo\"\n"}
+}
+
+waitForExpectedRE " 42:\\s*\[0-9\]*\\s*0\\s*GIC  80 Level\\s*demo_driver_5\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_05t base=0xff230000 irq=42\n"}
+}
+
+waitForExpectedString "modprobe: can't load module demo_module_05t (extra/demo_module_05t.ko): Device or resource busy\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_05\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_05 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_06 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_06\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_6/interval\n"}
+}
+
+waitForExpectedString "irq interval: 10 per second\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "sleep 1\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_6/irq_delays\n"}
+}
+
+waitForExpectedRE "max: 0x\[0-9A-F\]{8} = \[0-9\]*\\r"
+waitForExpectedRE "min: 0x\[0-9A-F\]{8} = \[0-9\]*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /proc/interrupts | grep \"demo\"\n"}
+}
+
+waitForExpectedRE " 42:\\s*\[0-9\]*\\s*0\\s*GIC  80 Level\\s*demo_driver_6\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"100\" > /sys/bus/platform/drivers/demo_driver_6/interval\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_6/interval\n"}
+}
+
+waitForExpectedString "irq interval: 100 per second\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"10\" > /sys/bus/platform/drivers/demo_driver_6/interval\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_6/interval\n"}
+}
+
+waitForExpectedString "irq interval: 10 per second\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_06\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_06 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_07 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_07\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "ls /dev | grep \"demo\"\n"}
+}
+
+waitForExpectedString "demo_map\r"
+waitForExpectedString "demo_ram\r"
+waitForExpectedString "demo_rom\r"
+waitForExpectedString "demo_tmr\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_rom | md5sum\n"}
+}
+
+waitForExpectedString "240fac46892f9f075200bdca43e4ce1a  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero of=/dev/demo_rom\n"}
+}
+
+waitForExpectedString "dd: writing '/dev/demo_rom': Invalid argument\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_ram | md5sum\n"}
+}
+
+waitForExpectedString "527bb73ec24ad037c40e943158a77229  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero of=/dev/demo_ram\n"}
+}
+
+waitForExpectedString "dd: writing '/dev/demo_ram': No space left on device\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_ram | md5sum\n"}
+}
+
+waitForExpectedString "0f343b0931126a20f133d67c2b018a3b  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_ram bs=64 count=1 | hexdump -Cv\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000040\r"
+
+#expect {
+#	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+#	"# " {send "echo \"\\\"\n"}
+#}
+
+#waitForExpectedString "\\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"&\"\n"}
+}
+
+waitForExpectedString "&\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \">\"\n"}
+}
+
+waitForExpectedString ">\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"\{\"\n"}
+}
+
+waitForExpectedString "\{\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_rom bs=64 count=1 | hexdump -C\n"}
+}
+
+waitForExpectedString "00000000  db e2 e0 ab ce 42 2c 10  ab 34 30 a2 e7 87 15 1f  |.....B,..40.....|\r"
+waitForExpectedString "00000010  4f 5d d4 08 b0 d3 38 73  49 d9 0a 71 c0 a9 8c 3d  |O]....8sI..q...=|\r"
+waitForExpectedString "00000020  b9 cc 47 0a 43 72 89 40  90 84 2a cb 04 65 f9 18  |..G.Cr.@..*..e..|\r"
+waitForExpectedRE "00000030  0b 01 5a 2d 2f 7b ed 3e  5c 1f 9a 66 a9 5d 26 07  |\.\.Z-/\\{\.>\\\.\.f\.]&\.|\\r"
+waitForExpectedString "00000040\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_rom of=/dev/demo_ram bs=1 count=4 skip=56 seek=16\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_ram bs=64 count=1 | hexdump -Cv\n"}
+}
+
+waitForExpectedString "00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedRE "00000010  5c 1f 9a 66 00 00 00 00  00 00 00 00 00 00 00 00  |\\\.\.f\.\.\.\.\.\.\.\.\.\.\.\.|\\r"
+waitForExpectedString "00000020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|\r"
+waitForExpectedString "00000040\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /examples/drivers/\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_map_test -h\n"}
+}
+
+waitForExpectedString "\n"
+waitForExpectedString "Only one of the following options may be passed in per invocation:\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "Print the timer statistics out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "Dump the binary ROM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "Dump the binary RAM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "Write stdin to the RAM contents.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "Display this help message.\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedRE "Usage: demo_map_test \\\[ONE-OPTION-ONLY\\\]\\r"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_map_test -o | md5sum\n"}
+}
+
+waitForExpectedString "240fac46892f9f075200bdca43e4ce1a  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_map_test -a | md5sum\n"}
+}
+
+waitForExpectedString "d3b3f81de264d740762561ab6710afd4  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero | tr '\\000' '\\001' | ./demo_map_test -f\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_map_test -a | md5sum\n"}
+}
+
+waitForExpectedString "54ac58cc1e2711a1a3d88bce15bb152d  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_map_test -t\n"}
+}
+
+waitForExpectedString "NOTE: current register values are only read from the hardware, so as not to\r"
+waitForExpectedString "      contend with the IRQ handler or other driver activities that may occur\r"
+waitForExpectedString "      simultaneously, as we cannot lock our accesses from user space\r"
+waitForExpectedRE "  status = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE " control = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "period_l = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "period_h = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "  snap_l = 0x\[0-9A-F\]{8}\\r"
+waitForExpectedRE "  snap_h = 0x\[0-9A-F\]{8}\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+for I in 1 2 3 4 ; do \
+dd if=/dev/demo_map bs=4 count=1 | hexdump -C ; \
+done\n"}
+}
+
+waitForExpectedRE "00000000  \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2}                                       |\.\.\.\.|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedRE "00000000  \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2}                                       |\.\.\.\.|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedRE "00000000  \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2}                                       |\.\.\.\.|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedRE "00000000  \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2} \[0-9a-f\]{2}                                       |\.\.\.\.|\r"
+waitForExpectedString "00000004\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_7/interval\n"}
+}
+
+waitForExpectedString "irq interval: 10 per second\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./ioctl_test -g\n"}
+}
+
+waitForExpectedString "Current IRQ interval is 10 interrupts per second.\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo \"100\" > /sys/bus/platform/drivers/demo_driver_7/interval\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./ioctl_test -g\n"}
+}
+
+waitForExpectedString "Current IRQ interval is 100 interrupts per second.\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_7/irq_delays\n"}
+}
+
+waitForExpectedRE "max: 0x\[0-9A-F\]{8} = \[0-9\]*\\r"
+waitForExpectedRE "min: 0x\[0-9A-F\]{8} = \[0-9\]*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./ioctl_test -x\n"}
+}
+
+waitForExpectedRE "Maximum IRQ service delay is \[0-9\]* ticks.\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./ioctl_test -n\n"}
+}
+
+waitForExpectedRE "Minimum IRQ service delay is \[0-9\]* ticks.\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_07\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_07 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_08 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_08\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /dev -name \"uio*\"\n"}
+}
+
+waitForExpectedString "/dev/uio0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /sys/ -name \"uio*\"\n"}
+}
+
+waitForExpectedString "/sys/devices/platform/soc/soc:base-fpga-region/ff230000.driver/uio\r"
+waitForExpectedString "/sys/devices/platform/soc/soc:base-fpga-region/ff230000.driver/uio/uio0\r"
+waitForExpectedString "/sys/class/uio\r"
+waitForExpectedString "/sys/class/uio/uio0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/class/uio/uio0/maps/map0/*\n"}
+}
+
+waitForExpectedString "0xff230000\r"
+waitForExpectedString "demo_uio_driver_hw_region\r"
+waitForExpectedString "0x0\r"
+waitForExpectedString "0x00001000\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+exec 7<>/dev/uio0 ; \
+for I in 1 2 3 4 5 ; \
+do \
+dd bs=4 count=1 0<&7 | hexdump -Cv ;\
+done\n"}
+}
+
+waitForExpectedString "00000000  01 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  02 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  03 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  04 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  05 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=4 count=1 >&7\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd bs=4 count=1 0<&7 | hexdump -Cv\n"}
+}
+
+# the last command of the previous block should stall forever, ^-C and run this
+# block next
+expect {
+	timeout {send "\003"}
+	"# " {send_user "SEQUENCE ERROR"; exit 1}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=4 count=1 | tr '\\000' '\\377' >&7\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+for I in 1 2 3 4 5 ; \
+do \
+dd bs=4 count=1 0<&7 | hexdump -Cv ; \
+done\n"}
+}
+
+waitForExpectedString "00000000  06 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  07 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  08 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  09 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+waitForExpectedString "00000000  0a 00 00 00                                       |....|\r"
+waitForExpectedString "00000004\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "exec 7<>/dev/null\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /examples/drivers/\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_uio_test -h\n"}
+}
+
+waitForExpectedString "\n"
+waitForExpectedString "Only one of the following options may be passed in per invocation:\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "Print the timer statistics out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "Dump the binary ROM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "Dump the binary RAM contents out stdout.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "Write stdin to the RAM contents.\r"
+waitForExpectedString "\n"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "Display this help message.\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+waitForExpectedRE "Usage: driver_uio_test \\\[ONE-OPTION-ONLY\\\]\\r"
+waitForExpectedString "  -t, --print-timer\r"
+waitForExpectedString "  -o, --dump-rom\r"
+waitForExpectedString "  -a, --dump-ram\r"
+waitForExpectedString "  -f, --fill-ram\r"
+waitForExpectedString "  -h, --help\r"
+waitForExpectedString "\n"
+waitForExpectedString "\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_uio_test -t\n"}
+}
+
+waitForExpectedString "Successfully captured the first 100 timer interrupts.\r"
+waitForExpectedRE " max_irq_delay = 0x\[0-9A-F\]{8} : \[0-9\]*\\r"
+waitForExpectedRE " min_irq_delay = 0x\[0-9A-F\]{8} : \[0-9\]*\\r"
+waitForExpectedRE "max_user_delay = 0x\[0-9A-F\]{8} : \[0-9\]*\\r"
+waitForExpectedRE "min_user_delay = 0x\[0-9A-F\]{8} : \[0-9\]*\\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_uio_test -o | md5sum\n"}
+}
+
+waitForExpectedString "240fac46892f9f075200bdca43e4ce1a  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero | tr '\\000' '\\002' | ./demo_uio_test -f\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "./demo_uio_test -a | md5sum\n"}
+}
+
+waitForExpectedString "b1e4b11314603e8d9ba3736ae40fc692  -\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/class/uio/uio0/event\n"}
+}
+
+waitForExpectedString "\[0-9\]*\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_08\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_08 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_09 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_09\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /examples/drivers/\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=1M count=1 | tr '\\000' '\\003' > three_co.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=1M count=1 | tr '\\000' '\\004' > four_st.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=three_co.bin of=/dev/demo_dma_co bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_dma_co of=three_co_data.bin bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=four_st.bin of=/dev/demo_dma_st bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_dma_st of=four_st_data.bin bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=three_co.bin of=/dev/demo_dma_co bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_dma_st of=three_co2st_data.bin bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=four_st.bin of=/dev/demo_dma_st bs=1024\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/demo_dma_co of=four_st2co_data.bin bs=1024\n"}
+}
+
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "md5sum *.bin\n"}
+}
+
+waitForExpectedString "7d56386119eba8b423e09c061deb5314  four_st.bin\r"
+waitForExpectedString "7d56386119eba8b423e09c061deb5314  four_st2co_data.bin\r"
+waitForExpectedString "7d56386119eba8b423e09c061deb5314  four_st_data.bin\r"
+waitForExpectedString "3bc3be0b850eacf461ec036374616058  three_co.bin\r"
+waitForExpectedString "3bc3be0b850eacf461ec036374616058  three_co2st_data.bin\r"
+waitForExpectedString "3bc3be0b850eacf461ec036374616058  three_co_data.bin\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_09\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_09 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_10 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "modprobe demo_module_10\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /dev -name \"*demo*\"\n"}
+}
+
+waitForExpectedString "/dev/demo_fifo_2\r"
+waitForExpectedString "/dev/demo_fifo_1\r"
+waitForExpectedString "/dev/demo_fifo_0\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /sys -name \"*demo*\"\n"}
+}
+
+waitForExpectedString "/sys/bus/platform/drivers/demo_driver_10\r"
+waitForExpectedString "/sys/devices/virtual/misc/demo_fifo_0\r"
+waitForExpectedString "/sys/devices/virtual/misc/demo_fifo_1\r"
+waitForExpectedString "/sys/devices/virtual/misc/demo_fifo_2\r"
+waitForExpectedString "/sys/class/misc/demo_fifo_0\r"
+waitForExpectedString "/sys/class/misc/demo_fifo_1\r"
+waitForExpectedString "/sys/class/misc/demo_fifo_2\r"
+waitForExpectedString "/sys/module/demo_module_10\r"
+waitForExpectedString "/sys/module/demo_module_10/drivers/platform:demo_driver_10\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "ls /sys/bus/platform/drivers/demo_driver_10 | grep \".fifo\"\n"}
+}
+
+waitForExpectedString "ff240020.fifo\r"
+waitForExpectedString "ff244020.fifo\r"
+waitForExpectedString "ff248020.fifo\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cd /examples/drivers/\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=256K count=1 | tr '\\000' '\\005' > five.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=256K count=1 | tr '\\000' '\\006' > six.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "dd if=/dev/zero bs=256K count=1 | tr '\\000' '\\007' > seven.bin\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+dd if=five.bin of=/dev/demo_fifo_0 bs=1024 & \
+dd if=six.bin of=/dev/demo_fifo_1 bs=1024 & \
+dd if=seven.bin of=/dev/demo_fifo_2 bs=1024 & \n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+dd if=/dev/demo_fifo_0 of=five_out.bin bs=1024 count=1 ; \
+dd if=/dev/demo_fifo_1 of=six_out.bin bs=1024 count=1 ; \
+dd if=/dev/demo_fifo_2 of=seven_out.bin bs=1024 count=1 ;\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "\
+dd if=/dev/demo_fifo_0 of=five_out.bin bs=1024 count=255 conv=notrunc seek=1 & \
+dd if=/dev/demo_fifo_1 of=six_out.bin bs=1024 count=255 conv=notrunc seek=1 & \
+dd if=/dev/demo_fifo_2 of=seven_out.bin bs=1024 count=255 conv=notrunc seek=1 &\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "wait\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "md5sum *.bin\n"}
+}
+
+waitForExpectedString "f43068b74335b10bb8d54262e3d5c6b1  five.bin\r"
+waitForExpectedString "f43068b74335b10bb8d54262e3d5c6b1  five_out.bin\r"
+waitForExpectedString "a7dbc7379efee486fca1d24646da4fea  seven.bin\r"
+waitForExpectedString "a7dbc7379efee486fca1d24646da4fea  seven_out.bin\r"
+waitForExpectedString "6afcabe11dd46798832fa0176407a13a  six.bin\r"
+waitForExpectedString "6afcabe11dd46798832fa0176407a13a  six_out.bin\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_10\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_10 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_11 Test Begin\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11t.ko\n"}
+}
+
+waitForExpectedString "insmod: can't insert '/lib/modules/4.1.17-ltsi/extra/demo_module_11t.ko': unknown symbol in module, or unknown parameter\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11.ko\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "insmod /lib/modules/4.1.17-ltsi/extra/demo_module_11t.ko\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "find /sys -name \"*demo*\"\n"}
+}
+
+waitForExpectedString "/sys/bus/platform/drivers/demo_driver_11t\r"
+waitForExpectedString "/sys/module/demo_module_11\r"
+waitForExpectedString "/sys/module/demo_module_11/holders/demo_module_11t\r"
+waitForExpectedString "/sys/module/demo_module_11t\r"
+waitForExpectedString "/sys/module/demo_module_11t/drivers/platform:demo_driver_11t\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/target\n"}
+}
+
+waitForExpectedString "0x00000000\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0x00000001\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0x00000002\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0x00000003\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0x00000004\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/decrement\n"}
+}
+
+waitForExpectedString "0x00000003\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/decrement\n"}
+}
+
+waitForExpectedString "0x00000002\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/complement\n"}
+}
+
+waitForExpectedString "0xFFFFFFFD\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0xFFFFFFFE\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0xFFFFFFFF\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/increment\n"}
+}
+
+waitForExpectedString "0x00000000\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/decrement\n"}
+}
+
+waitForExpectedString "0xFFFFFFFF\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "cat /sys/bus/platform/drivers/demo_driver_11t/complement\n"}
+}
+
+waitForExpectedString "0x00000000\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_11\n"}
+}
+
+waitForExpectedString "rmmod: can't unload 'demo_module_11': Resource temporarily unavailable\r"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_11t\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "rmmod demo_module_11\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "lsmod | grep \"demo\"\n"}
+}
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "echo $?\n"}
+}
+
+waitForExpectedString "1\r"
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| demo_module_11 Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	"# " {send "exit\n"}
+}
+
+send_user "\n+-------------------------------------------------------------------------------\n"
+send_user "| Target Test Complete\n"
+send_user "+-------------------------------------------------------------------------------\n"
+
+expect {
+	timeout {send_user "TIMEOUT ERROR\n"; exit 1}
+	eof	{exit 0}
+}
+
+send_user "END OF SCRIPT ERROR\n"
+exit 1
+
